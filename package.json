@@ -1,13 +1,13 @@
 {
-  "name": "@openmrs/esm-template-app",
-  "version": "3.0.0",
+  "name": "@ugandaemr/esm-uagndaemr-reporting",
+  "version": "1.0.0",
   "license": "MPL-2.0",
-  "description": "A microfrontend template OpenMRS",
-  "browser": "dist/openmrs-esm-template-app.js",
+  "description": "A microfrontend for reporting in UgandaEMR",
+  "browser": "dist/esm-ugandaemr-reporting.js",
   "main": "src/index.ts",
   "source": true,
   "scripts": {
-    "start": "openmrs develop",
+    "start": "openmrs develop --backend https://ugandaemr-backend.mets.or.ug --port 2021",
     "serve": "webpack serve --mode=development",
     "build": "webpack --mode production",
     "analyze": "webpack --mode=production --env analyze=true",
@@ -33,14 +33,14 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/openmrs/openmrs-esm-template-app.git"
+    "url": "git+https://github.com/METS-Programme/esm-ugandaemr-reporting.git"
   },
-  "homepage": "https://github.com/openmrs/openmrs-esm-template-app#readme",
+  "homepage": "https://github.com/METS-Programme/esm-ugandaemr-reporting#readme",
   "publishConfig": {
     "access": "public"
   },
   "bugs": {
-    "url": "https://github.com/openmrs/openmrs-esm-template-app/issues"
+    "url": "https://github.com/METS-Programme/esm-ugandaemr-reporting/issues"
   },
   "dependencies": {
     "@carbon/react": "^1.30.0",
