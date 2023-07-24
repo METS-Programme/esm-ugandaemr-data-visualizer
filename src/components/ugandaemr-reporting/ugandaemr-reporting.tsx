@@ -5,34 +5,28 @@ import TableRenderers from "react-pivottable/TableRenderers";
 import Plot from "react-plotly.js";
 import createPlotlyRenderers from "react-pivottable/PlotlyRenderers";
 import stylesText from "!!raw-loader!react-pivottable/pivottable.css";
+import { SideNav} from "@carbon/react";
+import { ExtensionSlot } from "@openmrs/esm-framework";
 
 const UgandaemrReporting: React.FC = () => {
   const PlotlyRenderers = createPlotlyRenderers(Plot);
   const data = [
-    [
-      "Total Bill",
-      "Tip",
-      "Gender",
-      "Payer Smoker",
-      "Day of Week",
-      "Meal",
-      "Party Size",
-    ],
-    [16.99, 1.01, "Female", "Non-Smoker", "Monday", "Dinner", 2],
-    [10.34, 1.66, "Male", "Non-Smoker", "Sunday", "Dinner", 3],
-    [21.01, 3.5, "Male", "Non-Smoker", "Sunday", "Dinner", 3],
-    [23.68, 3.31, "Male", "Non-Smoker", "Sunday", "Dinner", 2],
-    [24.59, 3.61, "Female", "Non-Smoker", "Tuesday", "Dinner", 4],
-    [25.29, 4.71, "Male", "Non-Smoker", "Sunday", "Dinner", 4],
-    [8.77, 2, "Male", "Non-Smoker", "Sunday", "Dinner", 2],
-    [26.88, 3.12, "Male", "Non-Smoker", "Sunday", "Dinner", 4],
-    [15.04, 1.96, "Male", "Non-Smoker", "Monday", "Dinner", 2],
-    [14.78, 3.23, "Male", "Non-Smoker", "Sunday", "Dinner", 2],
-    [10.27, 1.71, "Male", "Non-Smoker", "Tuesday", "Dinner", 2],
-    [35.26, 5, "Female", "Non-Smoker", "Sunday", "Dinner", 4],
-    [15.42, 1.57, "Male", "Non-Smoker", "Sunday", "Dinner", 2],
-    [18.43, 3, "Male", "Non-Smoker", "Monday", "Dinner", 4],
-    [14.83, 3.02, "Female", "Non-Smoker", "Sunday", "Dinner", 2],
+    ["Viral Load", "Gender"],
+    [150, "Female"],
+    [200, "Male"],
+    [130, "Male"],
+    [200, "Male"],
+    [200, "Female"],
+    [150, "Male"],
+    [300, "Male"],
+    [300, "Male"],
+    [100, "Male"],
+    [400, "Male"],
+    [340, "Male"],
+    [300, "Female"],
+    [90, "Male"],
+    [500, "Male"],
+    [100, "Female"],
   ];
   const [state, setState] = useState(data);
   useEffect(() => {

@@ -1,6 +1,11 @@
-import { getAsyncLifecycle, defineConfigSchema, getSyncLifecycle } from "@openmrs/esm-framework";
+import {
+  getAsyncLifecycle,
+  defineConfigSchema,
+  getSyncLifecycle,
+} from "@openmrs/esm-framework";
 import { configSchema } from "./config-schema";
-import { dashboardMeta } from "./dashboardMeta";
+import { dashboardMeta } from "./ReportingDashboard.meta";
+import { createDashboardLink } from "./createDashboardLink";
 
 declare var __VERSION__: string;
 const version = __VERSION__;
@@ -30,11 +35,17 @@ function setupOpenMRS() {
   return {
     pages: [
       {
+        load: getAsyncLifecycle(() => import("./root.component"), options),
+        route: "reporting",
+      },
+      {
         load: getAsyncLifecycle(
           () => import("./components/ugandaemr-reporting/ugandaemr-reporting"),
           options
         ),
-        route: "reporting",
+        route: /patient-reports/,
+        online: true,
+        offline: true,
       },
     ],
     extensions: [
@@ -47,6 +58,25 @@ function setupOpenMRS() {
         ),
         online: true,
         offline: true,
+      },
+      {
+        id: "report-link",
+        slot: "nav-menu-slot",
+        load: getSyncLifecycle(createDashboardLink(dashboardMeta), options),
+        meta: dashboardMeta,
+        offline: true,
+        online: true,
+      },
+      {
+        id: "reporting-dashboard",
+        slot: "patient-reporting-dashboard-slot",
+        load: getAsyncLifecycle(
+          () => import("./components/ugandaemr-reporting/ugandaemr-reporting"),
+          {
+            featureName: "reportings landing page",
+            moduleName,
+          }
+        ),
       },
     ],
   };
