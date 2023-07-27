@@ -44,3 +44,11 @@
   border-color: transparent;
   box-shadow: none;
 }
+
+#date-picker-input-id-start, #date-picker-input-id-end {
+  width:100%
+}
+
+.dispayBtnGrp {
+  float: right;
+}

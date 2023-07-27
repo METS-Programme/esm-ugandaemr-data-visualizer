@@ -35,7 +35,7 @@ function setupOpenMRS() {
   return {
     pages: [
       {
-        load: getAsyncLifecycle(() => import("./root.component"), options),
+        load: getAsyncLifecycle(() => import("./components/ugandaemr-reporting/ugandaemr-reporting"), options),
         route: "reporting",
       },
       {
@@ -59,25 +59,25 @@ function setupOpenMRS() {
         online: true,
         offline: true,
       },
-      {
-        id: "report-link",
-        slot: "nav-menu-slot",
-        load: getSyncLifecycle(createDashboardLink(dashboardMeta), options),
-        meta: dashboardMeta,
-        offline: true,
-        online: true,
-      },
-      {
-        id: "reporting-dashboard",
-        slot: "patient-reporting-dashboard-slot",
-        load: getAsyncLifecycle(
-          () => import("./components/ugandaemr-reporting/ugandaemr-reporting"),
-          {
-            featureName: "reportings landing page",
-            moduleName,
-          }
-        ),
-      },
+      // {
+      //   id: "report-link",
+      //   slot: "nav-menu-slot",
+      //   load: getSyncLifecycle(createDashboardLink(dashboardMeta), options),
+      //   meta: dashboardMeta,
+      //   offline: true,
+      //   online: true,
+      // },
+      // {
+      //   id: "reporting-dashboard",
+      //   slot: "patient-reporting-dashboard-slot",
+      //   load: getAsyncLifecycle(
+      //     () => import("./components/ugandaemr-reporting/ugandaemr-reporting"),
+      //     {
+      //       featureName: "reportings landing page",
+      //       moduleName,
+      //     }
+      //   ),
+      // },
     ],
   };
 }

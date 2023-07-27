@@ -85,3 +85,14 @@ export const merIndicatorReports: reportProps = {
     },
   ],
 };
+
+//maternity
+export const ADMISSION_DATE = "cb9b223e-a09c-4f8a-b34d-a0934a2af04a";
+export const DELIVERY_TYPE = "dcc3ac63-30ab-102d-86b0-7a5022ba4115";
+
+// facility Url
+export const REGISTRY_URL =
+  "https://nhfr-staging-api.planetsystems.co/nhfrApi/v0.0.1/externalSystem/search";
+
+export const REGISTRY_REGIONS_URL =
+  "https://nhfr-staging-api.planetsystems.co/nhfrApi/v0.0.1/externalSystem/by/Region";
