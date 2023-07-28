@@ -1,10 +1,6 @@
 import {
   Button,
   DataTable,
-  DataTableHeader,
-  DataTableSkeleton,
-  Dropdown,
-  Layer,
   Pagination,
   Table,
   TableBody,
@@ -18,20 +14,16 @@ import {
   TableToolbarSearch,
   Tile,
 } from "@carbon/react";
-import { Add } from "@carbon/react/icons";
+import { Intersect, Save, DocumentDownload } from "@carbon/icons-react";
 import {
   isDesktop,
-  showModal,
   useLayoutType,
   usePagination,
 } from "@openmrs/esm-framework";
 import React, { useCallback, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import {
-  useFacilities,
-  useFacilityRegions,
-} from "./carbon-data-table.resource";
 import styles from "./carbon-data-tables.scss";
+import { saveAs } from "file-saver";
 
 type FilterProps = {
   rowIds: Array<string>;
@@ -46,7 +38,7 @@ const PatientList: React.FC = () => {
   const layout = useLayoutType();
   const [allRows, setAllRows] = useState([]);
   const isTablet = useLayoutType() === "tablet";
-  const patients = [
+  const [patients, setPatients] = useState([
     { id: "1", name: "John", age: 30, country: "Kampala", score: 85 },
     { id: "2", name: "Alice", age: 25, country: "Wakiso", score: 92 },
     { id: "3", name: "Bob", age: 28, country: "Kampala", score: 78 },
@@ -59,7 +51,7 @@ const PatientList: React.FC = () => {
     { id: "10", name: "Jaba", age: 30, country: "Kampala", score: 85 },
     { id: "11", name: "Jonathan", age: 25, country: "Kampala", score: 92 },
     { id: "12", name: "Daphine", age: 28, country: "Kampala", score: 78 },
-  ];
+  ]);
   const pageSizes = [10, 20, 30, 40, 50];
   const [currentPageSize, setPageSize] = useState(10);
   const {
@@ -72,13 +64,25 @@ const PatientList: React.FC = () => {
     {
       id: 0,
       key: "id",
-      header: t("id", "ID"),
-      isSortable: false,
+      header: t("id", "ID")
     },
-    { id: 1, key: "name", header: t("status", "Patient Name") },
-    { id: 2, key: "age", header: t("age", "Age") },
-    { id: 3, key: "country", header: t("country", "District") },
-    { id: 4, key: "score", header: t("score", "Viral Load") },
+    {
+      id: 1,
+      key: "name",
+      header: t("status", "Patient Name"),
+      accessor: "name",
+    },
+    { id: 2, key: "age", header: t("age", "Age"), accessor: "age" },
+    {
+      id: 3,
+      key: "country",
+      header: t("country", "District")
+    },
+    {
+      id: 4,
+      key: "score",
+      header: t("score", "Viral Load")
+    },
   ];
   // memoized
   useEffect(() => {
@@ -117,7 +121,18 @@ const PatientList: React.FC = () => {
       })
     );
   };
-
+  const handleExport = () => {
+    const csvString = convertToCSV(patients, tableHeaders);
+    const blob = new Blob([csvString], { type: "text/csv;charset=utf-8" });
+    saveAs(blob, "data.csv");
+  };
+  const convertToCSV = (data, columns) => {
+    const header = columns.map((col) => col.header).join(",");
+    const rows = data.map((row) =>
+      columns.map((col) => JSON.stringify(row[col.key])).join(",")
+    );
+    return [header, ...rows].join("\n");
+  };
   return (
     <>
       <DataTable
@@ -131,7 +146,34 @@ const PatientList: React.FC = () => {
       >
         {({ rows, headers, getHeaderProps, getTableProps, onInputChange }) => (
           <div>
-            <TableContainer>
+            <TableContainer className={styles.tableContainer}>
+              <TableToolbar
+                style={{
+                  position: "static",
+                  height: "3rem",
+                  overflow: "visible",
+                  backgroundColor: "color",
+                }}
+              >
+                <TableToolbarContent className={styles.toolbarContent}>
+                  <Button
+                    size="sm"
+                    kind="tertiary"
+                    className={styles.patientListDownload}
+                    renderIcon={DocumentDownload}
+                    onClick={handleExport}
+                  >
+                    Download
+                  </Button>
+                  <TableToolbarSearch
+                    className={styles.patientListSearch}
+                    expanded
+                    onChange={onInputChange}
+                    placeholder={t("searchThisList", "Search this list")}
+                    size="sm"
+                  />
+                </TableToolbarContent>
+              </TableToolbar>
               <Table {...getTableProps()}>
                 <TableHead>
                   <TableRow>

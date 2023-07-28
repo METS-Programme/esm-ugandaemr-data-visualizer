@@ -128,7 +128,10 @@ export function useFacilities() {
 export function useFacilityRegions() {
   const fetcher = (REGISTRY_REGIONS_URL) => fetch(REGISTRY_REGIONS_URL).then((res) => res.json());
 
-  const { data, error, isLoading } = useSWR<RegionsResponse, Error>(REGISTRY_REGIONS_URL, fetcher);
+  const { data, error, isLoading } = useSWR<RegionsResponse, Error>(
+    REGISTRY_REGIONS_URL,
+    fetcher
+  );
 
   return {
     regions: data ? data.data?.entry : [],

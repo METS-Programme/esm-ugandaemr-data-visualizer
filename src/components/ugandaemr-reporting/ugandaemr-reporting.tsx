@@ -29,22 +29,18 @@ import FacilityList from "../reporting-helper/CarbonDataTable";
 const UgandaemrReporting: React.FC = () => {
   const PlotlyRenderers = createPlotlyRenderers(Plot);
   const data = [
-    ["Viral Load", "Gender"],
-    [150, "Female"],
-    [200, "Male"],
-    [130, "Male"],
-    [200, "Male"],
-    [200, "Female"],
-    [150, "Male"],
-    [300, "Male"],
-    [300, "Male"],
-    [100, "Male"],
-    [400, "Male"],
-    [340, "Male"],
-    [300, "Female"],
-    [90, "Male"],
-    [500, "Male"],
-    [100, "Female"],
+    { id: "1", name: "John", age: 30, district: "Kampala", viral_load: 85 },
+    { id: "2", name: "Alice", age: 25, district: "Wakiso", viral_load: 92 },
+    { id: "3", name: "Bob", age: 28, district: "Kampala", viral_load: 78 },
+    { id: "4", name: "Sam", age: 30, district: "Wakiso", viral_load: 85 },
+    { id: "5", name: "Musa", age: 25, district: "Kampala", viral_load: 92 },
+    { id: "6", name: "Alex", age: 28, district: "Kampala", viral_load: 78 },
+    { id: "7", name: "Derrick", age: 30, district: "Kampala", viral_load: 85 },
+    { id: "8", name: "David", age: 25, district: "Kampala", viral_load: 92 },
+    { id: "9", name: "Solomon", age: 28, district: "Kampala", viral_load: 78 },
+    { id: "10", name: "Jaba", age: 30, district: "Kampala", viral_load: 85 },
+    { id: "11", name: "Jonathan", age: 25, district: "Kampala", viral_load: 92 },
+    { id: "12", name: "Daphine", age: 28, district: "Kampala", viral_load: 78 },
   ];
   const [state, setState] = useState(data);
   const [modalOpen, setModalOpen] = useState(false);
@@ -55,8 +51,6 @@ const UgandaemrReporting: React.FC = () => {
   const updateSwitcher = (object) => {
     let { name } = object;
     setChart(name);
-    // eslint-disable-next-line no-console
-    console.log("selected chart now is " + name);
   };
   useEffect(() => {
     const styleElement = document.createElement("style");
@@ -91,33 +85,6 @@ const UgandaemrReporting: React.FC = () => {
   const optionsCard = {
     display: "flex",
   };
-  const dataForTable = [
-    { Name: "John", Age: "30", Country: "USA", Score: "85" },
-    // { Name: "Alice", Age: 25, Country: "Canada", Score: 92 },
-    // { Name: "Bob", Age: 28, Country: "UK", Score: 78 },
-    // Add more data as needed
-  ];
-
-  const columnsForTable = [
-    { Header: "Name" },
-    { Header: "Age" },
-    { Header: "Country" },
-    { Header: "Score" },
-  ];
-
-  const dataTable = [
-    { id: "1", name: "John", age: 30, country: "USA", score: 85 },
-    { id: "2", name: "Alice", age: 25, country: "Canada", score: 92 },
-    { id: "3", name: "Bob", age: 28, country: "UK", score: 78 },
-    // Add more data as needed
-  ];
-
-  const columnsTable = [
-    { Header: "Name", accessor: "name" }, // Make sure to provide accessor for each column
-    { Header: "Age", accessor: "age" },
-    { Header: "Country", accessor: "country" },
-    { Header: "Score", accessor: "score" },
-  ];
   return (
     <div>
       <SideNav expanded aria-label="Menu">
@@ -196,18 +163,21 @@ const UgandaemrReporting: React.FC = () => {
           </div>
         </div>
         {modalOpen && chart == "List" && (
-          <div>
+          <div className={styles.reportContainerBackground}>
             <h3>Patient List</h3>
             <FacilityList />
           </div>
         )}
         {modalOpen && chart == "Pivot" && (
-          <PivotTableUI
-            data={state}
-            onChange={(s) => setState(s)}
-            renderers={{ ...TableRenderers, ...PlotlyRenderers }}
-            {...state}
-          />
+          <div className={styles.reportContainerBackground}>
+            <h3>Pivot Table</h3>
+            <PivotTableUI
+              data={state}
+              onChange={(s) => setState(s)}
+              renderers={{ ...TableRenderers, ...PlotlyRenderers }}
+              {...state}
+            />
+          </div>
         )}
       </Content>
     </div>
