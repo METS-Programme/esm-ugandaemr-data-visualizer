@@ -1,10 +1,10 @@
-name: UgandaEMR Reporting CI
+name: UgandaEMR CI
 
 on:
   push:
-    branches: [master]
+    branches: [main]
   pull_request:
-    branches: [master]
+    branches: [main]
   release:
     types:
       - created
