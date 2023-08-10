@@ -35,7 +35,10 @@ function setupOpenMRS() {
   return {
     pages: [
       {
-        load: getAsyncLifecycle(() => import("./components/ugandaemr-reporting/ugandaemr-reporting"), options),
+        load: getAsyncLifecycle(
+          () => import("./components/ugandaemr-reporting/ugandaemr-reporting"),
+          options
+        ),
         route: "reporting",
       },
       {

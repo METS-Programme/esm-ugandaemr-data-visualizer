@@ -64,7 +64,7 @@ const PatientList: React.FC = () => {
     {
       id: 0,
       key: "id",
-      header: t("id", "ID")
+      header: t("id", "ID"),
     },
     {
       id: 1,
@@ -76,12 +76,12 @@ const PatientList: React.FC = () => {
     {
       id: 3,
       key: "country",
-      header: t("country", "District")
+      header: t("country", "District"),
     },
     {
       id: 4,
       key: "score",
-      header: t("score", "Viral Load")
+      header: t("score", "Viral Load"),
     },
   ];
   // memoized

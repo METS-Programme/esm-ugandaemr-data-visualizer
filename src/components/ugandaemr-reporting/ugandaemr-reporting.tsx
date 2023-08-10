@@ -39,7 +39,13 @@ const UgandaemrReporting: React.FC = () => {
     { id: "8", name: "David", age: 25, district: "Kampala", viral_load: 92 },
     { id: "9", name: "Solomon", age: 28, district: "Kampala", viral_load: 78 },
     { id: "10", name: "Jaba", age: 30, district: "Kampala", viral_load: 85 },
-    { id: "11", name: "Jonathan", age: 25, district: "Kampala", viral_load: 92 },
+    {
+      id: "11",
+      name: "Jonathan",
+      age: 25,
+      district: "Kampala",
+      viral_load: 92,
+    },
     { id: "12", name: "Daphine", age: 28, district: "Kampala", viral_load: 78 },
   ];
   const [state, setState] = useState(data);

@@ -1,5 +1,5 @@
-import React from 'react';
-import NavGroupExtension from './nav-group.component';
+import React from "react";
+import NavGroupExtension from "./nav-group.component";
 
 export const createNavGroup = ({
   title,
@@ -11,7 +11,13 @@ export const createNavGroup = ({
   renderIcon?: React.ComponentType<any>;
 }) => {
   const NavGroup = () => {
-    return <NavGroupExtension title={title} slotName={slot} renderIcon={renderIcon} />;
+    return (
+      <NavGroupExtension
+        title={title}
+        slotName={slot}
+        renderIcon={renderIcon}
+      />
+    );
   };
   return NavGroup;
 };

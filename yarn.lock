@@ -5195,9 +5195,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@ugandaemr/esm-uagndaemr-reporting@workspace:.":
+"@ugandaemr/esm-reporting-app@workspace:.":
   version: 0.0.0-use.local
-  resolution: "@ugandaemr/esm-uagndaemr-reporting@workspace:."
+  resolution: "@ugandaemr/esm-reporting-app@workspace:."
   dependencies:
     "@carbon/react": ^1.30.0
     "@openmrs/esm-extensions": next

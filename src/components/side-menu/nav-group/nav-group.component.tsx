@@ -1,7 +1,7 @@
-import React, { useEffect } from 'react';
-import { ExtensionSlot } from '@openmrs/esm-framework';
-import { SideNavMenu } from '@carbon/react';
-import { registerNavGroup } from './nav-group';
+import React, { useEffect } from "react";
+import { ExtensionSlot } from "@openmrs/esm-framework";
+import { SideNavMenu } from "@carbon/react";
+import { registerNavGroup } from "./nav-group";
 
 export interface NavGroupExtensionProps {
   title: string;
@@ -9,7 +9,11 @@ export interface NavGroupExtensionProps {
   renderIcon?: React.ComponentType<any>;
 }
 
-const NavGroupExtension = ({ title, slotName, renderIcon }: NavGroupExtensionProps) => {
+const NavGroupExtension = ({
+  title,
+  slotName,
+  renderIcon,
+}: NavGroupExtensionProps) => {
   useEffect(() => {
     registerNavGroup(slotName);
   }, [slotName]);
