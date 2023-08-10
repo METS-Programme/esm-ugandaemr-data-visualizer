@@ -3,6 +3,9 @@
   "version": "1.0.0",
   "license": "MPL-2.0",
   "description": "A microfrontend for reporting in UgandaEMR",
+  "workspaces": [
+    "src/*"
+  ],
   "browser": "dist/esm-ugandaemr-reporting.js",
   "main": "src/index.ts",
   "source": true,
