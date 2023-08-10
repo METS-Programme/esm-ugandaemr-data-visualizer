@@ -23,7 +23,7 @@ const backendDependencies = {
 };
 
 function setupOpenMRS() {
-  const moduleName = "@ugandaemr/esm-ugandaemr-reporting";
+  const moduleName = "@ugandaemr/esm-reporting-app";
 
   const options = {
     featureName: "ugandaemr-reporting",

@@ -21,11 +21,11 @@ jobs:
           node-version: "18.x"
       - run: yarn install --immutable
       - run: yarn verify
-      - run: yarn turbo run build
+      - run: yarn build
       - name: Upload Artifacts
         uses: actions/upload-artifact@v3
         with:
-          name: packages
+          name: dist
           path: |
             dist
 
@@ -61,6 +61,14 @@ jobs:
         run: yarn run ci:prepublish
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: dist
+          path: |
+            dist
+
 
   release:
     runs-on: ubuntu-latest
