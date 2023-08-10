@@ -1,0 +1,61 @@
+.container {
+  padding: 2em;
+  display: flex;
+}
+
+.reportingContainer {
+  display: flex;
+}
+
+.reportingDiv {
+  width: 25%;
+  padding-left: 1em;
+  padding-bottom: 1em;
+}
+
+.reportingDivEnd {
+  width: 25%;
+  padding-right: 1em;
+  padding-left: 1em;
+  padding-bottom: 1em;
+}
+.reportingAccordionItem {
+  display: block;
+}
+
+.-esm-uagndaemr-reporting__ugandaemr-reporting__reportingDiv___DbqHI .cds--accordion__heading {
+  background-color: #e8e8e8;
+}
+
+.reportingBtn {
+  border: none;
+  width: 100%;
+  padding:0;
+}
+
+.reportingBtn:hover {
+  background-color: transparent;
+  color: #007d79;
+}
+
+.reportingBtn:focus {
+  background-color: transparent;
+  color: #007d79;
+  border-color: transparent;
+  box-shadow: none;
+}
+
+#date-picker-input-id-start, #date-picker-input-id-end {
+  width:100%
+}
+
+.dispayBtnGrp {
+  float: right;
+}
+
+.reportContainerBackground {
+  background: white;
+  padding: 20px;
+  border: 1px solid #80808045;
+  border-radius: 5px;
+}
