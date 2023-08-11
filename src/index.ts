@@ -23,7 +23,7 @@ const backendDependencies = {
 };
 
 function setupOpenMRS() {
-  const moduleName = "@ugandaemr/esm-ugandaemr-reporting";
+  const moduleName = "@ugandaemr/esm-reporting-app";
 
   const options = {
     featureName: "ugandaemr-reporting",
@@ -35,7 +35,10 @@ function setupOpenMRS() {
   return {
     pages: [
       {
-        load: getAsyncLifecycle(() => import("./components/ugandaemr-reporting/ugandaemr-reporting"), options),
+        load: getAsyncLifecycle(
+          () => import("./components/ugandaemr-reporting/ugandaemr-reporting"),
+          options
+        ),
         route: "reporting",
       },
       {

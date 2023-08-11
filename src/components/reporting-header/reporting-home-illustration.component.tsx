@@ -2,7 +2,12 @@ import React from "react";
 
 const ReportingHomeIllustration: React.FC = () => {
   return (
-    <svg width="92" height="94" viewBox="0 0 92 94" xmlns="http://www.w3.org/2000/svg">
+    <svg
+      width="92"
+      height="94"
+      viewBox="0 0 92 94"
+      xmlns="http://www.w3.org/2000/svg"
+    >
       <title>Patient queue illustration</title>
       <g fill="none" fillRule="evenodd">
         <path fill="#FFF" d="M0 0h92v94H0z" />

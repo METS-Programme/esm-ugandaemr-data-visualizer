@@ -11,9 +11,9 @@ declare type report = {
   endDate?: boolean;
   location?: boolean;
   outputFormat: Array<string>;
-}
+};
 
 declare type reportProps = {
   categoryName: string;
-  reports:Array<report>;
-}
+  reports: Array<report>;
+};
