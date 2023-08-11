@@ -29,7 +29,8 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: dist
-          path: dist
+          path: |
+            dist
 
   pre_release:
     runs-on: ubuntu-latest
@@ -48,7 +49,7 @@ jobs:
           node-version: "18.x"
           registry-url: "https://registry.npmjs.org"
       - run: yarn install --immutable
-      - run: yarn version "$(node -e "console.log(require('semver').inc(require('./package.json').version, 'patch'))")-pre.${{ github.run_number }}"
+      - run: yarn lerna version "$(node -e "console.log(require('semver').inc(require('./lerna.json').version, 'patch'))")-pre.${{ github.run_number }}"
       - run: yarn build
       - run: git config user.email "<>" && git config user.name "UgandaEMR CI"
       - run: git add . && git commit -m "Prerelease version" --no-verify
@@ -59,7 +60,8 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: dist
-          path: dist
+          path: |
+            dist
 
   release:
     runs-on: ubuntu-latest
