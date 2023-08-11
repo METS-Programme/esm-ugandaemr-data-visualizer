@@ -55,7 +55,6 @@ jobs:
         run: yarn turbo run build --color --concurrency=5
 
       - run: git config user.email "<>" && git config user.name "GitHub Actions Bot"
-      - run: git add . && git commit -m "Prerelease version" --no-verify
 
       - name: Pre-release
         run: yarn run ci:prepublish
