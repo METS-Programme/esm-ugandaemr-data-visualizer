@@ -62,14 +62,6 @@ jobs:
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}
 
-      - name: Upload Artifact
-        uses: actions/upload-artifact@v3
-        with:
-          name: dist
-          path: |
-            dist
-
-
   release:
     runs-on: ubuntu-latest
 
