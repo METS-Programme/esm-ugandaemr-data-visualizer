@@ -3,25 +3,19 @@
   "version": "1.0.0",
   "license": "MPL-2.0",
   "description": "A microfrontend for reporting in UgandaEMR",
-  "workspaces": [
-    "dist/*"
-  ],
   "browser": "dist/esm-reporting-app.js",
   "main": "src/index.ts",
   "source": true,
   "scripts": {
     "start": "openmrs develop --backend http://localhost:8080 --port 2021",
     "serve": "webpack serve --mode=development",
-    "ci:publish": "lerna publish from-package --yes",
-    "ci:prepublish": "lerna publish from-package --no-git-reset --yes --dist-tag next",
-    "release": "lerna version --no-git-tag-version",
     "build": "webpack --mode production",
     "analyze": "webpack --mode=production --env analyze=true",
     "lint": "eslint src --ext js,jsx,ts,tsx",
     "prettier": "prettier --write \"src/**/*.{ts,tsx}\"",
     "typescript": "tsc",
     "test": "jest --config jest.config.js --passWithNoTests",
-    "verify": "turbo lint typescript coverage",
+    "verify": "concurrently 'yarn:lint' 'yarn:test' 'yarn:typescript'",
     "coverage": "yarn test -- --coverage",
     "prepare": "husky install"
   },
