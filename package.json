@@ -12,6 +12,9 @@
   "scripts": {
     "start": "openmrs develop --backend http://localhost:8080 --port 2021",
     "serve": "webpack serve --mode=development",
+    "ci:publish": "lerna publish from-package --yes",
+    "ci:prepublish": "lerna publish from-package --no-git-reset --yes --dist-tag next",
+    "release": "lerna version --no-git-tag-version",
     "build": "webpack --mode production",
     "analyze": "webpack --mode=production --env analyze=true",
     "lint": "eslint src --ext js,jsx,ts,tsx",
