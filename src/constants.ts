@@ -6,93 +6,81 @@ export const facilityReports: reportProps = {
   categoryName: "FACILITY REPORTS",
   reports: [
     {
-      reportName: "Appointments List",
-      reportUUID: "",
-      outputFormat: ["Excel", "CSV"],
+      id: "APL",
+      label: "Appointments List",
     },
     {
-      reportName: "Missed Appointments List",
-      reportUUID: "",
-      outputFormat: ["Excel", "CSV"],
+      id: "MPL",
+      label: "Missed Appointments List",
     },
     {
-      reportName: "Daily Appointments List",
-      reportUUID: "",
-      outputFormat: ["Excel", "CSV"],
+      id: "DAL",
+      label: "Daily Appointments List",
     },
   ],
 };
 
-export const monthlyReports: reportProps = {
+export const nationalReports: reportProps = {
   categoryName: "MONTHLY REPORTS",
   reports: [
     {
-      reportName: "HMIS 105 Section 2: ANTENANTAL",
-      reportUUID: "",
-      outputFormat: ["Excel", "CSV"],
+      id: "HMIS106-1A",
+      label: "HMIS 106A Section 1A",
     },
     {
-      reportName: "HMIS 105 Section 2.3: POSTNATAL",
-      reportUUID: "",
-      outputFormat: ["Excel", "CSV"],
+      id: "HMIS106-1B",
+      label: "HMIS 106A Section 1B",
     },
     {
-      reportName: "HMIS 105 Section 2.2: MATERNITY",
-      reportUUID: "",
-      outputFormat: ["Excel", "CSV"],
+      id: "",
+      label: "HMIS 105 Section 2.2: MATERNITY",
+    },
+    {
+      id: "TxC28",
+      label: "Tx Current_28Days Report",
+    },
+    {
+      id: "TxC90",
+      label: "Tx Current_90Days Report",
     },
   ],
 };
 
-export const quarterlyReports: reportProps = {
-  categoryName: "QUARTERLY REPORTS",
-  reports: [
-    {
-      reportName: "HMIS 106A Section 1A HC01 To HC15",
-      reportUUID: "",
-      outputFormat: ["Excel", "CSV"],
-    },
-    {
-      reportName: "HMIS 106A Section 1A HC16 To HC28",
-      reportUUID: "",
-      outputFormat: ["Excel", "CSV"],
-    },
-    {
-      reportName: "HMIS 106A Section 1A HC29 To HC48",
-      reportUUID: "",
-      outputFormat: ["Excel", "CSV"],
-    },
-  ],
+
+
+export const data = [
+  { id: "1", name: "John", age: 30, district: "Kampala", viral_load: 85 },
+  { id: "2", name: "Alice", age: 25, district: "Wakiso", viral_load: 92 },
+  { id: "3", name: "Bob", age: 28, district: "Kampala", viral_load: 78 },
+  { id: "4", name: "Sam", age: 30, district: "Wakiso", viral_load: 85 },
+  { id: "5", name: "Musa", age: 25, district: "Kampala", viral_load: 92 },
+  { id: "6", name: "Alex", age: 28, district: "Kampala", viral_load: 78 },
+  { id: "7", name: "Derrick", age: 30, district: "Kampala", viral_load: 85 },
+  { id: "8", name: "David", age: 25, district: "Kampala", viral_load: 92 },
+  { id: "9", name: "Solomon", age: 28, district: "Kampala", viral_load: 78 },
+  { id: "10", name: "Jaba", age: 30, district: "Kampala", viral_load: 85 },
+  {
+    id: "11",
+    name: "Jonathan",
+    age: 25,
+    district: "Kampala",
+    viral_load: 92,
+  },
+  { id: "12", name: "Daphine", age: 28, district: "Kampala", viral_load: 78 },
+];
+export const displayContainer = {
+  width: "100%",
+  display: "flex",
+  padding: "20px 0 20px 0",
 };
-
-export const merIndicatorReports: reportProps = {
-  categoryName: "MER INDICATOR REPORTS",
-  reports: [
-    {
-      reportName: "HCT_TST_Facility Report",
-      reportUUID: "",
-      outputFormat: ["Excel", "CSV"],
-    },
-    {
-      reportName: "Tx Current_28Days Report",
-      reportUUID: "",
-      outputFormat: ["Excel", "CSV"],
-    },
-    {
-      reportName: "Tx Current_90Days Report",
-      reportUUID: "",
-      outputFormat: ["Excel", "CSV"],
-    },
-  ],
+export const displayInner1 = {
+  width: "50%",
 };
-
-//maternity
-export const ADMISSION_DATE = "cb9b223e-a09c-4f8a-b34d-a0934a2af04a";
-export const DELIVERY_TYPE = "dcc3ac63-30ab-102d-86b0-7a5022ba4115";
-
-// facility Url
-export const REGISTRY_URL =
-  "https://nhfr-staging-api.planetsystems.co/nhfrApi/v0.0.1/externalSystem/search";
-
-export const REGISTRY_REGIONS_URL =
-  "https://nhfr-staging-api.planetsystems.co/nhfrApi/v0.0.1/externalSystem/by/Region";
+export const displayOption = {
+  width: "10%",
+  "margin-top": "10px",
+  "font-weight": "600",
+};
+export const displayInner2 = {
+  width: "40%",
+};

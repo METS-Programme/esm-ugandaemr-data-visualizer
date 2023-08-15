@@ -22,7 +22,7 @@ const ReportingContainer: React.FC<ReportingContainerProps> = ({
         >
           {reports
             ? reports.map((report) => (
-                <ReportingItem reportName={report.reportName}></ReportingItem>
+                <ReportingItem reportName={report.label}></ReportingItem>
               ))
             : {}}
         </AccordionItem>

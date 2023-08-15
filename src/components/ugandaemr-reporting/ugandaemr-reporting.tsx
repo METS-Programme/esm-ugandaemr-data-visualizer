@@ -6,57 +6,97 @@ import Plot from "react-plotly.js";
 import createPlotlyRenderers from "react-pivottable/PlotlyRenderers";
 import stylesText from "!!raw-loader!react-pivottable/pivottable.css";
 import styles from "./ugandaemr-reporting.css";
-import { Intersect, Save, DocumentDownload } from "@carbon/icons-react";
+import {
+  Intersect,
+  Save,
+  DocumentDownload,
+  Catalog,
+  ChartLine,
+  ChartColumn,
+  ChartPie,
+  CrossTab,
+} from "@carbon/icons-react";
 import {
   SideNav,
   Content,
   Accordion,
   AccordionItem,
-  Select,
-  SelectItem,
-  SelectItemGroup,
-  Checkbox,
   DatePicker,
   DatePickerInput,
   Button,
   ContentSwitcher,
   Switch,
   ButtonSet,
+  RadioButtonGroup,
+  RadioButton,
+  ComboBox,
+  Modal,
 } from "@carbon/react";
 import ReportingHomeHeader from "../reporting-header/reporting-home-header.component";
 import FacilityList from "../reporting-helper/CarbonDataTable";
-
+import {
+  facilityReports,
+  nationalReports,
+  data,
+  displayContainer,
+  displayInner1,
+  displayOption,
+  displayInner2,
+} from "../../constants";
 const UgandaemrReporting: React.FC = () => {
   const PlotlyRenderers = createPlotlyRenderers(Plot);
-  const data = [
-    { id: "1", name: "John", age: 30, district: "Kampala", viral_load: 85 },
-    { id: "2", name: "Alice", age: 25, district: "Wakiso", viral_load: 92 },
-    { id: "3", name: "Bob", age: 28, district: "Kampala", viral_load: 78 },
-    { id: "4", name: "Sam", age: 30, district: "Wakiso", viral_load: 85 },
-    { id: "5", name: "Musa", age: 25, district: "Kampala", viral_load: 92 },
-    { id: "6", name: "Alex", age: 28, district: "Kampala", viral_load: 78 },
-    { id: "7", name: "Derrick", age: 30, district: "Kampala", viral_load: 85 },
-    { id: "8", name: "David", age: 25, district: "Kampala", viral_load: 92 },
-    { id: "9", name: "Solomon", age: 28, district: "Kampala", viral_load: 78 },
-    { id: "10", name: "Jaba", age: 30, district: "Kampala", viral_load: 85 },
-    {
-      id: "11",
-      name: "Jonathan",
-      age: 25,
-      district: "Kampala",
-      viral_load: 92,
-    },
-    { id: "12", name: "Daphine", age: 28, district: "Kampala", viral_load: 78 },
-  ];
+
   const [state, setState] = useState(data);
   const [modalOpen, setModalOpen] = useState(false);
   const [chart, setChart] = useState("List");
+  const [reportType, setReportType] = useState("Fixed");
+  const [modelState, setModelState] = useState(false);
+  const [reportTypeToggle, setReportTypeToggle] = useState(true);
+  const [facilityReportToggle, setFacilityReportToggle] = useState(true);
+  const [nationalReportToggle, setNationalReportToggle] = useState(false);
+  const [fixedPeriodToggle, setFixedPeriodToggle] = useState(true);
+  const [relativePeriodToggle, setRelativePeriodToggle] = useState(false);
+  const closeModal = () => {
+    setModelState(false);
+    // updateTypeSwitcher({ name: "Fixed" });
+  };
   const displayReport = () => {
     setModalOpen(true);
   };
-  const updateSwitcher = (object) => {
+  const updateReportSwitcher = (object) => {
     let { name } = object;
     setChart(name);
+  };
+  const updateTypeSwitcher = (object) => {
+    let { name } = object;
+    setReportType(name);
+    if (name == "Dynamic") {
+      setModelState(true);
+      setReportTypeToggle(false);
+      setFacilityReportToggle(false);
+      setNationalReportToggle(false);
+    } else {
+      setReportTypeToggle(true);
+      setFacilityReportToggle(true);
+    }
+  };
+  const handleReportTypeToggle = (selectedRadioButton) => {
+    if (selectedRadioButton == "option-national") {
+      setFacilityReportToggle(false);
+      setNationalReportToggle(true);
+    } else {
+      setFacilityReportToggle(true);
+      setNationalReportToggle(false);
+    }
+  };
+  const handlePeriodTypeToggle = (selectedRadioButton) => {
+    if (selectedRadioButton == "Relative") {
+      setFixedPeriodToggle(false);
+      setRelativePeriodToggle(true);
+    } else {
+      setFixedPeriodToggle(true);
+      setRelativePeriodToggle(false);
+    }
   };
   useEffect(() => {
     const styleElement = document.createElement("style");
@@ -72,71 +112,117 @@ const UgandaemrReporting: React.FC = () => {
       document.head.removeChild(styleElementDP);
     };
   }, []);
-  const displayContainer = {
-    width: "100%",
-    display: "flex",
-    padding: "20px 0 20px 0",
-  };
-  const displayInner1 = {
-    width: "50%",
-  };
-  const displayOption = {
-    width: "10%",
-    "margin-top": "10px",
-    "font-weight": "600",
-  };
-  const displayInner2 = {
-    width: "40%",
-  };
-  const optionsCard = {
-    display: "flex",
-  };
+
   return (
     <div>
       <SideNav expanded aria-label="Menu">
         <Accordion className="custom-class">
-          <AccordionItem title="Cohort Definition">
-            <Select hideLabel={true}>
-              <SelectItemGroup label="FACILITY REPORTS">
-                <SelectItem value="option-1" text="Appointments List" />
-                <SelectItem value="option-2" text="Missed Appointments List" />
-                <SelectItem
-                  value="option-3"
-                  text="Daily Missed Appointments List"
+          <AccordionItem title="Type Of Report" open>
+            <ContentSwitcher size="sm" onChange={updateTypeSwitcher}>
+              <Switch name={"Fixed"} text="Fixed" />
+              <Switch name={"Dynamic"} text="Dynamic" />
+            </ContentSwitcher>
+          </AccordionItem>
+          {reportTypeToggle && (
+            <AccordionItem title="Fixed Reports" open>
+              <RadioButtonGroup
+                defaultSelected="default-selected"
+                hideLabel={false}
+                name="radio-button-group"
+                valueSelected="option-facility"
+                onChange={handleReportTypeToggle}
+              >
+                <RadioButton
+                  id="radio-facility"
+                  labelText="Facility"
+                  value="option-facility"
                 />
-              </SelectItemGroup>
-              <SelectItemGroup label="MER INDICATOR REPORTS">
-                <SelectItem value="option-5" text="Tx Current_28Days Report" />
-                <SelectItem value="option-5" text="Tx Current_90Days Report" />
-                <SelectItem value="option-5" text="HCT_TST_Facility Report" />
-              </SelectItemGroup>
-            </Select>
-          </AccordionItem>
-          <AccordionItem title="Filters / Disaggregate">
-            <fieldset className="bx--fieldset">
-              <Checkbox labelText="Names" id="checked-names" />
-              <Checkbox labelText="Gender" id="checked-gender" />
-              <Checkbox labelText="Viral Load" id="checked-vl" />
-              <Checkbox labelText="Appointment Date" id="checked-app-date" />
-            </fieldset>
-          </AccordionItem>
-          <AccordionItem title="Period">
-            <DatePicker datePickerType="single">
-              <DatePickerInput
-                id="date-picker-input-id-start"
-                placeholder="dd-mm-yyyy"
-                labelText="Start Date"
+                <RadioButton
+                  id="radio-national"
+                  labelText="National"
+                  value="option-national"
+                />
+              </RadioButtonGroup>
+            </AccordionItem>
+          )}
+          {facilityReportToggle && (
+            <AccordionItem title="Facility Reports" open>
+              <ComboBox
+                ariaLabel="ComboBox Select"
+                id="filterable-select-example"
+                items={facilityReports.reports}
+                hideLabel={true}
               />
-            </DatePicker>
-            <br />
-            <DatePicker datePickerType="single">
-              <DatePickerInput
-                id="date-picker-input-id-end"
-                placeholder="dd-mm-yyyy"
-                labelText="End Date"
+            </AccordionItem>
+          )}
+          {nationalReportToggle && (
+            <AccordionItem title="National Reports" open>
+              <ComboBox
+                ariaLabel="ComboBox Select"
+                id="filterable-select-example"
+                items={nationalReports.reports}
+                hideLabel={true}
               />
-            </DatePicker>
+            </AccordionItem>
+          )}
+          <AccordionItem title="Period" open>
+            <RadioButtonGroup
+              defaultSelected="default-selected"
+              name="radio-button-period"
+              valueSelected="Fixed"
+              onChange={handlePeriodTypeToggle}
+            >
+              <RadioButton id="radio-fixed" labelText="Fixed" value="Fixed" />
+              <RadioButton
+                id="radio-relative"
+                labelText="Relative"
+                value="Relative"
+              />
+            </RadioButtonGroup>
           </AccordionItem>
+          {fixedPeriodToggle && (
+            <AccordionItem title="Fixed Period" open>
+              <DatePicker datePickerType="single">
+                <DatePickerInput
+                  id="date-picker-input-id-start"
+                  placeholder="dd-mm-yyyy"
+                  labelText="Start Date"
+                />
+              </DatePicker>
+              <br />
+              <DatePicker datePickerType="single">
+                <DatePickerInput
+                  id="date-picker-input-id-end"
+                  placeholder="dd-mm-yyyy"
+                  labelText="End Date"
+                />
+              </DatePicker>
+            </AccordionItem>
+          )}
+          {relativePeriodToggle && (
+            <AccordionItem title="Relative Period" open>
+              <RadioButtonGroup
+                defaultSelected="default-selected"
+                name="radio-button-relative"
+                valueSelected="Today"
+                orientation="vertical"
+              >
+                <RadioButton id="radio-today" labelText="Today" value="Today" />
+                <RadioButton id="radio-week" labelText="Week" value="Week" />
+                <RadioButton id="radio-month" labelText="Month" value="Month" />
+                <RadioButton
+                  id="radio-quarter"
+                  labelText="Quarter"
+                  value="Quarter"
+                />
+                <RadioButton
+                  id="radio-lq"
+                  labelText="Last Quarter"
+                  value="Last Quarter"
+                />
+              </RadioButtonGroup>
+            </AccordionItem>
+          )}
         </Accordion>
       </SideNav>
       <Content>
@@ -144,26 +230,30 @@ const UgandaemrReporting: React.FC = () => {
         <div style={displayContainer}>
           <div style={displayOption}>Display Options</div>
           <div style={displayInner1}>
-            <ContentSwitcher onChange={updateSwitcher}>
-              <Switch name={"List"} text="Patient List" />
-              <Switch name={"Pivot"} text="Pivot Table" />
-              <Switch name={"Line"} text="Line Chart" />
-              <Switch name={"Bar"} text="Bar Chart" />
-              <Switch name={"Pie"} text="Pie Chart" />
+            <ContentSwitcher onChange={updateReportSwitcher}>
+              <Switch name={"List"}>
+                <Catalog /> {"Patient List"}
+              </Switch>
+              <Switch name={"Pivot"}>
+                <CrossTab /> {"Pivot Table"}
+              </Switch>
+              <Switch name={"Line"}>
+                <ChartLine /> {"Line Chart"}
+              </Switch>
+              <Switch name={"Bar"}>
+                <ChartColumn /> {"Bar Chart"}
+              </Switch>
+              <Switch name={"Pie"}>
+                <ChartPie /> {"Pie Chart"}
+              </Switch>
             </ContentSwitcher>
           </div>
           <div style={displayInner2}>
             <ButtonSet className={styles.dispayBtnGrp}>
               <Button size="sm" kind="primary" onClick={displayReport}>
                 <Intersect />
-                Display Report
+                {"UPDATE"}
               </Button>
-              <Button
-                renderIcon={DocumentDownload}
-                size="sm"
-                kind="secondary"
-                hasIconOnly
-              />
               <Button renderIcon={Save} size="sm" kind="tertiary" hasIconOnly />
             </ButtonSet>
           </div>
@@ -184,6 +274,32 @@ const UgandaemrReporting: React.FC = () => {
               {...state}
             />
           </div>
+        )}
+        {modelState && reportType == "Dynamic" && (
+          <Modal
+            open
+            size="md"
+            preventCloseOnClickOutside={true}
+            hasScrollingContent={true}
+            modalHeading="SELECT REPORT PARAMETERS"
+            secondaryButtonText="Cancel"
+            primaryButtonText="Continue"
+            onRequestClose={closeModal}
+            onRequestSubmit={closeModal}
+          >
+            <div>
+              <ComboBox
+                ariaLabel="ComboBox"
+                id="chart-selectable-list"
+                items={[
+                  { id: "option-1", label: "Appointments List" },
+                  { id: "option-2", label: "Missed Appointments List" },
+                ]}
+                label="Select a report"
+                titleText="Select a report"
+              />
+            </div>
+          </Modal>
         )}
       </Content>
     </div>
