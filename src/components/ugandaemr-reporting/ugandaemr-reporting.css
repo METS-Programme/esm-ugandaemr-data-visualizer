@@ -59,3 +59,26 @@
   border: 1px solid #80808045;
   border-radius: 5px;
 }
+
+.paramsConatiner {
+  display: flex;
+}
+
+.paramsControlContainer {
+  display: grid;
+  margin-left: 2%;
+  margin-right: 2%;
+  margin-top: 15%;
+}
+
+.paramsControl {
+  margin-bottom: 10px;
+}
+
+.paramBtn {
+  background-color: transparent;
+  margin-bottom: -15px;
+}
+.paramsList {
+  text-align: center;
+}

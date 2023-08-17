@@ -1,0 +1,27 @@
+.rxpPanel {
+  -webkit-box-shadow: 0 1px 1px rgba(0,0,0,.05);
+  background-color: #fff;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  box-shadow: 0 1px 1px rgba(0,0,0,.05);
+  margin-bottom: 20px;
+  margin-top: 5%;
+  width: 48%;
+}
+
+.rxpPanel .rxpPanelHeading{
+  background-color: #8d8d8d4f;
+  border-color: #8d8d8d4f;
+  color: #333;
+}
+
+.rxpPanelHeading {
+  border-bottom: 1px solid transparent;
+  border-top-left-radius: 3px;
+  border-top-right-radius: 3px;
+  padding: 10px 15px;
+}
+
+.rxpPanelBody {
+  padding: 15px;
+}

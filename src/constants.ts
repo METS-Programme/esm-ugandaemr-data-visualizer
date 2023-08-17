@@ -25,15 +25,11 @@ export const nationalReports: reportProps = {
   reports: [
     {
       id: "HMIS106-1A",
-      label: "HMIS 106A Section 1A",
-    },
-    {
-      id: "HMIS106-1B",
-      label: "HMIS 106A Section 1B",
+      label: "HMIS 106A",
     },
     {
       id: "",
-      label: "HMIS 105 Section 2.2: MATERNITY",
+      label: "HMIS 105",
     },
     {
       id: "TxC28",

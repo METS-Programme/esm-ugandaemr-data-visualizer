@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "license": "MPL-2.0",
   "description": "A microfrontend for reporting in UgandaEMR",
-    "workspaces": [
+  "workspaces": [
     "dist/*"
   ],
   "browser": "dist/esm-reporting-app.js",

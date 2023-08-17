@@ -9,12 +9,15 @@ import styles from "./ugandaemr-reporting.css";
 import {
   Intersect,
   Save,
-  DocumentDownload,
   Catalog,
   ChartLine,
   ChartColumn,
   ChartPie,
   CrossTab,
+  SkipForward,
+  ArrowRight,
+  SkipBack,
+  ArrowLeft,
 } from "@carbon/icons-react";
 import {
   SideNav,
@@ -43,6 +46,7 @@ import {
   displayOption,
   displayInner2,
 } from "../../constants";
+import { Panel } from "../Panel/panel";
 const UgandaemrReporting: React.FC = () => {
   const PlotlyRenderers = createPlotlyRenderers(Plot);
 
@@ -98,6 +102,37 @@ const UgandaemrReporting: React.FC = () => {
       setRelativePeriodToggle(false);
     }
   };
+
+  const [availableParameters, setAvailableParameters] = useState([]);
+  const [selectedParameters, setSelectedParameters] = useState([]);
+
+  const moveLeftToRight = (parameter) => {
+    const updatedAvailableParameters = availableParameters.filter(
+      (param) => param !== parameter
+    );
+    setAvailableParameters(updatedAvailableParameters);
+
+    setSelectedParameters([...selectedParameters, parameter]);
+  };
+
+  const moveRightToLeft = (parameter) => {
+    const updatedSelectedParameters = selectedParameters.filter(
+      (param) => param !== parameter
+    );
+    setSelectedParameters(updatedSelectedParameters);
+
+    setAvailableParameters([...availableParameters, parameter]);
+  };
+
+  const moveAllToLeft = () => {
+    setAvailableParameters([...selectedParameters, ...availableParameters]);
+    setSelectedParameters([]);
+  };
+
+  const moveAllToRight = () => {
+    setSelectedParameters([...availableParameters, ...selectedParameters]);
+    setAvailableParameters([]);
+  };
   useEffect(() => {
     const styleElement = document.createElement("style");
     styleElement.textContent = `${stylesText}`;
@@ -107,6 +142,12 @@ const UgandaemrReporting: React.FC = () => {
     styleElementDP.textContent = `${stylesDatePicker}`;
     document.head.appendChild(styleElementDP);
 
+    setAvailableParameters([
+      "Parameter 1",
+      "Parameter 2",
+      "Parameter 3",
+      "Parameter 4",
+    ]);
     return () => {
       document.head.removeChild(styleElement);
       document.head.removeChild(styleElementDP);
@@ -281,9 +322,9 @@ const UgandaemrReporting: React.FC = () => {
             size="md"
             preventCloseOnClickOutside={true}
             hasScrollingContent={true}
-            modalHeading="SELECT REPORT PARAMETERS"
+            modalHeading="SELECT PARAMETERS"
             secondaryButtonText="Cancel"
-            primaryButtonText="Continue"
+            primaryButtonText="Confirm"
             onRequestClose={closeModal}
             onRequestSubmit={closeModal}
           >
@@ -291,12 +332,72 @@ const UgandaemrReporting: React.FC = () => {
               <ComboBox
                 ariaLabel="ComboBox"
                 id="chart-selectable-list"
-                items={[
-                  { id: "option-1", label: "Appointments List" },
-                  { id: "option-2", label: "Missed Appointments List" },
-                ]}
+                items={facilityReports.reports}
                 label="Select a report"
                 titleText="Select a report"
+              />
+            </div>
+            <div className={styles.paramsConatiner}>
+              <Panel
+                heading={`Available parameters`}
+                body={
+                  <ul>
+                    {availableParameters.map((param) => (
+                      <li key={param}>
+                        {" "}
+                        <Button
+                          className={styles.paramBtn}
+                          kind="danger--primary"
+                          onClick={() => moveLeftToRight(param)}
+                          as="div"
+                          role="button"
+                        >
+                          {param}
+                        </Button>
+                      </li>
+                    ))}
+                  </ul>
+                }
+              />
+              <div className={styles.paramsControlContainer}>
+                <Button
+                  className={styles.paramsControl}
+                  kind="tertiary"
+                  hasIconOnly
+                  renderIcon={ArrowRight}
+                  onClick={moveAllToRight}
+                  as="div"
+                  role="button"
+                />
+                <Button
+                  kind="tertiary"
+                  hasIconOnly
+                  renderIcon={ArrowLeft}
+                  onClick={moveAllToLeft}
+                  as="div"
+                  role="button"
+                />
+              </div>
+              <Panel
+                heading={`Selected parameters`}
+                body={
+                  <ul>
+                    {selectedParameters.map((param) => (
+                      <li key={param}>
+                        {" "}
+                        <Button
+                          className={styles.paramBtn}
+                          kind="danger--primary"
+                          onClick={() => moveRightToLeft(param)}
+                          as="div"
+                          role="button"
+                        >
+                          {param}
+                        </Button>
+                      </li>
+                    ))}
+                  </ul>
+                }
               />
             </div>
           </Modal>
