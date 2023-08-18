@@ -8,14 +8,41 @@ export const facilityReports: reportProps = {
     {
       id: "APL",
       label: "Appointments List",
+      parameters: [
+        "Clinic No",
+        "Patient Name",
+        "Age",
+        "ART Start Date",
+        "Current Regimen",
+        "DSDM Model",
+        "Appointment Date",
+      ],
     },
     {
       id: "MPL",
       label: "Missed Appointments List",
+      parameters: [
+        "Clinic No",
+        "Patient Name",
+        "Age",
+        "ART Start Date",
+        "Current Regimen",
+        "DSDM Model",
+        "Supposed Visit Date",
+        "Date seen",
+      ],
     },
     {
       id: "DAL",
       label: "Daily Appointments List",
+      parameters: [
+        "Clinic No",
+        "Patient Name",
+        "Date of Birth",
+        "ART Start Date",
+        "Viral Load",
+        "DSDM Model",
+      ],
     },
   ],
 };
@@ -42,28 +69,79 @@ export const nationalReports: reportProps = {
   ],
 };
 
-
+export const Indicators: any = {
+  Indicators: [
+    {
+      id: "IDN",
+      label: "Identifiers",
+      parameters: ["HIV Clinic No.", "OPD No.", "TB No.", "Patient No.", "NIN"],
+    },
+    {
+      id: "APA",
+      label: "Person Attributes",
+      parameters: [
+        "Family Name",
+        "Given Name",
+        "Marital Status",
+        "Occupation",
+        "Birthdate",
+        "Gender",
+      ],
+    },
+    {
+      id: "DAL",
+      label: "ART Attributes",
+      parameters: [
+        "DSDM Model",
+        "Viral Load",
+        "Current Regimen",
+        "Advanced Disease",
+        "Gender",
+      ],
+    },
+  ],
+};
 
 export const data = [
-  { id: "1", name: "John", age: 30, district: "Kampala", viral_load: 85 },
-  { id: "2", name: "Alice", age: 25, district: "Wakiso", viral_load: 92 },
-  { id: "3", name: "Bob", age: 28, district: "Kampala", viral_load: 78 },
-  { id: "4", name: "Sam", age: 30, district: "Wakiso", viral_load: 85 },
-  { id: "5", name: "Musa", age: 25, district: "Kampala", viral_load: 92 },
-  { id: "6", name: "Alex", age: 28, district: "Kampala", viral_load: 78 },
-  { id: "7", name: "Derrick", age: 30, district: "Kampala", viral_load: 85 },
-  { id: "8", name: "David", age: 25, district: "Kampala", viral_load: 92 },
-  { id: "9", name: "Solomon", age: 28, district: "Kampala", viral_load: 78 },
-  { id: "10", name: "Jaba", age: 30, district: "Kampala", viral_load: 85 },
+  { name: "John", age: 30, district: "Kampala", viral_load: 85 },
+  { name: "Alice", age: 25, district: "Wakiso", viral_load: 92 },
+  { name: "Bob", age: 28, district: "Kampala", viral_load: 78 },
+  { name: "Sam", age: 30, district: "Wakiso", viral_load: 85 },
+  { name: "Musa", age: 25, district: "Kampala", viral_load: 92 },
+  { name: "Alex", age: 28, district: "Kampala", viral_load: 78 },
+  { name: "Derrick", age: 30, district: "Kampala", viral_load: 85 },
+  { name: "David", age: 25, district: "Kampala", viral_load: 92 },
+  { name: "Solomon", age: 28, district: "Kampala", viral_load: 78 },
+  { name: "Jaba", age: 30, district: "Kampala", viral_load: 85 },
   {
-    id: "11",
     name: "Jonathan",
     age: 25,
     district: "Kampala",
     viral_load: 92,
   },
-  { id: "12", name: "Daphine", age: 28, district: "Kampala", viral_load: 78 },
+  { name: "Daphine", age: 28, district: "Kampala", viral_load: 78 },
 ];
+
+export const tableHeaders = [
+  {
+    id: 1,
+    key: "name",
+    header: "Patient Name",
+    accessor: "name",
+  },
+  { id: 2, key: "age", header: "Age", accessor: "age" },
+  {
+    id: 3,
+    key: "district",
+    header: "District",
+  },
+  {
+    id: 4,
+    key: "viral_load",
+    header: "Viral Load",
+  },
+];
+
 export const displayContainer = {
   width: "100%",
   display: "flex",

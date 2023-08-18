@@ -11,6 +11,7 @@ declare type report = {
   endDate?: boolean;
   location?: boolean;
   outputFormat?: Array<string>;
+  parameters?: Array<string>;
 };
 
 declare type reportProps = {

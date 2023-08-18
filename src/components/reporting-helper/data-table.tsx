@@ -1,5 +1,4 @@
 import {
-  Button,
   DataTable,
   Pagination,
   Table,
@@ -23,9 +22,8 @@ import {
   usePagination,
 } from "@openmrs/esm-framework";
 import React, { useEffect, useState } from "react";
-import { data } from "../../constants";
 import { useTranslation } from "react-i18next";
-import styles from "./carbon-data-tables.scss";
+import styles from "./data-tables.scss";
 import { saveAs } from "file-saver";
 
 type FilterProps = {
@@ -36,59 +34,33 @@ type FilterProps = {
   getCellId: (row, key) => string;
 };
 
-const PatientList: React.FC = () => {
+interface ListProps {
+  columns: any;
+  data: any;
+}
+
+const DataList: React.FC<ListProps> = ({ columns, data }) => {
   const { t } = useTranslation();
   const layout = useLayoutType();
   const [allRows, setAllRows] = useState([]);
   const isTablet = useLayoutType() === "tablet";
-  const [patients, setPatients] = useState(data);
+  const [list, setList] = useState(data);
   const pageSizes = [10, 20, 30, 40, 50];
   const [currentPageSize, setPageSize] = useState(10);
   const {
     goTo,
-    results: paginatedPatientEntries,
+    results: paginatedList,
     currentPage,
-  } = usePagination(patients, currentPageSize);
+  } = usePagination(list, currentPageSize);
 
-  const tableHeaders = [
-    {
-      id: 0,
-      key: "id",
-      header: t("id", "ID"),
-    },
-    {
-      id: 1,
-      key: "name",
-      header: t("status", "Patient Name"),
-      accessor: "name",
-    },
-    { id: 2, key: "age", header: t("age", "Age"), accessor: "age" },
-    {
-      id: 3,
-      key: "country",
-      header: t("country", "District"),
-    },
-    {
-      id: 4,
-      key: "score",
-      header: t("score", "Viral Load"),
-    },
-  ];
-  // memoized
   useEffect(() => {
-    let rows = [];
+    let rows: Array<Record<string, string>> = [];
 
-    paginatedPatientEntries.map((facility) => {
-      return rows.push({
-        id: facility.id,
-        name: facility.name,
-        age: facility.age,
-        country: facility.district,
-        score: facility.viral_load,
-      });
+    paginatedList.map((item: any, index) => {
+      return rows.push({ ...item, id: index++ });
     });
     setAllRows(rows);
-  }, [paginatedPatientEntries, allRows]);
+  }, [paginatedList, allRows]);
 
   const handleFilter = ({
     rowIds,
@@ -112,7 +84,7 @@ const PatientList: React.FC = () => {
     );
   };
   const handleExport = (object) => {
-    const csvString = convertToCSV(patients, tableHeaders);
+    const csvString = convertToCSV(list, columns);
     if (object.currentTarget.innerText == "Download As CSV") {
       const blob = new Blob([csvString], { type: "text/csv;charset=utf-8" });
       saveAs(blob, "data.csv");
@@ -133,7 +105,7 @@ const PatientList: React.FC = () => {
       <DataTable
         data-floating-menu-container
         rows={allRows}
-        headers={tableHeaders}
+        headers={columns}
         filterRows={handleFilter}
         overflowMenuOnHover={isDesktop(layout) ? true : false}
         size={isTablet ? "lg" : "sm"}
@@ -217,7 +189,7 @@ const PatientList: React.FC = () => {
                 page={currentPage}
                 pageSize={currentPageSize}
                 pageSizes={pageSizes}
-                totalItems={patients?.length}
+                totalItems={list?.length}
                 className={styles.pagination}
                 onChange={({ pageSize, page }) => {
                   if (pageSize !== currentPageSize) {
@@ -236,4 +208,4 @@ const PatientList: React.FC = () => {
   );
 };
 
-export default PatientList;
+export default DataList;

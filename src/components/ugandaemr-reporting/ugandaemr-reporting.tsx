@@ -36,17 +36,19 @@ import {
   Modal,
 } from "@carbon/react";
 import ReportingHomeHeader from "../reporting-header/reporting-home-header.component";
-import FacilityList from "../reporting-helper/CarbonDataTable";
 import {
   facilityReports,
   nationalReports,
+  Indicators,
   data,
   displayContainer,
   displayInner1,
   displayOption,
   displayInner2,
+  tableHeaders,
 } from "../../constants";
 import { Panel } from "../Panel/panel";
+import DataList from "../reporting-helper/data-table";
 const UgandaemrReporting: React.FC = () => {
   const PlotlyRenderers = createPlotlyRenderers(Plot);
 
@@ -133,6 +135,11 @@ const UgandaemrReporting: React.FC = () => {
     setSelectedParameters([...availableParameters, ...selectedParameters]);
     setAvailableParameters([]);
   };
+
+  const handleSelectedReport = (selectedReport) => {
+    setAvailableParameters(selectedReport.selectedItem.parameters);
+  };
+
   useEffect(() => {
     const styleElement = document.createElement("style");
     styleElement.textContent = `${stylesText}`;
@@ -142,12 +149,6 @@ const UgandaemrReporting: React.FC = () => {
     styleElementDP.textContent = `${stylesDatePicker}`;
     document.head.appendChild(styleElementDP);
 
-    setAvailableParameters([
-      "Parameter 1",
-      "Parameter 2",
-      "Parameter 3",
-      "Parameter 4",
-    ]);
     return () => {
       document.head.removeChild(styleElement);
       document.head.removeChild(styleElementDP);
@@ -302,7 +303,7 @@ const UgandaemrReporting: React.FC = () => {
         {modalOpen && chart == "List" && (
           <div className={styles.reportContainerBackground}>
             <h3>Patient List</h3>
-            <FacilityList />
+            <DataList columns={tableHeaders} data={data} />
           </div>
         )}
         {modalOpen && chart == "Pivot" && (
@@ -332,9 +333,19 @@ const UgandaemrReporting: React.FC = () => {
               <ComboBox
                 ariaLabel="ComboBox"
                 id="chart-selectable-list"
-                items={facilityReports.reports}
+                items={[...facilityReports.reports, ...nationalReports.reports]}
                 label="Select a report"
                 titleText="Select a report"
+              />
+            </div>
+            <div>
+              <ComboBox
+                ariaLabel="ComboBox"
+                id="chart-selectable-list"
+                items={[...Indicators.Indicators]}
+                label="Select a report"
+                titleText="Select Indicators"
+                onChange={handleSelectedReport}
               />
             </div>
             <div className={styles.paramsConatiner}>
