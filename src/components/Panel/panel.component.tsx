@@ -5,7 +5,8 @@ interface PanelProps {
   heading: string;
   body: any;
 }
-export const Panel: React.FC<PanelProps> = ({ heading, body }) => {
+
+const Panel: React.FC<PanelProps> = ({ heading, body }) => {
   return (
     <div className={panelStyle.rxpPanel}>
       <div className={panelStyle.rxpPanelHeading}> {heading}</div>
@@ -13,3 +14,5 @@ export const Panel: React.FC<PanelProps> = ({ heading, body }) => {
     </div>
   );
 };
+
+export default Panel;

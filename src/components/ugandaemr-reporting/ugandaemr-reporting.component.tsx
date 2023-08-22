@@ -45,7 +45,7 @@ import {
   displayInner2,
   tableHeaders,
 } from "../../constants";
-import { Panel } from "../panel/panel.component";
+import Panel from "../panel/panel.component";
 import DataList from "../reporting-helper/data-table.component";
 
 const UgandaemrReporting: React.FC = () => {
