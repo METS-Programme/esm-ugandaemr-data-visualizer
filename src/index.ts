@@ -15,7 +15,8 @@ export const importTranslation = require.context(
 );
 
 export const reportingComponent = getAsyncLifecycle(
-  () => import("./components/ugandaemr-reporting/ugandaemr-reporting"),
+  () =>
+    import("./components/ugandaemr-reporting/ugandaemr-reporting.component"),
   options
 );
 

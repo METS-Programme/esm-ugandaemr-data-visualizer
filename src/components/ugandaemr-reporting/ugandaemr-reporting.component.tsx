@@ -16,7 +16,7 @@ import {
   CrossTab,
   ArrowRight,
   ArrowLeft,
-} from "@carbon/icons-react";
+} from "@carbon/react/icons";
 import {
   SideNav,
   Content,
@@ -45,8 +45,9 @@ import {
   displayInner2,
   tableHeaders,
 } from "../../constants";
-import { Panel } from "../Panel/panel";
-import DataList from "../reporting-helper/data-table";
+import Panel from "../panel/panel.component";
+import DataList from "../reporting-helper/data-table.component";
+
 const UgandaemrReporting: React.FC = () => {
   const PlotlyRenderers = createPlotlyRenderers(Plot);
 

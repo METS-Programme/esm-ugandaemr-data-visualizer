@@ -15,7 +15,7 @@ import {
   OverflowMenu,
   OverflowMenuItem,
 } from "@carbon/react";
-import { DocumentDownload } from "@carbon/icons-react";
+import { DocumentDownload } from "@carbon/react/icons";
 import {
   isDesktop,
   useLayoutType,
