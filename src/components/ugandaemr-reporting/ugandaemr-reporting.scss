@@ -1,3 +1,5 @@
+@import "~@openmrs/esm-styleguide/src/vars";
+
 .container {
   padding: 2em;
   display: flex;
@@ -35,12 +37,12 @@
 
 .reportingBtn:hover {
   background-color: transparent;
-  color: #007d79;
+  color: var(--brand-03);
 }
 
 .reportingBtn:focus {
   background-color: transparent;
-  color: #007d79;
+  color: var(--brand-03);
   border-color: transparent;
   box-shadow: none;
 }
@@ -81,4 +83,9 @@
 }
 .paramsList {
   text-align: center;
+}
+
+.paramBtn:hover {
+  color: var(--brand-03);
+  font-weight: bolder;
 }

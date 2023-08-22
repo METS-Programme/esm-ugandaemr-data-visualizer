@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from "react";
-import stylesDatePicker from "!!raw-loader!./ugandaemr-reporting.css";
+import stylesDatePicker from "!!raw-loader!./ugandaemr-reporting.scss";
 import PivotTableUI from "react-pivottable/PivotTableUI";
 import TableRenderers from "react-pivottable/TableRenderers";
 import Plot from "react-plotly.js";
 import createPlotlyRenderers from "react-pivottable/PlotlyRenderers";
 import stylesText from "!!raw-loader!react-pivottable/pivottable.css";
-import styles from "./ugandaemr-reporting.css";
+import styles from "./ugandaemr-reporting.scss";
 import {
   Intersect,
   Save,
