@@ -108,4 +108,3 @@ export interface HoursOfOperation {
 export interface Search {
   mode: string;
 }
-
