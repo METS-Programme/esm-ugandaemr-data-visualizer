@@ -14,9 +14,7 @@ import {
   ChartColumn,
   ChartPie,
   CrossTab,
-  SkipForward,
   ArrowRight,
-  SkipBack,
   ArrowLeft,
 } from "@carbon/icons-react";
 import {
@@ -52,7 +50,7 @@ import DataList from "../reporting-helper/data-table";
 const UgandaemrReporting: React.FC = () => {
   const PlotlyRenderers = createPlotlyRenderers(Plot);
 
-  const [state, setState] = useState(data);
+  const [patientData, setPatientData] = useState(data);
   const [modalOpen, setModalOpen] = useState(false);
   const [chart, setChart] = useState("List");
   const [reportType, setReportType] = useState("Fixed");
@@ -62,6 +60,10 @@ const UgandaemrReporting: React.FC = () => {
   const [nationalReportToggle, setNationalReportToggle] = useState(false);
   const [fixedPeriodToggle, setFixedPeriodToggle] = useState(true);
   const [relativePeriodToggle, setRelativePeriodToggle] = useState(false);
+  const [selectedIndicators, setSelectedIndicators] = useState({});
+  const [selectedReport, setSelectedReport] = useState({});
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
   const closeModal = () => {
     setModelState(false);
     // updateTypeSwitcher({ name: "Fixed" });
@@ -123,11 +125,19 @@ const UgandaemrReporting: React.FC = () => {
     );
     setSelectedParameters(updatedSelectedParameters);
 
-    setAvailableParameters([...availableParameters, parameter]);
+    let updatedAvailableParameters = [...availableParameters];
+    // @ts-ignore
+    selectedIndicators.parameters.filter((param) => {
+      if (param == parameter) {
+        updatedAvailableParameters = [...updatedAvailableParameters, parameter];
+      }
+    });
+    setAvailableParameters(updatedAvailableParameters);
   };
 
   const moveAllToLeft = () => {
-    setAvailableParameters([...selectedParameters, ...availableParameters]);
+    // @ts-ignore
+    setAvailableParameters(selectedIndicators.parameters);
     setSelectedParameters([]);
   };
 
@@ -136,8 +146,13 @@ const UgandaemrReporting: React.FC = () => {
     setAvailableParameters([]);
   };
 
+  const handleSelectedIndicators = (selectedIndicator) => {
+    setAvailableParameters(selectedIndicator.selectedItem.parameters);
+    setSelectedIndicators(selectedIndicator.selectedItem);
+  };
+
   const handleSelectedReport = (selectedReport) => {
-    setAvailableParameters(selectedReport.selectedItem.parameters);
+    setSelectedReport(selectedReport.selectedItem);
   };
 
   useEffect(() => {
@@ -296,7 +311,14 @@ const UgandaemrReporting: React.FC = () => {
                 <Intersect />
                 {"UPDATE"}
               </Button>
-              <Button renderIcon={Save} size="sm" kind="tertiary" hasIconOnly />
+              <Button
+                renderIcon={Save}
+                size="sm"
+                kind="tertiary"
+                hasIconOnly
+                as="div"
+                role="button"
+              />
             </ButtonSet>
           </div>
         </div>
@@ -310,10 +332,10 @@ const UgandaemrReporting: React.FC = () => {
           <div className={styles.reportContainerBackground}>
             <h3>Pivot Table</h3>
             <PivotTableUI
-              data={state}
-              onChange={(s) => setState(s)}
+              data={patientData}
+              onChange={(s) => setPatientData(s)}
               renderers={{ ...TableRenderers, ...PlotlyRenderers }}
-              {...state}
+              {...patientData}
             />
           </div>
         )}
@@ -336,6 +358,8 @@ const UgandaemrReporting: React.FC = () => {
                 items={[...facilityReports.reports, ...nationalReports.reports]}
                 label="Select a report"
                 titleText="Select a report"
+                onChange={handleSelectedReport}
+                selectedItem={selectedReport}
               />
             </div>
             <div>
@@ -345,7 +369,8 @@ const UgandaemrReporting: React.FC = () => {
                 items={[...Indicators.Indicators]}
                 label="Select a report"
                 titleText="Select Indicators"
-                onChange={handleSelectedReport}
+                onChange={handleSelectedIndicators}
+                selectedItem={selectedIndicators}
               />
             </div>
             <div className={styles.paramsConatiner}>
@@ -379,6 +404,7 @@ const UgandaemrReporting: React.FC = () => {
                   onClick={moveAllToRight}
                   as="div"
                   role="button"
+                  disabled={availableParameters.length < 1}
                 />
                 <Button
                   kind="tertiary"
@@ -387,6 +413,7 @@ const UgandaemrReporting: React.FC = () => {
                   onClick={moveAllToLeft}
                   as="div"
                   role="button"
+                  disabled={selectedParameters.length < 1}
                 />
               </div>
               <Panel
