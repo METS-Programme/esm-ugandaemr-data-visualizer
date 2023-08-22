@@ -1,5 +1,4 @@
 import {
-  Button,
   DataTable,
   Pagination,
   Table,
@@ -13,16 +12,18 @@ import {
   TableToolbarContent,
   TableToolbarSearch,
   Tile,
+  OverflowMenu,
+  OverflowMenuItem,
 } from "@carbon/react";
-import { Intersect, Save, DocumentDownload } from "@carbon/icons-react";
+import { DocumentDownload } from "@carbon/icons-react";
 import {
   isDesktop,
   useLayoutType,
   usePagination,
 } from "@openmrs/esm-framework";
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import styles from "./carbon-data-tables.scss";
+import styles from "./data-tables.scss";
 import { saveAs } from "file-saver";
 
 type FilterProps = {
@@ -33,72 +34,33 @@ type FilterProps = {
   getCellId: (row, key) => string;
 };
 
-const PatientList: React.FC = () => {
+interface ListProps {
+  columns: any;
+  data: any;
+}
+
+const DataList: React.FC<ListProps> = ({ columns, data }) => {
   const { t } = useTranslation();
   const layout = useLayoutType();
   const [allRows, setAllRows] = useState([]);
   const isTablet = useLayoutType() === "tablet";
-  const [patients, setPatients] = useState([
-    { id: "1", name: "John", age: 30, country: "Kampala", score: 85 },
-    { id: "2", name: "Alice", age: 25, country: "Wakiso", score: 92 },
-    { id: "3", name: "Bob", age: 28, country: "Kampala", score: 78 },
-    { id: "4", name: "Sam", age: 30, country: "Wakiso", score: 85 },
-    { id: "5", name: "Musa", age: 25, country: "Kampala", score: 92 },
-    { id: "6", name: "Alex", age: 28, country: "Kampala", score: 78 },
-    { id: "7", name: "Derrick", age: 30, country: "Kampala", score: 85 },
-    { id: "8", name: "David", age: 25, country: "Kampala", score: 92 },
-    { id: "9", name: "Solomon", age: 28, country: "Kampala", score: 78 },
-    { id: "10", name: "Jaba", age: 30, country: "Kampala", score: 85 },
-    { id: "11", name: "Jonathan", age: 25, country: "Kampala", score: 92 },
-    { id: "12", name: "Daphine", age: 28, country: "Kampala", score: 78 },
-  ]);
+  const [list, setList] = useState(data);
   const pageSizes = [10, 20, 30, 40, 50];
   const [currentPageSize, setPageSize] = useState(10);
   const {
     goTo,
-    results: paginatedPatientEntries,
+    results: paginatedList,
     currentPage,
-  } = usePagination(patients, currentPageSize);
+  } = usePagination(list, currentPageSize);
 
-  const tableHeaders = [
-    {
-      id: 0,
-      key: "id",
-      header: t("id", "ID"),
-    },
-    {
-      id: 1,
-      key: "name",
-      header: t("status", "Patient Name"),
-      accessor: "name",
-    },
-    { id: 2, key: "age", header: t("age", "Age"), accessor: "age" },
-    {
-      id: 3,
-      key: "country",
-      header: t("country", "District"),
-    },
-    {
-      id: 4,
-      key: "score",
-      header: t("score", "Viral Load"),
-    },
-  ];
-  // memoized
   useEffect(() => {
-    let rows = [];
+    let rows: Array<Record<string, string>> = [];
 
-    paginatedPatientEntries.map((facility) => {
-      return rows.push({
-        id: facility.id,
-        name: facility.name,
-        age: facility.age,
-        country: facility.country,
-        score: facility.score,
-      });
+    paginatedList.map((item: any, index) => {
+      return rows.push({ ...item, id: index++ });
     });
     setAllRows(rows);
-  }, [paginatedPatientEntries, allRows]);
+  }, [paginatedList, allRows]);
 
   const handleFilter = ({
     rowIds,
@@ -121,10 +83,15 @@ const PatientList: React.FC = () => {
       })
     );
   };
-  const handleExport = () => {
-    const csvString = convertToCSV(patients, tableHeaders);
-    const blob = new Blob([csvString], { type: "text/csv;charset=utf-8" });
-    saveAs(blob, "data.csv");
+  const handleExport = (object) => {
+    const csvString = convertToCSV(list, columns);
+    if (object.currentTarget.innerText == "Download As CSV") {
+      const blob = new Blob([csvString], { type: "text/csv;charset=utf-8" });
+      saveAs(blob, "data.csv");
+    } else if (object.currentTarget.innerText == "Download As Json") {
+      const jsonBlob = new Blob([csvString], { type: "application/json" });
+      saveAs(jsonBlob, "data.json");
+    }
   };
   const convertToCSV = (data, columns) => {
     const header = columns.map((col) => col.header).join(",");
@@ -138,7 +105,7 @@ const PatientList: React.FC = () => {
       <DataTable
         data-floating-menu-container
         rows={allRows}
-        headers={tableHeaders}
+        headers={columns}
         filterRows={handleFilter}
         overflowMenuOnHover={isDesktop(layout) ? true : false}
         size={isTablet ? "lg" : "sm"}
@@ -156,15 +123,26 @@ const PatientList: React.FC = () => {
                 }}
               >
                 <TableToolbarContent className={styles.toolbarContent}>
-                  <Button
+                  <OverflowMenu
                     size="sm"
                     kind="tertiary"
-                    className={styles.patientListDownload}
                     renderIcon={DocumentDownload}
-                    onClick={handleExport}
+                    iconDescription="Download As"
+                    focusTrap={false}
                   >
-                    Download
-                  </Button>
+                    <OverflowMenuItem
+                      itemText="Download As CSV"
+                      onClick={handleExport}
+                    />
+                    <OverflowMenuItem
+                      itemText="Download As PDF"
+                      onClick={handleExport}
+                    />
+                    <OverflowMenuItem
+                      itemText="Download As Json"
+                      onClick={handleExport}
+                    />
+                  </OverflowMenu>
                   <TableToolbarSearch
                     className={styles.patientListSearch}
                     expanded
@@ -211,7 +189,7 @@ const PatientList: React.FC = () => {
                 page={currentPage}
                 pageSize={currentPageSize}
                 pageSizes={pageSizes}
-                totalItems={patients?.length}
+                totalItems={list?.length}
                 className={styles.pagination}
                 onChange={({ pageSize, page }) => {
                   if (pageSize !== currentPageSize) {
@@ -230,4 +208,4 @@ const PatientList: React.FC = () => {
   );
 };
 
-export default PatientList;
+export default DataList;

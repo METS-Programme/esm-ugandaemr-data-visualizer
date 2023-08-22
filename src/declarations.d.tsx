@@ -5,12 +5,13 @@ declare module "*.png";
 
 declare type SideNavProps = {};
 declare type report = {
-  reportName: string;
-  reportUUID: string;
+  id: string;
+  label: string;
   startDate?: boolean;
   endDate?: boolean;
   location?: boolean;
-  outputFormat: Array<string>;
+  outputFormat?: Array<string>;
+  parameters?: Array<string>;
 };
 
 declare type reportProps = {

@@ -1,3 +1,5 @@
+@import "~@openmrs/esm-styleguide/src/vars";
+
 .container {
   padding: 2em;
   display: flex;
@@ -35,12 +37,12 @@
 
 .reportingBtn:hover {
   background-color: transparent;
-  color: #007d79;
+  color: var(--brand-03);
 }
 
 .reportingBtn:focus {
   background-color: transparent;
-  color: #007d79;
+  color: var(--brand-03);
   border-color: transparent;
   box-shadow: none;
 }
@@ -58,4 +60,32 @@
   padding: 20px;
   border: 1px solid #80808045;
   border-radius: 5px;
+}
+
+.paramsConatiner {
+  display: flex;
+}
+
+.paramsControlContainer {
+  display: grid;
+  margin-left: 2%;
+  margin-right: 2%;
+  margin-top: 15%;
+}
+
+.paramsControl {
+  margin-bottom: 10px;
+}
+
+.paramBtn {
+  background-color: transparent;
+  margin-bottom: -15px;
+}
+.paramsList {
+  text-align: center;
+}
+
+.paramBtn:hover {
+  color: var(--brand-03);
+  font-weight: bolder;
 }

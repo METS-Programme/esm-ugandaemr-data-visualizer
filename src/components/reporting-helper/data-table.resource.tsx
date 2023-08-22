@@ -1,7 +1,3 @@
-import useSWR from "swr";
-import { REGISTRY_REGIONS_URL, REGISTRY_URL } from "../../constants";
-import { RegionsResponse } from "../../types";
-
 export interface FacilityResponse {
   message: string;
   status: boolean;
@@ -111,36 +107,4 @@ export interface HoursOfOperation {
 
 export interface Search {
   mode: string;
-}
-
-export function useFacilities() {
-  const fetcher = (REGISTRY_URL) =>
-    fetch(REGISTRY_URL).then((res) => res.json());
-
-  const { data, error, isLoading } = useSWR<FacilityResponse, Error>(
-    REGISTRY_URL,
-    fetcher
-  );
-
-  return {
-    facilities: data ? data.data?.entry : [],
-    isError: error,
-    isLoading,
-  };
-}
-
-export function useFacilityRegions() {
-  const fetcher = (REGISTRY_REGIONS_URL) =>
-    fetch(REGISTRY_REGIONS_URL).then((res) => res.json());
-
-  const { data, error, isLoading } = useSWR<RegionsResponse, Error>(
-    REGISTRY_REGIONS_URL,
-    fetcher
-  );
-
-  return {
-    regions: data ? data.data?.entry : [],
-    isError: error,
-    isLoading,
-  };
 }
