@@ -1,7 +1,7 @@
 import React from "react";
 import styles from "./reporting-container.css";
 import { Accordion, AccordionItem } from "@carbon/react";
-import ReportingItem from "../reporting-item/reporting-item";
+import ReportingItem from "../reporting-item/reporting-item.component";
 
 interface ReportingContainerProps {
   categoryName: string;
