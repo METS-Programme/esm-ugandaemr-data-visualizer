@@ -1,10 +1,9 @@
 @use '@carbon/styles/scss/colors';
 @use '@carbon/styles/scss/spacing';
 @use '@carbon/styles/scss/type';
-@import '../../root.scss';
 
 .widgetContainer {
-  background-color: $ui-background;
+  background-color: colors.$white-0;
 }
 
 .widgetHeaderContainer {
@@ -35,12 +34,6 @@
   border: 0px !important;
 }
 
-.searchBox {
-  width: 100%;
-  display: flex;
-  justify-content: right;
-}
-
 .container {
   margin-top: 16px;
   margin-left: inherit;
@@ -55,8 +48,6 @@
 }
 
 .searchbox {
-  // margin-right: 10px;
-  // padding-left: 20px;
   max-width: 16rem;
 
   input:focus {
