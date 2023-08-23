@@ -3,8 +3,8 @@ import React from "react";
 const ReportingHomeIllustration: React.FC = () => {
   return (
     <svg
-      width="70"
-      height="70"
+      width="100"
+      height="72"
       viewBox="0 0 250 250"
       xmlns="http://www.w3.org/2000/svg"
     >

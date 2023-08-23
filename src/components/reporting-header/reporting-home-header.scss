@@ -1,31 +1,28 @@
+@use '@carbon/styles/scss/colors';
 @use '@carbon/styles/scss/type';
 @use '@carbon/styles/scss/spacing';
-@import '~@openmrs/esm-styleguide/src/vars';
 
 .header {
   @include type.type-style('body-compact-02');
-  color: $text-02;
+  color: colors.$gray-70;
   height: spacing.$spacing-12;
-  background-color: $ui-02;
-  border: 1px solid $ui-03;
-  border-left: 0px;
+  background-color: colors.$white-0;
+  border-bottom: 1px solid colors.$gray-20;
   display: flex;
   justify-content: space-between;
-  margin-top: -32px;
-  margin-left: -30px;
-  margin-right: -30px;
 }
 
 .left-justified-items {
   display: flex;
   flex-direction: row;
   align-items: center;
+  cursor: pointer;
 }
 
 .right-justified-items {
   @include type.type-style('body-compact-02');
-  color: $text-02;
-  padding-top: 1rem;
+  color: colors.$gray-70;
+  margin: 0.5rem;
 }
 
 .page-name {

@@ -1,16 +1,18 @@
 import React from "react";
-import panelStyle from "./panel.css";
+import styles from "./panel.scss";
 
 interface PanelProps {
   heading: string;
-  body: any;
+  children: React.ReactNode;
 }
 
-const Panel: React.FC<PanelProps> = ({ heading, body }) => {
+const Panel: React.FC<PanelProps> = ({ heading, children }) => {
   return (
-    <div className={panelStyle.rxpPanel}>
-      <div className={panelStyle.rxpPanelHeading}> {heading}</div>
-      <div className={panelStyle.rxpPanelBody}>{body}</div>
+    <div className={styles.panel}>
+      <div className={styles.heading}>
+        <span>{heading}</span>
+      </div>
+      {children}
     </div>
   );
 };

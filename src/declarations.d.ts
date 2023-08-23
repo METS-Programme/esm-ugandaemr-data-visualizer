@@ -4,7 +4,8 @@ declare module "*.scss";
 declare module "*.png";
 
 declare type SideNavProps = {};
-declare type report = {
+
+declare type Report = {
   id: string;
   label: string;
   startDate?: boolean;
@@ -14,7 +15,7 @@ declare type report = {
   parameters?: Array<string>;
 };
 
-declare type reportProps = {
+declare type ReportProps = {
   categoryName: string;
-  reports: Array<report>;
+  reports: Array<Report>;
 };

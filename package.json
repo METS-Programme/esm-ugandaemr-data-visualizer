@@ -7,7 +7,7 @@
   "main": "src/index.ts",
   "source": true,
   "scripts": {
-    "start": "openmrs develop --backend http://localhost:8080 --port 3021",
+    "start": "openmrs develop --backend https://ugandaemr-backend.mets.or.ug --port 3021",
     "serve": "webpack serve --mode=development",
     "build": "webpack --mode production",
     "analyze": "webpack --mode=production --env analyze=true",
@@ -43,7 +43,7 @@
     "url": "https://github.com/METS-Programme/esm-ugandaemr-reporting/issues"
   },
   "dependencies": {
-    "@carbon/react": "^1.30.0",
+    "@carbon/react": "^1.36.0",
     "lodash-es": "^4.17.21"
   },
   "peerDependencies": {

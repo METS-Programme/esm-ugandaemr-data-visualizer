@@ -5,8 +5,8 @@
 @import "~@openmrs/esm-styleguide/src/vars";
 
 $ui-01: #f4f4f4;
-$ui-02: #ffffff;
-$ui-03: #e0e0e0;
+colors.$white-0: #ffffff;
+colors.$gray-20: #e0e0e0;
 $ui-05: #161616;
 $ui-background: #ffffff;
 $color-gray-70: #525252;
@@ -73,11 +73,11 @@ $button-primary: #0078A6;
 }
 
 .text02 {
-  color: $text-02;
+  color: colors.$gray-70;
 }
 
 aside {
-  background-color: $ui-02 !important;
+  background-color: colors.$white-0 !important;
 }
 
 // Login Overrides
