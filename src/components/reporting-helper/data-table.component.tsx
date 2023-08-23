@@ -9,11 +9,11 @@ import {
   TableHeader,
   TableRow,
   TableToolbar,
+  TableToolbarAction,
   TableToolbarContent,
+  TableToolbarMenu,
   TableToolbarSearch,
   Tile,
-  OverflowMenu,
-  OverflowMenuItem,
 } from "@carbon/react";
 import { DocumentDownload } from "@carbon/react/icons";
 import {
@@ -39,12 +39,16 @@ interface ListProps {
   data: any;
 }
 
+type DocumentType = "csv" | "pdf" | "json";
+
 const DataList: React.FC<ListProps> = ({ columns, data }) => {
   const { t } = useTranslation();
   const layout = useLayoutType();
-  const [allRows, setAllRows] = useState([]);
   const isTablet = useLayoutType() === "tablet";
+  const responsiveSize = isTablet ? "lg" : "sm";
+  const [allRows, setAllRows] = useState([]);
   const [list, setList] = useState(data);
+  const [documentType, setDocumentType] = useState<DocumentType>(null);
   const pageSizes = [10, 20, 30, 40, 50];
   const [currentPageSize, setPageSize] = useState(10);
   const {
@@ -52,15 +56,6 @@ const DataList: React.FC<ListProps> = ({ columns, data }) => {
     results: paginatedList,
     currentPage,
   } = usePagination(list, currentPageSize);
-
-  useEffect(() => {
-    let rows: Array<Record<string, string>> = [];
-
-    paginatedList.map((item: any, index) => {
-      return rows.push({ ...item, id: index++ });
-    });
-    setAllRows(rows);
-  }, [paginatedList, allRows]);
 
   const handleFilter = ({
     rowIds,
@@ -83,16 +78,27 @@ const DataList: React.FC<ListProps> = ({ columns, data }) => {
       })
     );
   };
-  const handleExport = (object) => {
+
+  useEffect(() => {
+    let rows: Array<Record<string, string>> = [];
+
+    paginatedList.map((item: any, index) => {
+      return rows.push({ ...item, id: index++ });
+    });
+    setAllRows(rows);
+  }, [paginatedList, allRows]);
+
+  useEffect(() => {
     const csvString = convertToCSV(list, columns);
-    if (object.currentTarget.innerText == "Download As CSV") {
+    if (documentType === "csv") {
       const blob = new Blob([csvString], { type: "text/csv;charset=utf-8" });
       saveAs(blob, "data.csv");
-    } else if (object.currentTarget.innerText == "Download As Json") {
+    } else if (documentType === "json") {
       const jsonBlob = new Blob([csvString], { type: "application/json" });
       saveAs(jsonBlob, "data.json");
     }
-  };
+  }, [columns, documentType, list]);
+
   const convertToCSV = (data, columns) => {
     const header = columns.map((col) => col.header).join(",");
     const rows = data.map((row) =>
@@ -100,111 +106,107 @@ const DataList: React.FC<ListProps> = ({ columns, data }) => {
     );
     return [header, ...rows].join("\n");
   };
+
   return (
-    <>
-      <DataTable
-        data-floating-menu-container
-        rows={allRows}
-        headers={columns}
-        filterRows={handleFilter}
-        overflowMenuOnHover={isDesktop(layout) ? true : false}
-        size={isTablet ? "lg" : "sm"}
-        useZebraStyles
-      >
-        {({ rows, headers, getHeaderProps, getTableProps, onInputChange }) => (
-          <div>
-            <TableContainer className={styles.tableContainer}>
-              <TableToolbar
-                style={{
-                  position: "static",
-                  height: "3rem",
-                  overflow: "visible",
-                  backgroundColor: "color",
-                }}
-              >
+    <DataTable
+      data-floating-menu-container
+      rows={allRows}
+      headers={columns}
+      filterRows={handleFilter}
+      overflowMenuOnHover={isDesktop(layout) ? true : false}
+      size={isTablet ? "lg" : "sm"}
+      useZebraStyles
+    >
+      {({ rows, headers, getHeaderProps, getTableProps, onInputChange }) => (
+        <div>
+          <TableContainer className={styles.tableContainer}>
+            <div className={styles.toolbarWrapper}>
+              <TableToolbar size={responsiveSize}>
                 <TableToolbarContent className={styles.toolbarContent}>
-                  <OverflowMenu
-                    size="sm"
-                    kind="tertiary"
-                    renderIcon={DocumentDownload}
-                    iconDescription="Download As"
-                    focusTrap={false}
-                  >
-                    <OverflowMenuItem
-                      itemText="Download As CSV"
-                      onClick={handleExport}
-                    />
-                    <OverflowMenuItem
-                      itemText="Download As PDF"
-                      onClick={handleExport}
-                    />
-                    <OverflowMenuItem
-                      itemText="Download As Json"
-                      onClick={handleExport}
-                    />
-                  </OverflowMenu>
                   <TableToolbarSearch
-                    className={styles.patientListSearch}
+                    className={styles.searchbox}
                     expanded
                     onChange={onInputChange}
                     placeholder={t("searchThisList", "Search this list")}
-                    size="sm"
+                    size={responsiveSize}
                   />
+
+                  <TableToolbarMenu>
+                    <TableToolbarAction
+                      className={styles.toolbarAction}
+                      onClick={() => setDocumentType("csv")}
+                    >
+                      Download as CSV
+                    </TableToolbarAction>
+                    <TableToolbarAction
+                      className={styles.toolbarAction}
+                      disabled
+                      onClick={() => setDocumentType("pdf")}
+                    >
+                      Download as PDF
+                    </TableToolbarAction>
+                    <TableToolbarAction
+                      className={styles.toolbarAction}
+                      onClick={() => setDocumentType("json")}
+                    >
+                      Download as JSON
+                    </TableToolbarAction>
+                  </TableToolbarMenu>
                 </TableToolbarContent>
               </TableToolbar>
-              <Table {...getTableProps()}>
-                <TableHead>
-                  <TableRow>
-                    {headers.map((header) => (
-                      <TableHeader {...getHeaderProps({ header })}>
-                        {header.header}
-                      </TableHeader>
+            </div>
+            <Table {...getTableProps()}>
+              <TableHead>
+                <TableRow>
+                  {headers.map((header) => (
+                    <TableHeader {...getHeaderProps({ header })}>
+                      {header.header}
+                    </TableHeader>
+                  ))}
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {rows.map((row) => (
+                  <TableRow key={row.id}>
+                    {row.cells.map((cell) => (
+                      <TableCell key={cell.id}>{cell.value}</TableCell>
                     ))}
                   </TableRow>
-                </TableHead>
-                <TableBody>
-                  {rows.map((row, index) => (
-                    <TableRow key={row.id}>
-                      {row.cells.map((cell) => (
-                        <TableCell key={cell.id}>{cell.value}</TableCell>
-                      ))}
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-              {rows.length === 0 ? (
-                <div className={styles.tileContainer}>
-                  <Tile className={styles.tile}>
-                    <div className={styles.tileContent}>
-                      <p className={styles.content}>
-                        {t("No data", "No data to display")}
-                      </p>
-                    </div>
-                  </Tile>
-                </div>
-              ) : null}
-              <Pagination
-                forwardText="Next page"
-                backwardText="Previous page"
-                page={currentPage}
-                pageSize={currentPageSize}
-                pageSizes={pageSizes}
-                totalItems={list?.length}
-                className={styles.pagination}
-                onChange={({ pageSize, page }) => {
-                  if (pageSize !== currentPageSize) {
-                    setPageSize(pageSize);
-                  }
-                  if (page !== currentPage) {
-                    goTo(page);
-                  }
-                }}
-              />
-            </TableContainer>
-          </div>
-        )}
-      </DataTable>
-    </>
+                ))}
+              </TableBody>
+            </Table>
+            {rows.length === 0 ? (
+              <div className={styles.tileContainer}>
+                <Tile className={styles.tile}>
+                  <div className={styles.tileContent}>
+                    <p className={styles.content}>
+                      {t("No data", "No data to display")}
+                    </p>
+                  </div>
+                </Tile>
+              </div>
+            ) : null}
+            <Pagination
+              forwardText="Next page"
+              backwardText="Previous page"
+              page={currentPage}
+              pageSize={currentPageSize}
+              pageSizes={pageSizes}
+              totalItems={list?.length}
+              className={styles.pagination}
+              onChange={({ pageSize, page }) => {
+                if (pageSize !== currentPageSize) {
+                  setPageSize(pageSize);
+                }
+                if (page !== currentPage) {
+                  goTo(page);
+                }
+              }}
+            />
+          </TableContainer>
+        </div>
+      )}
+    </DataTable>
   );
 };
 

@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import styles from "./reporting-item.css";
 import {
   Button,
   Modal,
@@ -7,6 +6,7 @@ import {
   DatePicker,
   DatePickerInput,
 } from "@carbon/react";
+import styles from "./reporting-item.scss";
 
 interface ReportingItemProps {
   reportName: string;

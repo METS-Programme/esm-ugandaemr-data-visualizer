@@ -6,19 +6,28 @@
   },
   "pages": [
     {
-      "component": "reportingComponent",
-      "route": "reporting",
-      "online": true,
-      "offline": true
+      "component": "root",
+      "route": "reporting"
     }
   ],
   "extensions": [
     {
-      "name": "reporting-link",
-      "slot": "app-menu-slot",
-      "component": "reportingLink",
+      "component": "root",
+      "name": "reporting-dashboard",
+      "slot": "reporting-dashboard-slot"
+    },
+    {
+      "name": "reporting-dashboard-link",
+      "component": "reportingDashboardLink",
+      "slot": "homepage-dashboard-slot",
+      "meta": {
+        "name": "reporting",
+        "slot": "reporting-dashboard-slot",
+        "title": "Reporting"
+      },
       "online": true,
-      "offline": true
+      "offline": true,
+      "order": 0
     }
   ]
 }

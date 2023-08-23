@@ -1,5 +1,10 @@
-import { getAsyncLifecycle, defineConfigSchema } from "@openmrs/esm-framework";
+import {
+  getAsyncLifecycle,
+  getSyncLifecycle,
+  defineConfigSchema,
+} from "@openmrs/esm-framework";
 import { configSchema } from "./config-schema";
+import { createDashboardLink } from "./create-dashboard-link.component";
 
 const moduleName = "@ugandaemr/esm-reporting-app";
 const options = {
@@ -14,14 +19,22 @@ export const importTranslation = require.context(
   "lazy"
 );
 
-export const reportingComponent = getAsyncLifecycle(
-  () =>
-    import("./components/ugandaemr-reporting/ugandaemr-reporting.component"),
+export const root = getAsyncLifecycle(
+  () => import("./root.component"),
   options
 );
 
-export const reportingLink = getAsyncLifecycle(
-  () => import("./ugandaemr-reporting-link.component"),
+export const reportingComponent = getAsyncLifecycle(
+  () => import("./components/reporting/reporting.component"),
+  options
+);
+
+export const reportingDashboardLink = getSyncLifecycle(
+  createDashboardLink({
+    name: "reporting",
+    slot: "reporting-dashboard-slot",
+    title: "Reporting",
+  }),
   options
 );
 

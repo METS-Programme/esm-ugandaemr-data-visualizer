@@ -5,6 +5,7 @@ import { BrowserRouter, useLocation } from "react-router-dom";
 export interface DashboardLinkConfig {
   name: string;
   title: string;
+  slot?: string;
 }
 
 function DashboardExtension({
@@ -14,10 +15,10 @@ function DashboardExtension({
 }) {
   const { name, title } = dashboardLinkConfig;
   const location = useLocation();
-  const spaBasePath = `${window.spaBase}/reporting`;
+  const spaBasePath = `${window.spaBase}/home`;
 
   const navLink = useMemo(() => {
-    const pathArray = location.pathname.split("/reporting");
+    const pathArray = location.pathname.split("/home");
     const lastElement = pathArray[pathArray.length - 1];
     return decodeURIComponent(lastElement);
   }, [location.pathname]);

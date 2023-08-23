@@ -1,12 +1,14 @@
 import React from "react";
-import { ExtensionSlot } from "@openmrs/esm-framework";
-import { SideNav } from "@carbon/react";
+import { BrowserRouter, Route, Routes } from "react-router-dom";
+import Reporting from "./components/reporting/reporting.component";
 
 const Root: React.FC = () => {
   return (
-    <SideNav expanded aria-label="Menu">
-      <ExtensionSlot name="nav-menu-slot" />
-    </SideNav>
+    <BrowserRouter basename={`${window.spaBase}/home/reporting`}>
+      <Routes>
+        <Route path="/" element={<Reporting />} />
+      </Routes>
+    </BrowserRouter>
   );
 };
 

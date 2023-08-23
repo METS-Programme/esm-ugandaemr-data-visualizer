@@ -2,7 +2,7 @@ export const spaRoot = window["getOpenmrsSpaBase"];
 export const basePath = "/reporting";
 export const spaBasePath = `${window.spaBase}${basePath}`;
 
-export const facilityReports: reportProps = {
+export const facilityReports: ReportProps = {
   categoryName: "FACILITY REPORTS",
   reports: [
     {
@@ -47,7 +47,7 @@ export const facilityReports: reportProps = {
   ],
 };
 
-export const nationalReports: reportProps = {
+export const nationalReports: ReportProps = {
   categoryName: "MONTHLY REPORTS",
   reports: [
     {
@@ -141,20 +141,3 @@ export const tableHeaders = [
     header: "Viral Load",
   },
 ];
-
-export const displayContainer = {
-  width: "100%",
-  display: "flex",
-  padding: "20px 0 20px 0",
-};
-export const displayInner1 = {
-  width: "50%",
-};
-export const displayOption = {
-  width: "10%",
-  "margin-top": "10px",
-  "font-weight": "600",
-};
-export const displayInner2 = {
-  width: "40%",
-};

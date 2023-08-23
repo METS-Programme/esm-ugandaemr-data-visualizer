@@ -1,9 +1,9 @@
-import { Calendar, Location } from "@carbon/react/icons";
-import { formatDate, useSession } from "@openmrs/esm-framework";
 import React from "react";
 import { useTranslation } from "react-i18next";
-import styles from "./reporting-home-header.scss";
+import { Calendar, Location } from "@carbon/react/icons";
+import { formatDate, useSession } from "@openmrs/esm-framework";
 import ReportingHomeIllustration from "./reporting-home-illustration.component";
+import styles from "./reporting-home-header.scss";
 
 const ReportingHomeHeader: React.FC<{ title?: string }> = ({ title }) => {
   const { t } = useTranslation();
