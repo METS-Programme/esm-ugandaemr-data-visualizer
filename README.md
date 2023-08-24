@@ -1,6 +1,6 @@
 
 
-# UgandaEMR Reporting ESM
+# UgandaEMR Data Visualizer ESM
 
 A frontend module for visualizing data in UgandaEMR built on top of OpenMRS 3.x
 
