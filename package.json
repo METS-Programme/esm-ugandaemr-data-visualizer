@@ -1,9 +1,9 @@
 {
-  "name": "@ugandaemr/esm-reporting-app",
+  "name": "@ugandaemr/esm-data-visualizer",
   "version": "1.0.0",
   "license": "MPL-2.0",
-  "description": "A microfrontend for reporting in UgandaEMR",
-  "browser": "dist/esm-reporting-app.js",
+  "description": "A frontend module that handles data visualization in UgandaEMR",
+  "browser": "dist/esm-data-visualizer-app.js",
   "main": "src/index.ts",
   "source": true,
   "scripts": {
@@ -33,14 +33,14 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/METS-Programme/esm-ugandaemr-reporting.git"
+    "url": "git+https://github.com/METS-Programme/esm-ugandaemr-data-visualizer.git"
   },
-  "homepage": "https://github.com/METS-Programme/esm-ugandaemr-reporting#readme",
+  "homepage": "https://github.com/METS-Programme/esm-ugandaemr-data-visualizer#readme",
   "publishConfig": {
     "access": "public"
   },
   "bugs": {
-    "url": "https://github.com/METS-Programme/esm-ugandaemr-reporting/issues"
+    "url": "https://github.com/METS-Programme/esm-ugandaemr-data-visualizer/issues"
   },
   "dependencies": {
     "@carbon/react": "^1.36.0",

@@ -6,9 +6,9 @@ import {
 import { configSchema } from "./config-schema";
 import { createDashboardLink } from "./create-dashboard-link.component";
 
-const moduleName = "@ugandaemr/esm-reporting-app";
+const moduleName = "@ugandaemr/esm-data-visualizer";
 const options = {
-  featureName: "ugandaemr-reporting",
+  featureName: "data-visualizer",
   moduleName,
 };
 
@@ -24,16 +24,11 @@ export const root = getAsyncLifecycle(
   options
 );
 
-export const reportingComponent = getAsyncLifecycle(
-  () => import("./components/reporting/reporting.component"),
-  options
-);
-
-export const reportingDashboardLink = getSyncLifecycle(
+export const dataVisualizerDashboardLink = getSyncLifecycle(
   createDashboardLink({
-    name: "reporting",
-    slot: "reporting-dashboard-slot",
-    title: "Reporting",
+    name: "data-visualizer",
+    slot: "data-visualizer-dashboard-slot",
+    title: "Data visualizer",
   }),
   options
 );

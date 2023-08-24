@@ -1,12 +1,12 @@
 import React from "react";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
-import Reporting from "./components/reporting/reporting.component";
+import Reporting from "./components/dashboard/dashboard.component";
 
 const Root: React.FC = () => {
   return (
-    <BrowserRouter basename={`${window.spaBase}/home/reporting`}>
+    <BrowserRouter basename={window.getOpenmrsSpaBase()}>
       <Routes>
-        <Route path="/" element={<Reporting />} />
+        <Route path="home/data-visualizer" element={<Reporting />} />
       </Routes>
     </BrowserRouter>
   );

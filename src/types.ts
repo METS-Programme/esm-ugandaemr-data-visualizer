@@ -1,4 +1,12 @@
-export const spaBasePath = `${window.spaBase}/home`;
+export type Report = {
+  id: string;
+  label: string;
+  startDate?: boolean;
+  endDate?: boolean;
+  location?: boolean;
+  outputFormat?: Array<string>;
+  parameters?: Array<string>;
+};
 
 export enum SearchTypes {
   BASIC = "basic",

@@ -40,7 +40,7 @@ import DataList from "../reporting-helper/data-table.component";
 import EmptyStateIllustration from "./empty-state-illustration.component";
 import Panel from "../panel/panel.component";
 import pivotTableStyles from "!!raw-loader!react-pivottable/pivottable.css";
-import styles from "./reporting.scss";
+import styles from "./dashboard.scss";
 
 type ChartType = "list" | "pivot" | "line" | "bar" | "pie";
 type ReportType = "fixed" | "dynamic";
@@ -48,7 +48,7 @@ type ReportCategory = "facility" | "national";
 type ReportingDuration = "fixed" | "relative";
 type ReportingPeriod = "today" | "week" | "month" | "quarter" | "lastQuarter";
 
-const Reporting: React.FC = () => {
+const Dashboard: React.FC = () => {
   const PlotlyRenderers = createPlotlyRenderers(Plot);
 
   const [patientData, setPatientData] = useState(data);
@@ -476,4 +476,4 @@ const Reporting: React.FC = () => {
   );
 };
 
-export default Reporting;
+export default Dashboard;

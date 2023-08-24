@@ -1,6 +1,8 @@
 # OS files
 .DS_Store
 
+.idea/
+
 # Logs
 logs
 *.log

@@ -15,7 +15,7 @@ function DashboardExtension({
 }) {
   const { name, title } = dashboardLinkConfig;
   const location = useLocation();
-  const spaBasePath = `${window.spaBase}/home`;
+  const spaBasePath = `${window.getOpenmrsSpaBase()}` + "home";
 
   const navLink = useMemo(() => {
     const pathArray = location.pathname.split("/home");

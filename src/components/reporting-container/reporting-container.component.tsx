@@ -1,5 +1,6 @@
 import React from "react";
 import { Accordion, AccordionItem } from "@carbon/react";
+import type { Report } from "../../types";
 import ReportingItem from "../reporting-item/reporting-item.component";
 import styles from "./reporting-container.scss";
 
@@ -13,7 +14,7 @@ const ReportingContainer: React.FC<ReportingContainerProps> = ({
   reports,
 }) => {
   return (
-    <div className={`${styles.reportingDiv}`}>
+    <div className={styles.reportingDiv}>
       <Accordion>
         <AccordionItem
           open

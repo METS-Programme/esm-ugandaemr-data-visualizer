@@ -15,7 +15,6 @@ import {
   TableToolbarSearch,
   Tile,
 } from "@carbon/react";
-import { DocumentDownload } from "@carbon/react/icons";
 import {
   isDesktop,
   useLayoutType,
@@ -23,8 +22,8 @@ import {
 } from "@openmrs/esm-framework";
 import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import styles from "./data-tables.scss";
 import { saveAs } from "file-saver";
+import styles from "./data-tables.scss";
 
 type FilterProps = {
   rowIds: Array<string>;
