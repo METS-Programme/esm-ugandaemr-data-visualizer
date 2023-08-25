@@ -16,10 +16,8 @@ const ReportingHomeHeader: React.FC<{ title?: string }> = ({ title }) => {
         <div className={styles["left-justified-items"]}>
           <ReportingHomeIllustration />
           <div className={styles["page-labels"]}>
-            <p>{t("home", "Reports")}</p>
-            <p className={styles["page-name"]}>
-              {title ?? t("home", "Report Builder")}
-            </p>
+            <p>{t("reportBuilder", "Report builder")}</p>
+            <p className={styles["page-name"]}>{title ?? t("home", "home")}</p>
           </div>
         </div>
         <div className={styles["right-justified-items"]}>
