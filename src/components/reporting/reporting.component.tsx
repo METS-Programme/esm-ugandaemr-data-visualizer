@@ -15,9 +15,14 @@ import {
   Save,
 } from "@carbon/react/icons";
 import {
+  Accordion,
+  AccordionItem,
   Button,
   ComboBox,
   ContentSwitcher,
+  DataTableSkeleton,
+  DatePicker,
+  DatePickerInput,
   Form,
   FormGroup,
   FormLabel,
@@ -29,18 +34,13 @@ import {
   Tile,
 } from "@carbon/react";
 import ReportingHomeHeader from "../reporting-header/reporting-home-header.component";
-import {
-  data,
-  facilityReports,
-  nationalReports,
-  Indicators,
-  tableHeaders,
-} from "../../constants";
+import { facilityReports, nationalReports, Indicators } from "../../constants";
 import DataList from "../reporting-helper/data-table.component";
 import EmptyStateIllustration from "./empty-state-illustration.component";
 import Panel from "../panel/panel.component";
 import pivotTableStyles from "!!raw-loader!react-pivottable/pivottable.css";
 import styles from "./reporting.scss";
+import { createColumns, useReports } from "./reporting.resource";
 
 type ChartType = "list" | "pivot" | "line" | "bar" | "pie";
 type ReportType = "fixed" | "dynamic";
@@ -50,6 +50,10 @@ type ReportingPeriod = "today" | "week" | "month" | "quarter" | "lastQuarter";
 
 const Reporting: React.FC = () => {
   const PlotlyRenderers = createPlotlyRenderers(Plot);
+  const [tableHeaders, setTableHeaders] = useState([]);
+  const [data, setData] = useState([]);
+  const [uuid, setUuid] = useState<string>(null);
+  const { reportData, isLoading } = useReports(uuid);
 
   const [patientData, setPatientData] = useState(data);
   const [chartType, setChartType] = useState<ChartType>("list");
@@ -70,14 +74,21 @@ const Reporting: React.FC = () => {
     label: string;
     parameters: Array<string>;
   }>(null);
+  const [facilityReport, setFacilityReport] = useState(null);
+  const handleUpdateFacilityReport = ({ selectedItem }) => {
+    setFacilityReport(selectedItem);
+  };
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
+  const [loading, setLoading] = useState(true);
   const [showLineList, setShowLineList] = useState(false);
   const [availableParameters, setAvailableParameters] = useState([]);
   const [selectedParameters, setSelectedParameters] = useState([]);
 
   const handleUpdateReport = () => {
     setShowLineList(true);
+    setUuid(facilityReport.id);
+    setLoading(true);
   };
 
   const handleChartTypeChange = ({ name }) => {
@@ -140,6 +151,24 @@ const Reporting: React.FC = () => {
   };
 
   useEffect(() => {
+    let headers = [];
+    let dataForReport = [];
+    if (!isLoading) {
+      const responseReportName = Object.keys(reportData)[0];
+      if (reportData[responseReportName] && reportData[responseReportName][0]) {
+        const columnNames = Object.keys(reportData[responseReportName][0]);
+        headers = createColumns(columnNames).slice(0, 10);
+        dataForReport = reportData[responseReportName];
+      } else {
+        setShowLineList(false);
+      }
+      setLoading(false);
+    }
+    setTableHeaders(headers);
+    setData(dataForReport);
+  }, [tableHeaders, data]);
+
+  useEffect(() => {
     const styleElement = document.createElement("style");
     styleElement.textContent = `${pivotTableStyles}`;
     document.head.appendChild(styleElement);
@@ -154,232 +183,260 @@ const Reporting: React.FC = () => {
       <ReportingHomeHeader />
 
       <div className={styles.container}>
-        <p className={styles.heading}>Report filters</p>
-        <Form className={styles.form}>
-          <Stack gap={2}>
-            <FormGroup>
-              <FormLabel className={styles.label}>Type of report</FormLabel>
-              <ContentSwitcher size="sm" onChange={handleReportTypeChange}>
-                <Switch name="fixed" text="Fixed" />
-                <Switch name="dynamic" text="Dynamic" />
-              </ContentSwitcher>
-            </FormGroup>
+        <Accordion className={styles.accordion}>
+          <AccordionItem
+            className={styles.heading}
+            title="Report filters"
+            open={data.length < 1}
+          >
+            <Form className={styles.form}>
+              <Stack gap={2}>
+                <FormGroup>
+                  <FormLabel className={styles.label}>Type of report</FormLabel>
+                  <ContentSwitcher size="sm" onChange={handleReportTypeChange}>
+                    <Switch name="fixed" text="Fixed" />
+                    <Switch name="dynamic" text="Dynamic" />
+                  </ContentSwitcher>
+                </FormGroup>
 
-            {reportType === "fixed" && (
-              <>
+                {reportType === "fixed" && (
+                  <>
+                    <FormGroup>
+                      <FormLabel className={styles.label}>
+                        Do you want to show a facility report or a national
+                        report?
+                      </FormLabel>
+                      <RadioButtonGroup
+                        defaultSelected="facility"
+                        legendText=""
+                        name="reportCategory"
+                      >
+                        <RadioButton
+                          id="facilityReport"
+                          labelText="Facility"
+                          onClick={() => setReportCategory("facility")}
+                          value="facility"
+                        />
+                        <RadioButton
+                          id="nationalReport"
+                          labelText="National"
+                          onClick={() => setReportCategory("national")}
+                          value="national"
+                        />
+                      </RadioButtonGroup>
+                    </FormGroup>
+
+                    {reportCategory === "facility" && (
+                      <FormGroup>
+                        <FormLabel className={styles.label}>
+                          Facility report
+                        </FormLabel>
+                        <ComboBox
+                          ariaLabel="Select facility report"
+                          id="facilityReportsCombobox"
+                          items={facilityReports.reports}
+                          hideLabel
+                          onChange={handleUpdateFacilityReport}
+                          selectedItem={facilityReport}
+                        />
+                      </FormGroup>
+                    )}
+
+                    {reportCategory === "national" && (
+                      <FormGroup>
+                        <FormLabel className={styles.label}>
+                          National report
+                        </FormLabel>
+                        <ComboBox
+                          ariaLabel="Select national report"
+                          id="nationalReportsCombobox"
+                          items={nationalReports.reports}
+                          hideLabel
+                        />
+                      </FormGroup>
+                    )}
+                  </>
+                )}
+
+                {reportType === "dynamic" && (
+                  <Stack gap={3}>
+                    <FormGroup>
+                      <FormLabel className={styles.label}>
+                        Dynamic report type
+                      </FormLabel>
+
+                      <ComboBox
+                        ariaLabel="Select report type"
+                        id="reportTypeCombobox"
+                        items={[
+                          ...facilityReports.reports,
+                          ...nationalReports.reports,
+                        ]}
+                        placeholder="Choose the report you want to generate"
+                        onChange={handleDynamicReportTypeChange}
+                        selectedItem={selectedReport}
+                      />
+                    </FormGroup>
+
+                    <FormGroup>
+                      <FormLabel className={styles.label}>Indicators</FormLabel>
+
+                      <ComboBox
+                        ariaLabel="Select indicators"
+                        id="indicatorCombobox"
+                        items={[...Indicators.Indicators]}
+                        placeholder="Choose the indicators"
+                        onChange={handleIndicatorChange}
+                        selectedItem={selectedIndicators}
+                      />
+                    </FormGroup>
+
+                    <div className={styles.panelContainer}>
+                      <Panel heading="Available parameters">
+                        <ul>
+                          {availableParameters.map((parameter, index) => (
+                            <li
+                              role="menuitem"
+                              className={styles.leftListItem}
+                              key={index}
+                              onClick={() => moveAllFromLeftToRight(parameter)}
+                            >
+                              {parameter}
+                            </li>
+                          ))}
+                        </ul>
+                      </Panel>
+                      <div className={styles.paramsControlContainer}>
+                        <Button
+                          iconDescription="Move all parameters to the right"
+                          kind="tertiary"
+                          hasIconOnly
+                          renderIcon={ArrowRight}
+                          onClick={moveAllParametersRight}
+                          role="button"
+                          size="md"
+                          disabled={availableParameters.length < 1}
+                        />
+                        <Button
+                          iconDescription="Move all parameters to the left"
+                          kind="tertiary"
+                          hasIconOnly
+                          renderIcon={ArrowLeft}
+                          onClick={moveAllParametersLeft}
+                          role="button"
+                          size="md"
+                          disabled={selectedParameters.length < 1}
+                        />
+                      </div>
+                      <Panel heading="Selected parameters">
+                        <ul>
+                          {selectedParameters.map((parameter, index) => (
+                            <li
+                              className={styles.rightListItem}
+                              key={index}
+                              role="menuitem"
+                              onClick={() => moveAllFromRightToLeft(parameter)}
+                            >
+                              {parameter}
+                            </li>
+                          ))}
+                        </ul>
+                      </Panel>
+                    </div>
+                  </Stack>
+                )}
+
                 <FormGroup>
                   <FormLabel className={styles.label}>
-                    Do you want to show a facility report or a national report?
+                    Do you want your report to cover a fixed reporting period or
+                    a relative one?
                   </FormLabel>
                   <RadioButtonGroup
-                    defaultSelected="facility"
                     legendText=""
-                    name="reportCategory"
+                    name="reportingDuration"
+                    onChange={handleReportingDurationChange}
+                    defaultSelected="fixed"
                   >
                     <RadioButton
-                      id="facilityReport"
-                      labelText="Facility"
-                      onClick={() => setReportCategory("facility")}
-                      value="facility"
+                      id="fixedPeriod"
+                      labelText="Fixed period"
+                      value="fixed"
                     />
                     <RadioButton
-                      id="nationalReport"
-                      labelText="National"
-                      onClick={() => setReportCategory("national")}
-                      value="national"
+                      id="relativePeriod"
+                      labelText="Relative period"
+                      value="relative"
                     />
                   </RadioButtonGroup>
                 </FormGroup>
-
-                {reportCategory === "facility" && (
+                {reportingDuration === "fixed" && (
                   <FormGroup>
-                    <FormLabel className={styles.label}>
-                      Facility report
-                    </FormLabel>
-                    <ComboBox
-                      ariaLabel="Select facility report"
-                      id="facilityReportsCombobox"
-                      items={facilityReports.reports}
-                      hideLabel
-                    />
+                    <DatePicker datePickerType="single">
+                      <DatePickerInput
+                        id="date-picker-input-id-start"
+                        placeholder="dd-mm-yyyy"
+                        labelText="Start Date"
+                      />
+                    </DatePicker>
+                    <br />
+                    <DatePicker datePickerType="single">
+                      <DatePickerInput
+                        id="date-picker-input-id-end"
+                        placeholder="dd-mm-yyyy"
+                        labelText="End Date"
+                      />
+                    </DatePicker>
                   </FormGroup>
                 )}
-
-                {reportCategory === "national" && (
+                {reportingDuration === "relative" && (
                   <FormGroup>
                     <FormLabel className={styles.label}>
-                      National report
+                      Select your desired reporting period
                     </FormLabel>
-                    <ComboBox
-                      ariaLabel="Select national report"
-                      id="nationalReportsCombobox"
-                      items={nationalReports.reports}
-                      hideLabel
-                    />
+                    <RadioButtonGroup
+                      className={styles.wrapper}
+                      legendText=""
+                      name="reportingPeriod"
+                      orientation="vertical"
+                      defaultSelexted="today"
+                    >
+                      <RadioButton
+                        id="today"
+                        onClick={() => setReportingPeriod("today")}
+                        labelText="Today"
+                        value="today"
+                      />
+                      <RadioButton
+                        id="week"
+                        onClick={() => setReportingPeriod("week")}
+                        labelText="Week"
+                        value="week"
+                      />
+                      <RadioButton
+                        id="month"
+                        onClick={() => setReportingPeriod("month")}
+                        labelText="Month"
+                        value="month"
+                      />
+                      <RadioButton
+                        id="quarter"
+                        onClick={() => setReportingPeriod("quarter")}
+                        labelText="Quarter"
+                        value="quarter"
+                      />
+                      <RadioButton
+                        id="lastQuarter"
+                        onClick={() => setReportingPeriod("lastQuarter")}
+                        labelText="Last Quarter"
+                        value="lastQuarter"
+                      />
+                    </RadioButtonGroup>
                   </FormGroup>
                 )}
-              </>
-            )}
-
-            {reportType === "dynamic" && (
-              <Stack gap={3}>
-                <FormGroup>
-                  <FormLabel className={styles.label}>
-                    Dynamic report type
-                  </FormLabel>
-
-                  <ComboBox
-                    ariaLabel="Select report type"
-                    id="reportTypeCombobox"
-                    items={[
-                      ...facilityReports.reports,
-                      ...nationalReports.reports,
-                    ]}
-                    placeholder="Choose the report you want to generate"
-                    onChange={handleDynamicReportTypeChange}
-                    selectedItem={selectedReport}
-                  />
-                </FormGroup>
-
-                <FormGroup>
-                  <FormLabel className={styles.label}>Indicators</FormLabel>
-
-                  <ComboBox
-                    ariaLabel="Select indicators"
-                    id="indicatorCombobox"
-                    items={[...Indicators.Indicators]}
-                    placeholder="Choose the indicators"
-                    onChange={handleIndicatorChange}
-                    selectedItem={selectedIndicators}
-                  />
-                </FormGroup>
-
-                <div className={styles.panelContainer}>
-                  <Panel heading="Available parameters">
-                    <ul>
-                      {availableParameters.map((parameter, index) => (
-                        <li
-                          role="menuitem"
-                          className={styles.leftListItem}
-                          key={index}
-                          onClick={() => moveAllFromLeftToRight(parameter)}
-                        >
-                          {parameter}
-                        </li>
-                      ))}
-                    </ul>
-                  </Panel>
-                  <div className={styles.paramsControlContainer}>
-                    <Button
-                      iconDescription="Move all parameters to the right"
-                      kind="tertiary"
-                      hasIconOnly
-                      renderIcon={ArrowRight}
-                      onClick={moveAllParametersRight}
-                      role="button"
-                      size="md"
-                      disabled={availableParameters.length < 1}
-                    />
-                    <Button
-                      iconDescription="Move all parameters to the left"
-                      kind="tertiary"
-                      hasIconOnly
-                      renderIcon={ArrowLeft}
-                      onClick={moveAllParametersLeft}
-                      role="button"
-                      size="md"
-                      disabled={selectedParameters.length < 1}
-                    />
-                  </div>
-                  <Panel heading="Selected parameters">
-                    <ul>
-                      {selectedParameters.map((parameter, index) => (
-                        <li
-                          className={styles.rightListItem}
-                          key={index}
-                          role="menuitem"
-                          onClick={() => moveAllFromRightToLeft(parameter)}
-                        >
-                          {parameter}
-                        </li>
-                      ))}
-                    </ul>
-                  </Panel>
-                </div>
               </Stack>
-            )}
-
-            <FormGroup>
-              <FormLabel className={styles.label}>
-                Do you want your report to cover a fixed reporting period or a
-                relative one?
-              </FormLabel>
-              <RadioButtonGroup
-                legendText=""
-                name="reportingDuration"
-                onChange={handleReportingDurationChange}
-                defaultSelected="fixed"
-              >
-                <RadioButton
-                  id="fixedPeriod"
-                  labelText="Fixed period"
-                  value="fixed"
-                />
-                <RadioButton
-                  id="relativePeriod"
-                  labelText="Relative period"
-                  value="relative"
-                />
-              </RadioButtonGroup>
-            </FormGroup>
-
-            {reportingDuration === "relative" && (
-              <FormGroup>
-                <FormLabel className={styles.label}>
-                  Select your desired reporting period
-                </FormLabel>
-                <RadioButtonGroup
-                  className={styles.wrapper}
-                  legendText=""
-                  name="reportingPeriod"
-                  orientation="vertical"
-                  defaultSelexted="today"
-                >
-                  <RadioButton
-                    id="today"
-                    onClick={() => setReportingPeriod("today")}
-                    labelText="Today"
-                    value="today"
-                  />
-                  <RadioButton
-                    id="week"
-                    onClick={() => setReportingPeriod("week")}
-                    labelText="Week"
-                    value="week"
-                  />
-                  <RadioButton
-                    id="month"
-                    onClick={() => setReportingPeriod("month")}
-                    labelText="Month"
-                    value="month"
-                  />
-                  <RadioButton
-                    id="quarter"
-                    onClick={() => setReportingPeriod("quarter")}
-                    labelText="Quarter"
-                    value="quarter"
-                  />
-                  <RadioButton
-                    id="lastQuarter"
-                    onClick={() => setReportingPeriod("lastQuarter")}
-                    labelText="Last Quarter"
-                    value="lastQuarter"
-                  />
-                </RadioButtonGroup>
-              </FormGroup>
-            )}
-          </Stack>
-        </Form>
+            </Form>
+          </AccordionItem>
+        </Accordion>
       </div>
 
       <section className={styles.section}>
@@ -442,9 +499,16 @@ const Reporting: React.FC = () => {
 
       {showLineList ? (
         <>
-          {chartType === "list" && (
+          {chartType === "list" && loading && (
+            <DataTableSkeleton role="progressbar" />
+          )}
+
+          {chartType === "list" && !loading && (
             <div className={styles.reportContainer}>
-              <h3 className={styles.listHeading}>Patient list</h3>
+              <h3 className={styles.listHeading}>
+                {" "}
+                {facilityReport ? facilityReport.label : "Patient List"}{" "}
+              </h3>
               <DataList columns={tableHeaders} data={data} />
             </div>
           )}
@@ -453,10 +517,10 @@ const Reporting: React.FC = () => {
             <div className={styles.reportContainer}>
               <h3>Pivot Table</h3>
               <PivotTableUI
-                data={patientData}
+                data={data}
                 onChange={(s) => setPatientData(s)}
                 renderers={{ ...TableRenderers, ...PlotlyRenderers }}
-                {...patientData}
+                {...data}
               />
             </div>
           )}

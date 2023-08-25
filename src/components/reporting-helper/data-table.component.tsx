@@ -55,7 +55,7 @@ const DataList: React.FC<ListProps> = ({ columns, data }) => {
     goTo,
     results: paginatedList,
     currentPage,
-  } = usePagination(list, currentPageSize);
+  } = usePagination(data, currentPageSize);
 
   const handleFilter = ({
     rowIds,
@@ -97,7 +97,7 @@ const DataList: React.FC<ListProps> = ({ columns, data }) => {
       const jsonBlob = new Blob([csvString], { type: "application/json" });
       saveAs(jsonBlob, "data.json");
     }
-  }, [columns, documentType, list]);
+  }, [columns, documentType]);
 
   const convertToCSV = (data, columns) => {
     const header = columns.map((col) => col.header).join(",");
@@ -192,7 +192,7 @@ const DataList: React.FC<ListProps> = ({ columns, data }) => {
               page={currentPage}
               pageSize={currentPageSize}
               pageSizes={pageSizes}
-              totalItems={list?.length}
+              totalItems={data?.length}
               className={styles.pagination}
               onChange={({ pageSize, page }) => {
                 if (pageSize !== currentPageSize) {
