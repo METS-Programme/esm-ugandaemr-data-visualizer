@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import PivotTableUI from "react-pivottable/PivotTableUI";
 import TableRenderers from "react-pivottable/TableRenderers";
 import Plot from "react-plotly.js";
@@ -34,13 +34,25 @@ import {
   Tile,
 } from "@carbon/react";
 import ReportingHomeHeader from "../reporting-header/reporting-home-header.component";
-import { facilityReports, nationalReports, Indicators } from "../../constants";
+import {
+  facilityReports,
+  nationalReports,
+  Indicators,
+  reportIndicators,
+} from "../../constants";
 import DataList from "../reporting-helper/data-table.component";
 import EmptyStateIllustration from "./empty-state-illustration.component";
 import Panel from "../panel/panel.component";
 import pivotTableStyles from "!!raw-loader!react-pivottable/pivottable.css";
 import styles from "./reporting.scss";
-import { createColumns, useReports } from "./reporting.resource";
+import {
+  createColumns,
+  mapDataElements, useGetEncounterConcepts,
+  useGetEncounterType,
+  useGetIdentifiers,
+  useGetPatientAtrributes,
+  useReports,
+} from "./reporting.resource";
 import dayjs from "dayjs";
 
 type ChartType = "list" | "pivot" | "line" | "bar" | "pie";
@@ -63,16 +75,12 @@ const Reporting: React.FC = () => {
     useState<ReportingDuration>("fixed");
   const [reportingPeriod, setReportingPeriod] =
     useState<ReportingPeriod>("today");
-  const [selectedIndicators, setSelectedIndicators] = useState<{
-    id: string;
-    label: string;
-    parameters: Array<string>;
-  }>(null);
+  const [selectedIndicators, setSelectedIndicators] = useState<Indicator>(null);
   const [selectedReport, setSelectedReport] = useState<{
     id: string;
     label: string;
     parameters: Array<string>;
-  }>(null);
+  }>(facilityReports.reports[0]);
   const [facilityReport, setFacilityReport] = useState(
     facilityReports.reports[0]
   );
@@ -91,6 +99,14 @@ const Reporting: React.FC = () => {
     startDate: startDate,
     endDate: endDate,
   });
+  const [indicators, setIndicators] = useState<Array<Indicator>>([]);
+  const { identifiers, isLoadingIndentifiers } = useGetIdentifiers(
+    selectedIndicators ? selectedIndicators.id : null
+  );
+  const { personAttributes, isLoadingPersonAttributes } =
+    useGetPatientAtrributes(selectedIndicators ? selectedIndicators.id : null);
+  const { encounterConcepts, isLoadingEncounterConcepts } =
+    useGetEncounterConcepts(selectedIndicators ? selectedIndicators.id : null);
   const handleUpdateReport = () => {
     setUuid(facilityReport.id);
   };
@@ -124,7 +140,7 @@ const Reporting: React.FC = () => {
 
     let updatedAvailableParameters = [...availableParameters];
 
-    selectedIndicators.parameters.filter((parameter) => {
+    selectedIndicators.attributes.filter((parameter) => {
       if (parameter === selectedParameter) {
         updatedAvailableParameters = [
           ...updatedAvailableParameters,
@@ -136,7 +152,7 @@ const Reporting: React.FC = () => {
   };
 
   const moveAllParametersLeft = () => {
-    setAvailableParameters(selectedIndicators.parameters);
+    setAvailableParameters(selectedIndicators.attributes);
     setSelectedParameters([]);
   };
 
@@ -146,7 +162,6 @@ const Reporting: React.FC = () => {
   };
 
   const handleIndicatorChange = ({ selectedItem }) => {
-    setAvailableParameters(selectedItem.parameters);
     setSelectedIndicators(selectedItem);
   };
 
@@ -165,6 +180,47 @@ const Reporting: React.FC = () => {
   const handleEndDateChange = (selectedDate) => {
     setEndDate(dayjs(selectedDate[0]).format("YYYY-MM-DD"));
   };
+
+  const { encounterTypes, isLoadingEncounterTypes } = useGetEncounterType();
+
+  useEffect(() => {
+    let encounterTypeArray: Array<Indicator> = [];
+    if (!isLoadingEncounterTypes) {
+      if (encounterTypes["results"].length > 0) {
+        encounterTypeArray = mapDataElements(encounterTypes["results"]);
+      }
+      setIndicators(encounterTypeArray);
+    }
+  });
+
+  useEffect(() => {
+    let indicatorsArray: Array<Indicator> = [];
+    if (selectedIndicators && selectedIndicators.id === "IDN") {
+      if (!isLoadingIndentifiers) {
+        indicatorsArray =
+          identifiers["results"].length > 0
+            ? mapDataElements(identifiers["results"])
+            : [];
+      }
+    } else if (selectedIndicators && selectedIndicators.id === "PAT") {
+      if (!isLoadingPersonAttributes) {
+        indicatorsArray =
+          personAttributes["results"].length > 0
+            ? mapDataElements(personAttributes["results"])
+            : [];
+      }
+    } else {
+      if (!isLoadingEncounterConcepts) {
+        indicatorsArray = encounterConcepts
+          ? mapDataElements(
+              encounterConcepts as Array<Record<string, string>>,
+              "concepts"
+            )
+          : [];
+      }
+    }
+    setAvailableParameters(indicatorsArray);
+  }, [availableParameters]);
 
   useEffect(() => {
     let headers = [];
@@ -305,7 +361,7 @@ const Reporting: React.FC = () => {
                       <ComboBox
                         ariaLabel="Select indicators"
                         id="indicatorCombobox"
-                        items={[...Indicators.Indicators]}
+                        items={[...reportIndicators, ...indicators]}
                         placeholder="Choose the indicators"
                         onChange={handleIndicatorChange}
                         selectedItem={selectedIndicators}
@@ -314,15 +370,15 @@ const Reporting: React.FC = () => {
 
                     <div className={styles.panelContainer}>
                       <Panel heading="Available parameters">
-                        <ul>
+                        <ul className={styles.list}>
                           {availableParameters.map((parameter, index) => (
                             <li
                               role="menuitem"
                               className={styles.leftListItem}
-                              key={index}
+                              key={parameter.label}
                               onClick={() => moveAllFromLeftToRight(parameter)}
                             >
-                              {parameter}
+                              {parameter.label}
                             </li>
                           ))}
                         </ul>
@@ -350,15 +406,15 @@ const Reporting: React.FC = () => {
                         />
                       </div>
                       <Panel heading="Selected parameters">
-                        <ul>
+                        <ul className={styles.list}>
                           {selectedParameters.map((parameter, index) => (
                             <li
                               className={styles.rightListItem}
-                              key={index}
+                              key={parameter.label}
                               role="menuitem"
                               onClick={() => moveAllFromRightToLeft(parameter)}
                             >
-                              {parameter}
+                              {parameter.label}
                             </li>
                           ))}
                         </ul>

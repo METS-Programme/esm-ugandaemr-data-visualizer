@@ -12,10 +12,25 @@ declare type Report = {
   endDate?: boolean;
   location?: boolean;
   outputFormat?: Array<string>;
-  parameters?: Array<string>;
+  parameters: Array<string>;
 };
 
 declare type ReportProps = {
   categoryName: string;
   reports: Array<Report>;
+};
+
+declare type Indicator = {
+  id: string;
+  label: string;
+  attributes?: Array<IndicatorItem>;
+};
+
+declare type IndicatorItem = {
+  uuid: string;
+  display: string;
+  links?: Array<{
+    rel: string;
+    uri: string;
+  }>;
 };

@@ -53,18 +53,22 @@ export const nationalReports: ReportProps = {
     {
       id: "HMIS106-1A",
       label: "HMIS 106A",
+      parameters: [],
     },
     {
       id: "",
       label: "HMIS 105",
+      parameters: [],
     },
     {
       id: "TxC28",
       label: "Tx Current_28Days Report",
+      parameters: [],
     },
     {
       id: "TxC90",
       label: "Tx Current_90Days Report",
+      parameters: [],
     },
   ],
 };
@@ -139,5 +143,18 @@ export const tableHeaders = [
     id: 4,
     key: "viral_load",
     header: "Viral Load",
+  },
+];
+
+export const reportIndicators: Array<Indicator> = [
+  {
+    id: "IDN",
+    label: "Identifiers",
+    attributes: [],
+  },
+  {
+    id: "PAT",
+    label: "Person Attributes",
+    attributes: [],
   },
 ];
