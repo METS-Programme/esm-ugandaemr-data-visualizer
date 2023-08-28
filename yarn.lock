@@ -5924,9 +5924,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@ugandaemr/esm-reporting-app@workspace:.":
+"@ugandaemr/esm-data-visualizer-app@workspace:.":
   version: 0.0.0-use.local
-  resolution: "@ugandaemr/esm-reporting-app@workspace:."
+  resolution: "@ugandaemr/esm-data-visualizer-app@workspace:."
   dependencies:
     "@carbon/react": ^1.36.0
     "@openmrs/esm-extensions": next
@@ -5955,7 +5955,7 @@ __metadata:
     eslint-config-ts-react-important-stuff: ^3.0.0
     eslint-plugin-prettier: ^4.2.1
     file-saver: ^2.0.5
-    husky: ^8.0.3
+    husky: ^8.0.0
     identity-obj-proxy: ^3.0.0
     jest: ^28.1.3
     jest-cli: ^28.1.3
@@ -12128,7 +12128,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"husky@npm:^8.0.3":
+"husky@npm:^8.0.0":
   version: 8.0.3
   resolution: "husky@npm:8.0.3"
   bin:

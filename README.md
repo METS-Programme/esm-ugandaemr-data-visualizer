@@ -1,8 +1,8 @@
 
 
-# UgandaEMR Reporting ESM
+# UgandaEMR Data Visualizer ESM
 
-A microfrontend for reporting in UgandaEMR built on top of OpenMRS 3.x
+A frontend module for visualizing data in UgandaEMR built on top of OpenMRS 3.x
 
 For more information, please refer to the 
 [OpenMRS 3.x Frontend Documentation](https://openmrs.github.io/openmrs-esm-core/#/).

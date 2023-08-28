@@ -9,8 +9,8 @@ on:
     types:
       - created
 env:
-  ESM_NAME: "@ugandaemr/esm-reporting-app"
-  JS_NAME: "esm-reporting-app.js"
+  ESM_NAME: "@ugandaemr/esm-data-visualizer-app"
+  JS_NAME: "esm-ugandaemr-data-visualizer-app.js"
   
 jobs:
   build:

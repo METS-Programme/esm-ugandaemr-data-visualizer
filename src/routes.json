@@ -4,30 +4,21 @@
     "fhir2": "^1.2.0",
     "webservices.rest": "^2.2.0"
   },
-  "pages": [
-    {
-      "component": "root",
-      "route": "reporting"
-    }
-  ],
   "extensions": [
     {
-      "component": "root",
-      "name": "reporting-dashboard",
-      "slot": "reporting-dashboard-slot"
-    },
-    {
-      "name": "reporting-dashboard-link",
-      "component": "reportingDashboardLink",
+      "name": "data-visualizer-dashboard-link",
+      "component": "dataVisualizerDashboardLink",
       "slot": "homepage-dashboard-slot",
       "meta": {
-        "name": "reporting",
-        "slot": "reporting-dashboard-slot",
-        "title": "Reporting"
-      },
-      "online": true,
-      "offline": true,
-      "order": 0
+        "name": "data-visualizer",
+        "slot": "data-visualizer-dashboard-slot",
+        "title": "Data visualizer"
+      }
+    },
+    {
+      "component": "root",
+      "name": "data-visualizer-dashboard",
+      "slot": "data-visualizer-dashboard-slot"
     }
   ]
 }
