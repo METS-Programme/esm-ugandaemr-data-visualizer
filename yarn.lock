@@ -5950,6 +5950,7 @@ __metadata:
     carbon-components-react: ^8.34.0
     concurrently: ^7.6.0
     css-loader: ^6.8.1
+    dayjs: ^1.11.9
     eslint: ^8.42.0
     eslint-config-prettier: ^8.8.0
     eslint-config-ts-react-important-stuff: ^3.0.0
@@ -9350,6 +9351,13 @@ __metadata:
   version: 1.11.4
   resolution: "dayjs@npm:1.11.4"
   checksum: 478c8a2db9e3fc752db9f02ef23f00e12308eebbeb85569913731ea78e8d5616f2335e14f25af48e9f16bbcbd796653092eca4d2f42c0218a948402c31735f59
+  languageName: node
+  linkType: hard
+
+"dayjs@npm:^1.11.9":
+  version: 1.11.9
+  resolution: "dayjs@npm:1.11.9"
+  checksum: a4844d83dc87f921348bb9b1b93af851c51e6f71fa259604809cfe1b49d1230e6b0212dab44d1cb01994c096ad3a77ea1cf18fa55154da6efcc9d3610526ac38
   languageName: node
   linkType: hard
 

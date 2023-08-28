@@ -41,6 +41,7 @@ import Panel from "../panel/panel.component";
 import pivotTableStyles from "!!raw-loader!react-pivottable/pivottable.css";
 import styles from "./reporting.scss";
 import { createColumns, useReports } from "./reporting.resource";
+import dayjs from "dayjs";
 
 type ChartType = "list" | "pivot" | "line" | "bar" | "pie";
 type ReportType = "fixed" | "dynamic";
@@ -53,8 +54,6 @@ const Reporting: React.FC = () => {
   const [tableHeaders, setTableHeaders] = useState([]);
   const [data, setData] = useState([]);
   const [uuid, setUuid] = useState<string>(null);
-  const { reportData, isLoading } = useReports(uuid);
-
   const [patientData, setPatientData] = useState(data);
   const [chartType, setChartType] = useState<ChartType>("list");
   const [reportType, setReportType] = useState<ReportType>("fixed");
@@ -74,21 +73,26 @@ const Reporting: React.FC = () => {
     label: string;
     parameters: Array<string>;
   }>(null);
-  const [facilityReport, setFacilityReport] = useState(null);
+  const [facilityReport, setFacilityReport] = useState(
+    facilityReports.reports[0]
+  );
   const handleUpdateFacilityReport = ({ selectedItem }) => {
     setFacilityReport(selectedItem);
   };
-  const [startDate, setStartDate] = useState("");
-  const [endDate, setEndDate] = useState("");
+  const [startDate, setStartDate] = useState(null);
+  const [endDate, setEndDate] = useState(null);
   const [loading, setLoading] = useState(true);
   const [showLineList, setShowLineList] = useState(false);
   const [availableParameters, setAvailableParameters] = useState([]);
   const [selectedParameters, setSelectedParameters] = useState([]);
-
+  const [showFilters, setShowFilters] = useState(true);
+  const { reportData, isLoading } = useReports({
+    reportUUID: uuid,
+    startDate: startDate,
+    endDate: endDate,
+  });
   const handleUpdateReport = () => {
-    setShowLineList(true);
     setUuid(facilityReport.id);
-    setLoading(true);
   };
 
   const handleChartTypeChange = ({ name }) => {
@@ -150,6 +154,18 @@ const Reporting: React.FC = () => {
     setSelectedReport(selectedItem);
   };
 
+  const handleFiltersToggle = () => {
+    showFilters === true ? setShowFilters(false) : setShowFilters(true);
+  };
+
+  const handleStartDateChange = (selectedDate) => {
+    setStartDate(dayjs(selectedDate[0]).format("YYYY-MM-DD"));
+  };
+
+  const handleEndDateChange = (selectedDate) => {
+    setEndDate(dayjs(selectedDate[0]).format("YYYY-MM-DD"));
+  };
+
   useEffect(() => {
     let headers = [];
     let dataForReport = [];
@@ -163,6 +179,10 @@ const Reporting: React.FC = () => {
         setShowLineList(false);
       }
       setLoading(false);
+    } else {
+      showLineList === false ? setShowLineList(true) : null;
+      setLoading(true);
+      setShowFilters(false);
     }
     setTableHeaders(headers);
     setData(dataForReport);
@@ -187,7 +207,8 @@ const Reporting: React.FC = () => {
           <AccordionItem
             className={styles.heading}
             title="Report filters"
-            open={data.length < 1}
+            open={showFilters}
+            onHeadingClick={handleFiltersToggle}
           >
             <Form className={styles.form}>
               <Stack gap={2}>
@@ -371,18 +392,26 @@ const Reporting: React.FC = () => {
                 </FormGroup>
                 {reportingDuration === "fixed" && (
                   <FormGroup>
-                    <DatePicker datePickerType="single">
+                    <DatePicker
+                      datePickerType="single"
+                      onChange={handleStartDateChange}
+                      dateFormat={"d/m/Y"}
+                    >
                       <DatePickerInput
                         id="date-picker-input-id-start"
-                        placeholder="dd-mm-yyyy"
+                        placeholder="dd/mm/yyyy"
                         labelText="Start Date"
                       />
                     </DatePicker>
                     <br />
-                    <DatePicker datePickerType="single">
+                    <DatePicker
+                      datePickerType="single"
+                      onChange={handleEndDateChange}
+                      dateFormat={"d/m/Y"}
+                    >
                       <DatePickerInput
                         id="date-picker-input-id-end"
-                        placeholder="dd-mm-yyyy"
+                        placeholder="dd/mm/yyyy"
                         labelText="End Date"
                       />
                     </DatePicker>
@@ -398,7 +427,7 @@ const Reporting: React.FC = () => {
                       legendText=""
                       name="reportingPeriod"
                       orientation="vertical"
-                      defaultSelexted="today"
+                      defaultSelected="today"
                     >
                       <RadioButton
                         id="today"

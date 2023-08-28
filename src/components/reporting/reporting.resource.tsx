@@ -1,12 +1,17 @@
 import useSWR from "swr";
 import { openmrsFetch } from "@openmrs/esm-framework";
 
-export function useReports(reportUUID?: string) {
-  const apiUrl = `/ws/rest/v1/ugandaemrreports/reportingDefinition?uuid=${reportUUID}&startDate=2022-01-01&endDate=2022-01-31`;
+type reportRequest = {
+  reportUUID: string;
+  startDate: string;
+  endDate: string;
+};
+export function useReports(params: reportRequest) {
+  const apiUrl = `/ws/rest/v1/ugandaemrreports/reportingDefinition?uuid=${params.reportUUID}&startDate=${params.startDate}&endDate=${params.endDate}`;
   const { data, error, isLoading, isValidating, mutate } = useSWR<
     { data: { results: any } },
     Error
-  >(reportUUID ? apiUrl : null, openmrsFetch);
+  >(params.reportUUID ? apiUrl : null, openmrsFetch);
   return {
     reportData: data ? data?.data : [],
     isLoading,
