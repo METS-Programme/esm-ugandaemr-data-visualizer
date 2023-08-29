@@ -6,7 +6,7 @@ export const facilityReports: ReportProps = {
   categoryName: "FACILITY REPORTS",
   reports: [
     {
-      id: "APL",
+      id: "9c85e20b-c3ce-4dc1-b332-13f1d02f1c5c",
       label: "Appointments List",
       parameters: [
         "Clinic No",
@@ -19,7 +19,7 @@ export const facilityReports: ReportProps = {
       ],
     },
     {
-      id: "MPL",
+      id: "654c7276-75f8-11e6-8b77-86f30ca893d3",
       label: "Missed Appointments List",
       parameters: [
         "Clinic No",
@@ -33,8 +33,8 @@ export const facilityReports: ReportProps = {
       ],
     },
     {
-      id: "DAL",
-      label: "Daily Appointments List",
+      id: "73585ad5-8a5c-4e4a-b197-9241abe24bd9",
+      label: "Daily Missed Appointments List",
       parameters: [
         "Clinic No",
         "Patient Name",
@@ -53,18 +53,22 @@ export const nationalReports: ReportProps = {
     {
       id: "HMIS106-1A",
       label: "HMIS 106A",
+      parameters: [],
     },
     {
       id: "",
       label: "HMIS 105",
+      parameters: [],
     },
     {
       id: "TxC28",
       label: "Tx Current_28Days Report",
+      parameters: [],
     },
     {
       id: "TxC90",
       label: "Tx Current_90Days Report",
+      parameters: [],
     },
   ],
 };
@@ -102,7 +106,7 @@ export const Indicators: any = {
   ],
 };
 
-export const data = [
+export const testData = [
   { name: "John", age: 30, district: "Kampala", viral_load: 85 },
   { name: "Alice", age: 25, district: "Wakiso", viral_load: 92 },
   { name: "Bob", age: 28, district: "Kampala", viral_load: 78 },
@@ -122,7 +126,7 @@ export const data = [
   { name: "Daphine", age: 28, district: "Kampala", viral_load: 78 },
 ];
 
-export const tableHeaders = [
+export const tableHeadersTest = [
   {
     id: 1,
     key: "name",
@@ -139,5 +143,18 @@ export const tableHeaders = [
     id: 4,
     key: "viral_load",
     header: "Viral Load",
+  },
+];
+
+export const reportIndicators: Array<Indicator> = [
+  {
+    id: "IDN",
+    label: "Identifiers",
+    attributes: [],
+  },
+  {
+    id: "PAT",
+    label: "Person Attributes",
+    attributes: [],
   },
 ];

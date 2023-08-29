@@ -40,6 +40,13 @@
   }
 }
 
+.list {
+  display: flex;
+  flex-direction: column;
+  max-height: 25rem;
+  overflow-y: auto;
+}
+
 .leftListItem {
   list-style-type: none;
   padding: 0.75rem 1rem;
@@ -86,7 +93,7 @@
   font-weight: bolder;
 }
 
-.section { 
+.section {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -174,4 +181,16 @@
 .explainer {
   @include type.type-style('body-compact-01');
   color: colors.$gray-70;
+}
+
+.accordion {
+  margin-top: 1rem;
+
+  li {
+    display: unset;
+  }
+
+  :global(.cds--accordion__title) {
+    @include type.type-style('heading-03');
+  }
 }
