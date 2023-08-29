@@ -94,25 +94,26 @@ const Reporting: React.FC = () => {
   const [availableParameters, setAvailableParameters] = useState([]);
   const [selectedParameters, setSelectedParameters] = useState([]);
   const [showFilters, setShowFilters] = useState(true);
+  const [reportName, setReportName] = useState("Patient List");
+  const { identifiers, isLoadingIdentifiers } = useGetIdentifiers();
+  const { personAttributes, isLoadingAttributes } = useGetPatientAtrributes();
+  const { encounterTypes } = useGetEncounterType();
+  const [hasRetrievedConcepts, setHasRetrievedConcepts] = useState(false);
+  const [hasUpdatedreport, setHasUpdatedreport] = useState(false);
   const { reportData, isLoading } = useReports({
     reportUUID: uuid,
     startDate: startDate,
     endDate: endDate,
   });
-  const [reportName, setReportName] = useState("Patient List");
-  const { identifiers, isLoadingIdentifiers } = useGetIdentifiers();
-  const { personAttributes, isLoadingAttributes } = useGetPatientAtrributes();
-  const { encounterTypes } = useGetEncounterType();
+  const { encounterConcepts, isLoadingEncounterConcepts } =
+    useGetEncounterConcepts(selectedIndicators?.id);
   const handleUpdateReport = () => {
     setUuid(facilityReport.id);
     setHasUpdatedreport(false);
     setShowLineList(true);
     setLoading(true);
   };
-  const [hasRetrievedConcepts, setHasRetrievedConcepts] = useState(false);
-  const { encounterConcepts, isLoadingEncounterConcepts } =
-    useGetEncounterConcepts(selectedIndicators?.id);
-  const [hasUpdatedreport, setHasUpdatedreport] = useState(false);
+
   const handleChartTypeChange = ({ name }) => {
     setChartType(name);
   };
