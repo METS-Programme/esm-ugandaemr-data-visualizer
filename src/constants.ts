@@ -106,7 +106,7 @@ export const Indicators: any = {
   ],
 };
 
-export const data = [
+export const testData = [
   { name: "John", age: 30, district: "Kampala", viral_load: 85 },
   { name: "Alice", age: 25, district: "Wakiso", viral_load: 92 },
   { name: "Bob", age: 28, district: "Kampala", viral_load: 78 },
@@ -126,7 +126,7 @@ export const data = [
   { name: "Daphine", age: 28, district: "Kampala", viral_load: 78 },
 ];
 
-export const tableHeaders = [
+export const tableHeadersTest = [
   {
     id: 1,
     key: "name",

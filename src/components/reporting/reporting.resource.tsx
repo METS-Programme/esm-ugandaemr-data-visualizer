@@ -1,5 +1,6 @@
 import useSWR from "swr";
 import { openmrsFetch } from "@openmrs/esm-framework";
+import {useMemo} from "react";
 
 type reportRequest = {
   reportUUID: string;
@@ -40,8 +41,14 @@ export function useGetPatientAtrributes(id: string) {
     { data: { results: any } },
     Error
   >(id === "PAT" ? apiUrl : null, openmrsFetch);
+
+  const memorisedAttributes = useMemo(
+    () => (data ? data?.data : []),
+    [data?.data.results]
+  );
+
   return {
-    personAttributes: data ? data?.data : [],
+    personAttributes: memorisedAttributes,
     isLoadingPersonAttributes: isLoading,
     isError: error,
   };
