@@ -1,6 +1,5 @@
 import useSWR from "swr";
 import { openmrsFetch } from "@openmrs/esm-framework";
-import {useMemo} from "react";
 
 type reportRequest = {
   reportUUID: string;
@@ -22,35 +21,31 @@ export function useReports(params: reportRequest) {
   };
 }
 
-export function useGetIdentifiers(id: string) {
+export function useGetIdentifiers() {
   const apiUrl = `/ws/rest/v1/patientidentifiertype`;
   const { data, error, isLoading, isValidating, mutate } = useSWR<
     { data: { results: any } },
     Error
-  >(id === "IDN" ? apiUrl : null, openmrsFetch);
+  >(apiUrl, openmrsFetch);
   return {
-    identifiers: data ? data?.data : [],
+    identifiers: data ? mapDataElements(data?.data["results"]) : [],
     isError: error,
-    isLoadingIndentifiers: isLoading,
+    isLoadingIdentifiers: isLoading,
+    mutate,
   };
 }
 
-export function useGetPatientAtrributes(id: string) {
+export function useGetPatientAtrributes() {
   const apiUrl = `/ws/rest/v1/personattributetype`;
   const { data, error, isLoading, isValidating, mutate } = useSWR<
     { data: { results: any } },
     Error
-  >(id === "PAT" ? apiUrl : null, openmrsFetch);
-
-  const memorisedAttributes = useMemo(
-    () => (data ? data?.data : []),
-    [data?.data.results]
-  );
-
+  >(apiUrl, openmrsFetch);
   return {
-    personAttributes: memorisedAttributes,
-    isLoadingPersonAttributes: isLoading,
+    personAttributes: data ? mapDataElements(data?.data["results"]) : [],
+    isLoadingAttributes: isLoading,
     isError: error,
+    mutate,
   };
 }
 
@@ -61,7 +56,7 @@ export function useGetEncounterType() {
     Error
   >(apiUrl, openmrsFetch);
   return {
-    encounterTypes: data ? data?.data : [],
+    encounterTypes: data ? mapDataElements(data?.data["results"]) : [],
     isError: error,
     isLoadingEncounterTypes: isLoading,
   };
@@ -78,9 +73,12 @@ export function useGetEncounterConcepts(uuid: string) {
     Error
   >(uuid !== "IDN" && uuid !== "PAT" ? apiUrl : null, openmrsFetch);
   return {
-    encounterConcepts: data ? data?.data : [],
+    encounterConcepts: data
+      ? mapDataElements(data?.data as any, "concepts")
+      : [],
     isError: error,
     isLoadingEncounterConcepts: isLoading,
+    mutate,
   };
 }
 
@@ -102,21 +100,34 @@ export function mapDataElements(
   type?: string
 ) {
   let arrayToReturn: Array<Indicator> = [];
-  if (type === "concepts") {
-    dataArray.map((encounterType: Record<string, string>, index) => {
-      arrayToReturn.push({
-        id: encounterType.uuid,
-        label: encounterType.conceptName,
+  if (dataArray) {
+    if (type === "concepts") {
+      dataArray.map((encounterType: Record<string, string>, index) => {
+        arrayToReturn.push({
+          id: encounterType.uuid,
+          label: encounterType.conceptName,
+        });
       });
-    });
-  } else {
-    dataArray.map((encounterType: Record<string, string>, index) => {
-      arrayToReturn.push({
-        id: encounterType.uuid,
-        label: encounterType.display,
+    } else {
+      dataArray.map((encounterType: Record<string, string>, index) => {
+        arrayToReturn.push({
+          id: encounterType.uuid,
+          label: encounterType.display,
+        });
       });
-    });
+    }
   }
 
   return arrayToReturn;
+}
+
+export function useGetConceptElements(uuid: string) {
+  let data: Array<Indicator> = [];
+  const { encounterConcepts, isLoadingEncounterConcepts } =
+    useGetEncounterConcepts(uuid);
+  if (!isLoadingEncounterConcepts) {
+    data = encounterConcepts;
+  }
+
+  return data;
 }

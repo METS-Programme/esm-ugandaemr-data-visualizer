@@ -27,10 +27,6 @@ declare type Indicator = {
 };
 
 declare type IndicatorItem = {
-  uuid: string;
-  display: string;
-  links?: Array<{
-    rel: string;
-    uri: string;
-  }>;
+  id: string;
+  label: string;
 };

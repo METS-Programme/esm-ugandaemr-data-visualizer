@@ -47,7 +47,7 @@ import pivotTableStyles from "!!raw-loader!react-pivottable/pivottable.css";
 import styles from "./reporting.scss";
 import {
   createColumns,
-  mapDataElements, useGetEncounterConcepts,
+  useGetEncounterConcepts,
   useGetEncounterType,
   useGetIdentifiers,
   useGetPatientAtrributes,
@@ -99,18 +99,20 @@ const Reporting: React.FC = () => {
     startDate: startDate,
     endDate: endDate,
   });
-  const [indicators, setIndicators] = useState<Array<Indicator>>([]);
-  const { identifiers, isLoadingIndentifiers } = useGetIdentifiers(
-    selectedIndicators ? selectedIndicators.id : null
-  );
-  const { personAttributes, isLoadingPersonAttributes } =
-    useGetPatientAtrributes(selectedIndicators ? selectedIndicators.id : null);
-  const { encounterConcepts, isLoadingEncounterConcepts } =
-    useGetEncounterConcepts(selectedIndicators ? selectedIndicators.id : null);
+  const [reportName, setReportName] = useState("Patient List");
+  const { identifiers, isLoadingIdentifiers } = useGetIdentifiers();
+  const { personAttributes, isLoadingAttributes } = useGetPatientAtrributes();
+  const { encounterTypes } = useGetEncounterType();
   const handleUpdateReport = () => {
     setUuid(facilityReport.id);
+    setHasUpdatedreport(false);
+    setShowLineList(true);
+    setLoading(true);
   };
-
+  const [hasRetrievedConcepts, setHasRetrievedConcepts] = useState(false);
+  const { encounterConcepts, isLoadingEncounterConcepts } =
+    useGetEncounterConcepts(selectedIndicators?.id);
+  const [hasUpdatedreport, setHasUpdatedreport] = useState(false);
   const handleChartTypeChange = ({ name }) => {
     setChartType(name);
   };
@@ -162,7 +164,23 @@ const Reporting: React.FC = () => {
   };
 
   const handleIndicatorChange = ({ selectedItem }) => {
+    switch (selectedItem.id) {
+      case "IDN":
+        if (!isLoadingIdentifiers && identifiers?.length > 0) {
+          selectedItem.attributes = identifiers;
+        }
+        break;
+      case "PAT":
+        if (!isLoadingAttributes && personAttributes?.length > 0) {
+          selectedItem.attributes = personAttributes;
+        }
+        break;
+      default:
+        setHasRetrievedConcepts(false);
+        break;
+    }
     setSelectedIndicators(selectedItem);
+    setAvailableParameters(selectedItem.attributes ?? []);
   };
 
   const handleDynamicReportTypeChange = ({ selectedItem }) => {
@@ -181,78 +199,42 @@ const Reporting: React.FC = () => {
     setEndDate(dayjs(selectedDate[0]).format("YYYY-MM-DD"));
   };
 
-  const { encounterTypes, isLoadingEncounterTypes } = useGetEncounterType();
-
-  useEffect(() => {
-    let encounterTypeArray: Array<Indicator> = [];
-    if (!isLoadingEncounterTypes) {
-      if (encounterTypes["results"].length > 0) {
-        encounterTypeArray = mapDataElements(encounterTypes["results"]);
-      }
-      setIndicators(encounterTypeArray);
+  if (!isLoadingEncounterConcepts && encounterConcepts?.length > 0) {
+    if (!hasRetrievedConcepts) {
+      setAvailableParameters(encounterConcepts);
+      selectedIndicators.attributes = encounterConcepts as Array<Indicator>;
+      setHasRetrievedConcepts(true);
     }
-  });
+  }
 
-  useEffect(() => {
-    let indicatorsArray: Array<Indicator> = [];
-    if (selectedIndicators && selectedIndicators.id === "IDN") {
-      if (!isLoadingIndentifiers) {
-        indicatorsArray =
-          identifiers["results"].length > 0
-            ? mapDataElements(identifiers["results"])
-            : [];
-      }
-    } else if (selectedIndicators && selectedIndicators.id === "PAT") {
-      if (!isLoadingPersonAttributes) {
-        indicatorsArray =
-          personAttributes["results"].length > 0
-            ? mapDataElements(personAttributes["results"])
-            : [];
-      }
-    } else {
-      if (!isLoadingEncounterConcepts) {
-        indicatorsArray = encounterConcepts
-          ? mapDataElements(
-              encounterConcepts as Array<Record<string, string>>,
-              "concepts"
-            )
-          : [];
-      }
-    }
-    setAvailableParameters(indicatorsArray);
-  }, [availableParameters]);
-
-  useEffect(() => {
+  if (!isLoading && !hasUpdatedreport) {
     let headers = [];
     let dataForReport = [];
-    if (!isLoading) {
-      const responseReportName = Object.keys(reportData)[0];
-      if (reportData[responseReportName] && reportData[responseReportName][0]) {
-        const columnNames = Object.keys(reportData[responseReportName][0]);
-        headers = createColumns(columnNames).slice(0, 10);
-        dataForReport = reportData[responseReportName];
-      } else {
-        setShowLineList(false);
-      }
+    const responseReportName = Object.keys(reportData)[0];
+    if (reportData[responseReportName] && reportData[responseReportName][0]) {
+      const columnNames = Object.keys(reportData[responseReportName][0]);
+      headers = createColumns(columnNames).slice(0, 10);
+      dataForReport = reportData[responseReportName];
       setLoading(false);
-    } else {
-      showLineList === false ? setShowLineList(true) : null;
-      setLoading(true);
       setShowFilters(false);
+    } else {
+      setShowLineList(false);
     }
     setTableHeaders(headers);
     setData(dataForReport);
-  }, [tableHeaders, data]);
+    setHasUpdatedreport(true);
+    setReportName(facilityReport?.label);
+  }
 
-  useEffect(() => {
-    const styleElement = document.createElement("style");
-    styleElement.textContent = `${pivotTableStyles}`;
-    document.head.appendChild(styleElement);
-
-    return () => {
-      document.head.removeChild(styleElement);
-    };
-  }, []);
+  // useEffect(() => {
+  //   const styleElement = document.createElement("style");
+  //   styleElement.textContent = `${pivotTableStyles}`;
+  //   document.head.appendChild(styleElement);
+  //
+  //   return () => {
+  //     document.head.removeChild(styleElement);
+  //   };
+  // }, []);
 
   return (
     <>
@@ -361,7 +343,7 @@ const Reporting: React.FC = () => {
                       <ComboBox
                         ariaLabel="Select indicators"
                         id="indicatorCombobox"
-                        items={[...reportIndicators, ...indicators]}
+                        items={[...reportIndicators, ...encounterTypes]}
                         placeholder="Choose the indicators"
                         onChange={handleIndicatorChange}
                         selectedItem={selectedIndicators}
@@ -590,10 +572,7 @@ const Reporting: React.FC = () => {
 
           {chartType === "list" && !loading && (
             <div className={styles.reportContainer}>
-              <h3 className={styles.listHeading}>
-                {" "}
-                {facilityReport ? facilityReport.label : "Patient List"}{" "}
-              </h3>
+              <h3 className={styles.listHeading}>{reportName}</h3>
               <DataList columns={tableHeaders} data={data} />
             </div>
           )}
