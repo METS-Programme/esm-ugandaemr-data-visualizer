@@ -8,11 +8,7 @@ declare type SideNavProps = {};
 declare type Report = {
   id: string;
   label: string;
-  startDate?: boolean;
-  endDate?: boolean;
-  location?: boolean;
-  outputFormat?: Array<string>;
-  parameters: Array<string>;
+  clazz?: string;
 };
 
 declare type ReportProps = {
@@ -23,10 +19,18 @@ declare type ReportProps = {
 declare type Indicator = {
   id: string;
   label: string;
+  type?: string;
   attributes?: Array<IndicatorItem>;
 };
 
 declare type IndicatorItem = {
   id: string;
   label: string;
+  type?: string;
+};
+
+declare type ReportParamItem = {
+  label: string;
+  type?: string;
+  expression: string;
 };
