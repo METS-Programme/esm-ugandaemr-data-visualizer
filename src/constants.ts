@@ -46,39 +46,6 @@ export const nationalReports: ReportProps = {
   ],
 };
 
-export const Indicators: any = {
-  Indicators: [
-    {
-      id: "IDN",
-      label: "Identifiers",
-      parameters: ["HIV Clinic No.", "OPD No.", "TB No.", "Patient No.", "NIN"],
-    },
-    {
-      id: "APA",
-      label: "Person Attributes",
-      parameters: [
-        "Family Name",
-        "Given Name",
-        "Marital Status",
-        "Occupation",
-        "Birthdate",
-        "Gender",
-      ],
-    },
-    {
-      id: "DAL",
-      label: "ART Attributes",
-      parameters: [
-        "DSDM Model",
-        "Viral Load",
-        "Current Regimen",
-        "Advanced Disease",
-        "Gender",
-      ],
-    },
-  ],
-};
-
 export const testData = [
   { name: "John", age: 30, district: "Kampala", viral_load: 85 },
   { name: "Alice", age: 25, district: "Wakiso", viral_load: 92 },

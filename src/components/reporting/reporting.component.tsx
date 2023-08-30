@@ -31,13 +31,14 @@ import {
   RadioButtonGroup,
   Stack,
   Switch,
+  OverflowMenu,
+  OverflowMenuItem,
   Tile,
 } from "@carbon/react";
 import ReportingHomeHeader from "../reporting-header/reporting-home-header.component";
 import {
   facilityReports,
   nationalReports,
-  Indicators,
   reportIndicators,
 } from "../../constants";
 import DataList from "../reporting-helper/data-table.component";
@@ -70,7 +71,7 @@ const Reporting: React.FC = () => {
     useState<string>(null);
   const [dynamicReportIdentifier, setDynamicReportIdentifier] =
     useState<string>(null);
-  const [patientData, setPatientData] = useState(data);
+  const [pivotTableData, setPivotTableData] = useState(data);
   const [chartType, setChartType] = useState<ChartType>("list");
   const [reportType, setReportType] = useState<ReportType>("fixed");
   const [reportCategory, setReportCategory] =
@@ -239,6 +240,7 @@ const Reporting: React.FC = () => {
         }
         setTableHeaders(headers);
         setData(dataForReport);
+        setPivotTableData(dataForReport);
         setReportName(selectedReport?.label);
         setHasUpdatedDynamicReport(true);
       }
@@ -269,20 +271,21 @@ const Reporting: React.FC = () => {
       }
       setTableHeaders(headers);
       setData(dataForReport);
+      setPivotTableData(dataForReport);
       setHasUpdatedFixedReport(true);
       setReportName(facilityReport?.label);
     }
   }
 
-  // useEffect(() => {
-  //   const styleElement = document.createElement("style");
-  //   styleElement.textContent = `${pivotTableStyles}`;
-  //   document.head.appendChild(styleElement);
-  //
-  //   return () => {
-  //     document.head.removeChild(styleElement);
-  //   };
-  // }, []);
+  useEffect(() => {
+    const styleElement = document.createElement("style");
+    styleElement.textContent = `${pivotTableStyles}`;
+    document.head.appendChild(styleElement);
+
+    return () => {
+      document.head.removeChild(styleElement);
+    };
+  }, []);
 
   return (
     <>
@@ -569,19 +572,19 @@ const Reporting: React.FC = () => {
                 <span>Pivot table</span>
               </div>
             </Switch>
-            <Switch name="line">
+            <Switch name="line" disabled={true}>
               <div className={styles.switch}>
                 <ChartLine />
                 <span>Line chart</span>
               </div>
             </Switch>
-            <Switch name="bar">
+            <Switch name="bar" disabled={true}>
               <div className={styles.switch}>
                 <ChartColumn />
                 <span>Bar chart</span>
               </div>
             </Switch>
-            <Switch name="pie">
+            <Switch name="pie" disabled={true}>
               <div className={styles.switch}>
                 <ChartPie />
                 <span>Pie chart</span>
@@ -599,16 +602,12 @@ const Reporting: React.FC = () => {
             <Intersect />
             <span>Update report</span>
           </Button>
-          <Button
-            className={styles.actionButton}
-            size="md"
-            kind="tertiary"
-            onClick={() => {}}
-            role="button"
-          >
-            <Save />
-            <span>Save report</span>
-          </Button>
+          {data.length > 0 && (
+            <OverflowMenu aria-label="overflow-menu" flipped direction="top">
+              <OverflowMenuItem itemText="Save Report" />
+              <OverflowMenuItem itemText="Show Saved Report" />
+            </OverflowMenu>
+          )}
         </div>
       </section>
 
@@ -629,10 +628,10 @@ const Reporting: React.FC = () => {
             <div className={styles.reportContainer}>
               <h3>Pivot Table</h3>
               <PivotTableUI
-                data={data}
-                onChange={(s) => setPatientData(s)}
+                data={pivotTableData}
+                onChange={(s) => setPivotTableData(s)}
                 renderers={{ ...TableRenderers, ...PlotlyRenderers }}
-                {...data}
+                {...pivotTableData}
               />
             </div>
           )}
