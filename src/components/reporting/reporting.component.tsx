@@ -598,12 +598,7 @@ const Reporting: React.FC = () => {
             <span>Update report</span>
           </Button>
           {data.length > 0 && (
-            <OverflowMenu
-              aria-label="overflow-menu"
-              flipped
-              size="md"
-              kind=""
-            >
+            <OverflowMenu aria-label="overflow-menu" flipped size="md" kind="">
               <OverflowMenuItem itemText="Save Report" />
               <OverflowMenuItem itemText="Open Saved Reports" />
             </OverflowMenu>
