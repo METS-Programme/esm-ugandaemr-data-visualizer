@@ -121,7 +121,7 @@ const Reporting: React.FC = () => {
       setFixedReportIdentifier(facilityReport.id);
       setHasUpdatedFixedReport(false);
     } else {
-      setDynamicReportIdentifier(selectedReport?.clazz);
+      setDynamicReportIdentifier(selectedReport.clazz);
       setHasUpdatedDynamicReport(false);
     }
 
@@ -593,19 +593,19 @@ const Reporting: React.FC = () => {
           </ContentSwitcher>
         </div>
         <div className={styles.actionButtonContainer}>
-          <Button
-            className={styles.actionButton}
-            size="md"
-            kind="primary"
-            onClick={handleUpdateReport}
-          >
+          <Button size="md" kind="primary" onClick={handleUpdateReport}>
             <Intersect />
             <span>Update report</span>
           </Button>
           {data.length > 0 && (
-            <OverflowMenu aria-label="overflow-menu" flipped direction="top">
+            <OverflowMenu
+              aria-label="overflow-menu"
+              flipped
+              size="md"
+              kind=""
+            >
               <OverflowMenuItem itemText="Save Report" />
-              <OverflowMenuItem itemText="Show Saved Report" />
+              <OverflowMenuItem itemText="Open Saved Reports" />
             </OverflowMenu>
           )}
         </div>

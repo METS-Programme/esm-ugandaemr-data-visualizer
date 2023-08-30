@@ -52,7 +52,7 @@ export function useGetPatientAtrributes() {
   >(apiUrl, openmrsFetch);
   return {
     personAttributes: data
-      ? mapDataElements(data?.data["results"], "PersonAttributes")
+      ? mapDataElements(data?.data["results"], "PersonAttribute")
       : [],
     isLoadingAttributes: isLoading,
     isError: error,
@@ -99,10 +99,9 @@ export function useDynamicReportFetcher(params: dynamicReportRequest) {
       ? formatReportArray(params.reportIndicators)
       : [];
   const abortController = new AbortController();
-  const apiUrl =
-    params.clazz && params.reportIndicators.length > 0
-      ? `/ws/rest/v1/ugandaemrreports/dataDefinition`
-      : null;
+  const apiUrl = params.clazz
+    ? `/ws/rest/v1/ugandaemrreports/dataDefinition`
+    : null;
   const fetcher = () =>
     openmrsFetch(apiUrl, {
       method: "POST",
@@ -171,7 +170,7 @@ export function mapDataElements(
         arrayToReturn.push({
           id: encounterType.uuid,
           label: encounterType.conceptName,
-          type: "",
+          type: encounterType.type,
         });
       });
     } else {
