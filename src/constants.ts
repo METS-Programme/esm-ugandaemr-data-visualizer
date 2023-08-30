@@ -8,41 +8,18 @@ export const facilityReports: ReportProps = {
     {
       id: "9c85e20b-c3ce-4dc1-b332-13f1d02f1c5c",
       label: "Appointments List",
-      parameters: [
-        "Clinic No",
-        "Patient Name",
-        "Age",
-        "ART Start Date",
-        "Current Regimen",
-        "DSDM Model",
-        "Appointment Date",
-      ],
+      clazz:
+        "org.openmrs.module.ugandaemrreports.definition.cohort.definition.ActivesInCareCohortDefinition",
     },
     {
       id: "654c7276-75f8-11e6-8b77-86f30ca893d3",
       label: "Missed Appointments List",
-      parameters: [
-        "Clinic No",
-        "Patient Name",
-        "Age",
-        "ART Start Date",
-        "Current Regimen",
-        "DSDM Model",
-        "Supposed Visit Date",
-        "Date seen",
-      ],
+      clazz: "",
     },
     {
       id: "73585ad5-8a5c-4e4a-b197-9241abe24bd9",
       label: "Daily Missed Appointments List",
-      parameters: [
-        "Clinic No",
-        "Patient Name",
-        "Date of Birth",
-        "ART Start Date",
-        "Viral Load",
-        "DSDM Model",
-      ],
+      clazz: "",
     },
   ],
 };
@@ -53,22 +30,18 @@ export const nationalReports: ReportProps = {
     {
       id: "HMIS106-1A",
       label: "HMIS 106A",
-      parameters: [],
     },
     {
       id: "",
       label: "HMIS 105",
-      parameters: [],
     },
     {
       id: "TxC28",
       label: "Tx Current_28Days Report",
-      parameters: [],
     },
     {
       id: "TxC90",
       label: "Tx Current_90Days Report",
-      parameters: [],
     },
   ],
 };
@@ -150,11 +123,13 @@ export const reportIndicators: Array<Indicator> = [
   {
     id: "IDN",
     label: "Identifiers",
+    type: "PatientIdentifier",
     attributes: [],
   },
   {
     id: "PAT",
     label: "Person Attributes",
+    type: "PersonAttribute",
     attributes: [],
   },
 ];

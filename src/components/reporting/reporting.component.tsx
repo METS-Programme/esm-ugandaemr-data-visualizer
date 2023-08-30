@@ -47,6 +47,7 @@ import pivotTableStyles from "!!raw-loader!react-pivottable/pivottable.css";
 import styles from "./reporting.scss";
 import {
   createColumns,
+  useDynamicReportFetcher,
   useGetEncounterConcepts,
   useGetEncounterType,
   useGetIdentifiers,
@@ -65,7 +66,10 @@ const Reporting: React.FC = () => {
   const PlotlyRenderers = createPlotlyRenderers(Plot);
   const [tableHeaders, setTableHeaders] = useState([]);
   const [data, setData] = useState([]);
-  const [uuid, setUuid] = useState<string>(null);
+  const [fixedReportIdentifier, setFixedReportIdentifier] =
+    useState<string>(null);
+  const [dynamicReportIdentifier, setDynamicReportIdentifier] =
+    useState<string>(null);
   const [patientData, setPatientData] = useState(data);
   const [chartType, setChartType] = useState<ChartType>("list");
   const [reportType, setReportType] = useState<ReportType>("fixed");
@@ -79,7 +83,7 @@ const Reporting: React.FC = () => {
   const [selectedReport, setSelectedReport] = useState<{
     id: string;
     label: string;
-    parameters: Array<string>;
+    clazz?: string;
   }>(facilityReports.reports[0]);
   const [facilityReport, setFacilityReport] = useState(
     facilityReports.reports[0]
@@ -92,24 +96,34 @@ const Reporting: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [showLineList, setShowLineList] = useState(false);
   const [availableParameters, setAvailableParameters] = useState([]);
-  const [selectedParameters, setSelectedParameters] = useState([]);
+  const [selectedParameters, setSelectedParameters] = useState<
+    Array<Indicator>
+  >([]);
   const [showFilters, setShowFilters] = useState(true);
   const [reportName, setReportName] = useState("Patient List");
   const { identifiers, isLoadingIdentifiers } = useGetIdentifiers();
   const { personAttributes, isLoadingAttributes } = useGetPatientAtrributes();
   const { encounterTypes } = useGetEncounterType();
   const [hasRetrievedConcepts, setHasRetrievedConcepts] = useState(false);
-  const [hasUpdatedreport, setHasUpdatedreport] = useState(false);
+  const [hasUpdatedFixedReport, setHasUpdatedFixedReport] = useState(false);
+  const [hasUpdatedDynamicReport, setHasUpdatedDynamicReport] = useState(false);
   const { reportData, isLoading } = useReports({
-    reportUUID: uuid,
+    reportUUID: fixedReportIdentifier,
     startDate: startDate,
     endDate: endDate,
   });
   const { encounterConcepts, isLoadingEncounterConcepts } =
     useGetEncounterConcepts(selectedIndicators?.id);
+
   const handleUpdateReport = () => {
-    setUuid(facilityReport.id);
-    setHasUpdatedreport(false);
+    if (reportType === "fixed") {
+      setFixedReportIdentifier(facilityReport.id);
+      setHasUpdatedFixedReport(false);
+    } else {
+      setDynamicReportIdentifier(selectedReport?.clazz);
+      setHasUpdatedDynamicReport(false);
+    }
+
     setShowLineList(true);
     setLoading(true);
   };
@@ -200,6 +214,37 @@ const Reporting: React.FC = () => {
     setEndDate(dayjs(selectedDate[0]).format("YYYY-MM-DD"));
   };
 
+  const { dynamicReportData, isLoadingDynamicReport } = useDynamicReportFetcher(
+    {
+      clazz: dynamicReportIdentifier,
+      reportIndicators: selectedParameters,
+      startDate: startDate,
+      endDate: endDate,
+    }
+  );
+
+  if (reportType === "dynamic") {
+    if (!isLoadingDynamicReport) {
+      if (!hasUpdatedDynamicReport) {
+        let headers = [];
+        let dataForReport: any = [];
+        if (dynamicReportData[0]) {
+          const columnNames = Object.keys(dynamicReportData[0]);
+          headers = createColumns(columnNames).slice(0, 10);
+          dataForReport = dynamicReportData;
+          setLoading(false);
+          setShowFilters(false);
+        } else {
+          setShowLineList(false);
+        }
+        setTableHeaders(headers);
+        setData(dataForReport);
+        setReportName(selectedReport?.label);
+        setHasUpdatedDynamicReport(true);
+      }
+    }
+  }
+
   if (!isLoadingEncounterConcepts && encounterConcepts?.length > 0) {
     if (!hasRetrievedConcepts) {
       setAvailableParameters(encounterConcepts);
@@ -208,23 +253,25 @@ const Reporting: React.FC = () => {
     }
   }
 
-  if (!isLoading && !hasUpdatedreport) {
-    let headers = [];
-    let dataForReport = [];
-    const responseReportName = Object.keys(reportData)[0];
-    if (reportData[responseReportName] && reportData[responseReportName][0]) {
-      const columnNames = Object.keys(reportData[responseReportName][0]);
-      headers = createColumns(columnNames).slice(0, 10);
-      dataForReport = reportData[responseReportName];
-      setLoading(false);
-      setShowFilters(false);
-    } else {
-      setShowLineList(false);
+  if (reportType === "fixed") {
+    if (!isLoading && !hasUpdatedFixedReport) {
+      let headers = [];
+      let dataForReport = [];
+      const responseReportName = Object.keys(reportData)[0];
+      if (reportData[responseReportName] && reportData[responseReportName][0]) {
+        const columnNames = Object.keys(reportData[responseReportName][0]);
+        headers = createColumns(columnNames).slice(0, 10);
+        dataForReport = reportData[responseReportName];
+        setLoading(false);
+        setShowFilters(false);
+      } else {
+        setShowLineList(false);
+      }
+      setTableHeaders(headers);
+      setData(dataForReport);
+      setHasUpdatedFixedReport(true);
+      setReportName(facilityReport?.label);
     }
-    setTableHeaders(headers);
-    setData(dataForReport);
-    setHasUpdatedreport(true);
-    setReportName(facilityReport?.label);
   }
 
   // useEffect(() => {

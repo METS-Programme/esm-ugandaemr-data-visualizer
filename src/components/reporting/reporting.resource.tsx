@@ -1,13 +1,20 @@
 import useSWR from "swr";
 import { openmrsFetch } from "@openmrs/esm-framework";
 
-type reportRequest = {
+type fixedReportRequest = {
   reportUUID: string;
   startDate: string;
   endDate: string;
 };
 
-export function useReports(params: reportRequest) {
+type dynamicReportRequest = {
+  clazz: string;
+  reportIndicators: Array<Indicator>;
+  startDate: string;
+  endDate: string;
+};
+
+export function useReports(params: fixedReportRequest) {
   const apiUrl = `/ws/rest/v1/ugandaemrreports/reportingDefinition?uuid=${params.reportUUID}&startDate=${params.startDate}&endDate=${params.endDate}`;
   const { data, error, isLoading, isValidating, mutate } = useSWR<
     { data: { results: any } },
@@ -28,7 +35,9 @@ export function useGetIdentifiers() {
     Error
   >(apiUrl, openmrsFetch);
   return {
-    identifiers: data ? mapDataElements(data?.data["results"]) : [],
+    identifiers: data
+      ? mapDataElements(data?.data["results"], "PatientIdentifier")
+      : [],
     isError: error,
     isLoadingIdentifiers: isLoading,
     mutate,
@@ -42,7 +51,9 @@ export function useGetPatientAtrributes() {
     Error
   >(apiUrl, openmrsFetch);
   return {
-    personAttributes: data ? mapDataElements(data?.data["results"]) : [],
+    personAttributes: data
+      ? mapDataElements(data?.data["results"], "PersonAttributes")
+      : [],
     isLoadingAttributes: isLoading,
     isError: error,
     mutate,
@@ -74,11 +85,64 @@ export function useGetEncounterConcepts(uuid: string) {
   >(uuid !== "IDN" && uuid !== "PAT" ? apiUrl : null, openmrsFetch);
   return {
     encounterConcepts: data
-      ? mapDataElements(data?.data as any, "concepts")
+      ? mapDataElements(data?.data as any, null, "concepts")
       : [],
     isError: error,
     isLoadingEncounterConcepts: isLoading,
     mutate,
+  };
+}
+
+export function useDynamicReportFetcher(params: dynamicReportRequest) {
+  const parameters =
+    params.reportIndicators.length > 0
+      ? formatReportArray(params.reportIndicators)
+      : [];
+  const abortController = new AbortController();
+  const apiUrl =
+    params.clazz && params.reportIndicators.length > 0
+      ? `/ws/rest/v1/ugandaemrreports/dataDefinition`
+      : null;
+  const fetcher = () =>
+    openmrsFetch(apiUrl, {
+      method: "POST",
+      signal: abortController.signal,
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: {
+        cohort: {
+          clazz: params.clazz,
+          uuid: "",
+          name: "",
+          description: "",
+          parameters: [
+            {
+              startDate: params.startDate,
+            },
+            {
+              endDate: params.endDate,
+            },
+          ],
+        },
+        columns: parameters,
+      },
+    });
+
+  const { data, error, isLoading, isValidating } = useSWR<
+    {
+      data: {
+        results: any;
+      };
+    },
+    Error
+  >(apiUrl, fetcher);
+
+  return {
+    dynamicReportData: data ? data?.data : [],
+    isError: error,
+    isLoadingDynamicReport: isLoading,
+    isValidatingDynamicReport: isValidating,
   };
 }
 
@@ -97,15 +161,17 @@ export function createColumns(columns: Array<string>) {
 
 export function mapDataElements(
   dataArray: Array<Record<string, string>>,
-  type?: string
+  type?: string,
+  category?: string
 ) {
   let arrayToReturn: Array<Indicator> = [];
   if (dataArray) {
-    if (type === "concepts") {
+    if (category === "concepts") {
       dataArray.map((encounterType: Record<string, string>, index) => {
         arrayToReturn.push({
           id: encounterType.uuid,
           label: encounterType.conceptName,
+          type: "",
         });
       });
     } else {
@@ -113,6 +179,7 @@ export function mapDataElements(
         arrayToReturn.push({
           id: encounterType.uuid,
           label: encounterType.display,
+          type: type ?? "",
         });
       });
     }
@@ -121,13 +188,17 @@ export function mapDataElements(
   return arrayToReturn;
 }
 
-export function useGetConceptElements(uuid: string) {
-  let data: Array<Indicator> = [];
-  const { encounterConcepts, isLoadingEncounterConcepts } =
-    useGetEncounterConcepts(uuid);
-  if (!isLoadingEncounterConcepts) {
-    data = encounterConcepts;
+export function formatReportArray(selectedItems: Array<Indicator>) {
+  let arrayToReturn: Array<ReportParamItem> = [];
+  if (selectedItems) {
+    selectedItems.map((item: Indicator) => {
+      arrayToReturn.push({
+        label: item.label,
+        type: item.type,
+        expression: item.id,
+      });
+    });
   }
 
-  return data;
+  return arrayToReturn;
 }
