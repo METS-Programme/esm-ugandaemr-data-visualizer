@@ -14,6 +14,15 @@ type dynamicReportRequest = {
   endDate: string;
 };
 
+type saveReportRequest = {
+  reportName: string;
+  reportDescription?: string;
+  reportType?: string;
+  columns?: string;
+  rows: string;
+  report_request_object: string;
+};
+
 export function useReports(params: fixedReportRequest) {
   const apiUrl = `/ws/rest/v1/ugandaemrreports/reportingDefinition?uuid=${params.reportUUID}&startDate=${params.startDate}&endDate=${params.endDate}`;
   const { data, error, isLoading, isValidating, mutate } = useSWR<
@@ -142,6 +151,44 @@ export function useDynamicReportFetcher(params: dynamicReportRequest) {
     isError: error,
     isLoadingDynamicReport: isLoading,
     isValidatingDynamicReport: isValidating,
+  };
+}
+
+export function useSaveReport(params: saveReportRequest) {
+  const apiUrl = params.reportName ? `/ws/rest/v1/dashboardReport` : null;
+  const abortController = new AbortController();
+
+  const fetcher = () =>
+    openmrsFetch(apiUrl, {
+      method: "POST",
+      signal: abortController.signal,
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: {
+        name: params.reportName,
+        description: params?.reportDescription,
+        type: params?.reportType,
+        columns: params?.columns,
+        rows: params?.rows,
+        report_request_object: params.report_request_object,
+      },
+    });
+
+  const { data, error, isLoading, isValidating } = useSWR<
+    {
+      data: {
+        results: any;
+      };
+    },
+    Error
+  >(apiUrl, fetcher);
+
+  return {
+    savedReport: data ? data?.data : [],
+    isErrorInSaving: error,
+    isLoadingSaveReport: isLoading,
+    isValidatingSaveReport: isValidating,
   };
 }
 
