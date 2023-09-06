@@ -178,7 +178,7 @@ const Reporting: React.FC = () => {
   const { isLoadingSaveReport, isErrorInSaving } = useSaveReport({
     reportName: reportTitle,
     reportDescription: reportDescription,
-    reportType: chartType,
+    reportType: pivotTableData?.["rendererName"],
     columns: "",
     rows: "",
     report_request_object: JSON.stringify(pivotTableData),
