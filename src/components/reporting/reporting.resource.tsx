@@ -1,7 +1,6 @@
 import useSWR from "swr";
 import { openmrsFetch, restBaseUrl } from "@openmrs/esm-framework";
 
-
 type fixedReportRequest = {
   reportUUID: string;
   startDate: string;
