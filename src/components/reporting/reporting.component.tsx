@@ -91,7 +91,7 @@ const Reporting: React.FC = () => {
   const [selectedReport, setSelectedReport] = useState<{
     id: string;
     label: string;
-    clazz?: string;
+    uuid?: string;
   }>(facilityReports.reports[0]);
   const [facilityReport, setFacilityReport] = useState(
     facilityReports.reports[0]
@@ -132,7 +132,7 @@ const Reporting: React.FC = () => {
       setFixedReportIdentifier(facilityReport.id);
       setHasUpdatedFixedReport(false);
     } else {
-      setDynamicReportIdentifier(selectedReport.clazz);
+      setDynamicReportIdentifier(selectedReport.id);
       setHasUpdatedDynamicReport(false);
     }
 
@@ -260,7 +260,7 @@ const Reporting: React.FC = () => {
 
   const { dynamicReportData, isLoadingDynamicReport } = useDynamicReportFetcher(
     {
-      clazz: dynamicReportIdentifier,
+      uuid: dynamicReportIdentifier,
       reportIndicators: selectedParameters,
       startDate: startDate,
       endDate: endDate,

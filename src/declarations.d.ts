@@ -8,7 +8,6 @@ declare type SideNavProps = {};
 declare type Report = {
   id: string;
   label: string;
-  clazz?: string;
 };
 
 declare type ReportProps = {

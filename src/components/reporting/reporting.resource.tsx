@@ -8,7 +8,7 @@ type fixedReportRequest = {
 };
 
 type dynamicReportRequest = {
-  clazz: string;
+  uuid: string;
   reportIndicators: Array<Indicator>;
   startDate: string;
   endDate: string;
@@ -108,7 +108,7 @@ export function useDynamicReportFetcher(params: dynamicReportRequest) {
       ? formatReportArray(params.reportIndicators)
       : [];
   const abortController = new AbortController();
-  const apiUrl = params.clazz
+  const apiUrl = params.uuid
     ? `/ws/rest/v1/ugandaemrreports/dataDefinition`
     : null;
   const fetcher = () =>
@@ -120,8 +120,8 @@ export function useDynamicReportFetcher(params: dynamicReportRequest) {
       },
       body: {
         cohort: {
-          clazz: params.clazz,
-          uuid: "",
+          clazz: "",
+          uuid: params.uuid,
           name: "",
           description: "",
           parameters: [
