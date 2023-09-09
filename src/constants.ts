@@ -1,6 +1,4 @@
-export const spaRoot = window["getOpenmrsSpaBase"];
 export const basePath = "/reporting";
-export const spaBasePath = `${window.spaBase}${basePath}`;
 
 export const facilityReports: ReportProps = {
   categoryName: "FACILITY REPORTS",
