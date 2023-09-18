@@ -1,5 +1,5 @@
 import useSWR from "swr";
-import { openmrsFetch } from "@openmrs/esm-framework";
+import { openmrsFetch, restBaseUrl } from "@openmrs/esm-framework";
 
 type fixedReportRequest = {
   reportUUID: string;
@@ -8,14 +8,23 @@ type fixedReportRequest = {
 };
 
 type dynamicReportRequest = {
-  clazz: string;
+  uuid: string;
   reportIndicators: Array<Indicator>;
   startDate: string;
   endDate: string;
 };
 
+type saveReportRequest = {
+  reportName: string;
+  reportDescription?: string;
+  reportType?: string;
+  columns?: string;
+  rows: string;
+  report_request_object: string;
+};
+
 export function useReports(params: fixedReportRequest) {
-  const apiUrl = `/ws/rest/v1/ugandaemrreports/reportingDefinition?uuid=${params.reportUUID}&startDate=${params.startDate}&endDate=${params.endDate}`;
+  const apiUrl = `${restBaseUrl}ugandaemrreports/reportingDefinition?uuid=${params.reportUUID}&startDate=${params.startDate}&endDate=${params.endDate}`;
   const { data, error, isLoading, isValidating, mutate } = useSWR<
     { data: { results: any } },
     Error
@@ -29,7 +38,7 @@ export function useReports(params: fixedReportRequest) {
 }
 
 export function useGetIdentifiers() {
-  const apiUrl = `/ws/rest/v1/patientidentifiertype`;
+  const apiUrl = `${restBaseUrl}patientidentifiertype`;
   const { data, error, isLoading, isValidating, mutate } = useSWR<
     { data: { results: any } },
     Error
@@ -45,7 +54,7 @@ export function useGetIdentifiers() {
 }
 
 export function useGetPatientAtrributes() {
-  const apiUrl = `/ws/rest/v1/personattributetype`;
+  const apiUrl = `${restBaseUrl}personattributetype`;
   const { data, error, isLoading, isValidating, mutate } = useSWR<
     { data: { results: any } },
     Error
@@ -61,7 +70,7 @@ export function useGetPatientAtrributes() {
 }
 
 export function useGetEncounterType() {
-  const apiUrl = `/ws/rest/v1/encountertype`;
+  const apiUrl = `${restBaseUrl}encountertype`;
   const { data, error, isLoading, isValidating, mutate } = useSWR<
     { data: { results: any } },
     Error
@@ -74,7 +83,7 @@ export function useGetEncounterType() {
 }
 
 export function useGetEncounterConcepts(uuid: string) {
-  const apiUrl = `/ws/rest/v1/ugandaemrreports/concepts/encountertype?uuid=${uuid}`;
+  const apiUrl = `${restBaseUrl}ugandaemrreports/concepts/encountertype?uuid=${uuid}`;
   const { data, error, isLoading, isValidating, mutate } = useSWR<
     {
       data: {
@@ -99,8 +108,8 @@ export function useDynamicReportFetcher(params: dynamicReportRequest) {
       ? formatReportArray(params.reportIndicators)
       : [];
   const abortController = new AbortController();
-  const apiUrl = params.clazz
-    ? `/ws/rest/v1/ugandaemrreports/dataDefinition`
+  const apiUrl = params.uuid
+    ? `${restBaseUrl}ugandaemrreports/dataDefinition`
     : null;
   const fetcher = () =>
     openmrsFetch(apiUrl, {
@@ -111,8 +120,8 @@ export function useDynamicReportFetcher(params: dynamicReportRequest) {
       },
       body: {
         cohort: {
-          clazz: params.clazz,
-          uuid: "",
+          clazz: "",
+          uuid: params.uuid,
           name: "",
           description: "",
           parameters: [
@@ -142,6 +151,44 @@ export function useDynamicReportFetcher(params: dynamicReportRequest) {
     isError: error,
     isLoadingDynamicReport: isLoading,
     isValidatingDynamicReport: isValidating,
+  };
+}
+
+export function useSaveReport(params: saveReportRequest) {
+  const apiUrl = params.reportName ? `${restBaseUrl}dashboardReport` : null;
+  const abortController = new AbortController();
+
+  const fetcher = () =>
+    openmrsFetch(apiUrl, {
+      method: "POST",
+      signal: abortController.signal,
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: {
+        name: params.reportName,
+        description: params?.reportDescription,
+        type: params?.reportType,
+        columns: params?.columns,
+        rows: params?.rows,
+        report_request_object: params.report_request_object,
+      },
+    });
+
+  const { data, error, isLoading, isValidating } = useSWR<
+    {
+      data: {
+        results: any;
+      };
+    },
+    Error
+  >(apiUrl, fetcher);
+
+  return {
+    savedReport: data ? data?.data : [],
+    isErrorInSaving: error,
+    isLoadingSaveReport: isLoading,
+    isValidatingSaveReport: isValidating,
   };
 }
 

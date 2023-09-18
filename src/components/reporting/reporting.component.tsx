@@ -27,10 +27,13 @@ import {
   FormGroup,
   FormLabel,
   Layer,
+  Modal,
   RadioButton,
   RadioButtonGroup,
   Stack,
   Switch,
+  TextInput,
+  TextArea,
   OverflowMenu,
   OverflowMenuItem,
   Tile,
@@ -54,8 +57,10 @@ import {
   useGetIdentifiers,
   useGetPatientAtrributes,
   useReports,
+  useSaveReport,
 } from "./reporting.resource";
 import dayjs from "dayjs";
+import { showToast } from "@openmrs/esm-framework";
 
 type ChartType = "list" | "pivot" | "line" | "bar" | "pie";
 type ReportType = "fixed" | "dynamic";
@@ -64,6 +69,8 @@ type ReportingDuration = "fixed" | "relative";
 type ReportingPeriod = "today" | "week" | "month" | "quarter" | "lastQuarter";
 
 const Reporting: React.FC = () => {
+  let title,
+    description = "";
   const PlotlyRenderers = createPlotlyRenderers(Plot);
   const [tableHeaders, setTableHeaders] = useState([]);
   const [data, setData] = useState([]);
@@ -84,7 +91,7 @@ const Reporting: React.FC = () => {
   const [selectedReport, setSelectedReport] = useState<{
     id: string;
     label: string;
-    clazz?: string;
+    uuid?: string;
   }>(facilityReports.reports[0]);
   const [facilityReport, setFacilityReport] = useState(
     facilityReports.reports[0]
@@ -92,6 +99,7 @@ const Reporting: React.FC = () => {
   const handleUpdateFacilityReport = ({ selectedItem }) => {
     setFacilityReport(selectedItem);
   };
+  const [canSaveReport, setCanSaveReport] = useState(false);
   const [startDate, setStartDate] = useState(null);
   const [endDate, setEndDate] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -108,6 +116,9 @@ const Reporting: React.FC = () => {
   const [hasRetrievedConcepts, setHasRetrievedConcepts] = useState(false);
   const [hasUpdatedFixedReport, setHasUpdatedFixedReport] = useState(false);
   const [hasUpdatedDynamicReport, setHasUpdatedDynamicReport] = useState(false);
+  const [showSaveReportModal, setShowSaveReportModal] = useState(false);
+  const [reportTitle, setReportTitle] = useState(null);
+  const [reportDescription, setReportDescription] = useState(null);
   const { reportData, isLoading } = useReports({
     reportUUID: fixedReportIdentifier,
     startDate: startDate,
@@ -121,7 +132,7 @@ const Reporting: React.FC = () => {
       setFixedReportIdentifier(facilityReport.id);
       setHasUpdatedFixedReport(false);
     } else {
-      setDynamicReportIdentifier(selectedReport.clazz);
+      setDynamicReportIdentifier(selectedReport.id);
       setHasUpdatedDynamicReport(false);
     }
 
@@ -140,6 +151,38 @@ const Reporting: React.FC = () => {
   const handleReportingDurationChange = (period) => {
     setReportingDuration(period);
   };
+
+  const handleSaveReport = () => {
+    setShowSaveReportModal(true);
+  };
+
+  const closeReportModal = () => {
+    setShowSaveReportModal(false);
+  };
+
+  const saveReport = () => {
+    setReportTitle(title);
+    setReportDescription(description);
+    setCanSaveReport(true);
+    setShowSaveReportModal(false);
+  };
+
+  const handleReportTitleChange = (event) => {
+    title = event.target.value;
+  };
+
+  const handleReportDescChange = (event) => {
+    description = event.target.value;
+  };
+
+  const { isLoadingSaveReport, isErrorInSaving } = useSaveReport({
+    reportName: reportTitle,
+    reportDescription: reportDescription,
+    reportType: pivotTableData?.["rendererName"],
+    columns: "",
+    rows: "",
+    report_request_object: JSON.stringify(pivotTableData),
+  });
 
   const moveAllFromLeftToRight = (selectedParameter) => {
     const updatedAvailableParameters = availableParameters.filter(
@@ -217,7 +260,7 @@ const Reporting: React.FC = () => {
 
   const { dynamicReportData, isLoadingDynamicReport } = useDynamicReportFetcher(
     {
-      clazz: dynamicReportIdentifier,
+      uuid: dynamicReportIdentifier,
       reportIndicators: selectedParameters,
       startDate: startDate,
       endDate: endDate,
@@ -277,6 +320,18 @@ const Reporting: React.FC = () => {
     }
   }
 
+  if (!isLoadingSaveReport) {
+    if (!isErrorInSaving && canSaveReport) {
+      showToast({
+        critical: true,
+        title: "Saving Report",
+        kind: "success",
+        description: `Report ${reportTitle} saved Successfully`,
+      });
+      setReportTitle(null);
+      setCanSaveReport(false);
+    }
+  }
   useEffect(() => {
     const styleElement = document.createElement("style");
     styleElement.textContent = `${pivotTableStyles}`;
@@ -593,13 +648,21 @@ const Reporting: React.FC = () => {
           </ContentSwitcher>
         </div>
         <div className={styles.actionButtonContainer}>
-          <Button size="md" kind="primary" onClick={handleUpdateReport}>
+          <Button
+            size="md"
+            kind="primary"
+            onClick={handleUpdateReport}
+            className={styles.actionButton}
+          >
             <Intersect />
             <span>Update report</span>
           </Button>
           {data.length > 0 && (
             <OverflowMenu aria-label="overflow-menu" flipped size="md" kind="">
-              <OverflowMenuItem itemText="Save Report" />
+              <OverflowMenuItem
+                itemText="Save Report"
+                onClick={handleSaveReport}
+              />
               <OverflowMenuItem itemText="Open Saved Reports" />
             </OverflowMenu>
           )}
@@ -629,6 +692,38 @@ const Reporting: React.FC = () => {
                 {...pivotTableData}
               />
             </div>
+          )}
+
+          {showSaveReportModal && (
+            <Modal
+              open
+              size="sm"
+              preventCloseOnClickOutside={true}
+              hasScrollingContent={true}
+              modalHeading="ENTER REPORT DETAILS"
+              secondaryButtonText="Cancel"
+              primaryButtonText="Save Report"
+              onRequestClose={closeReportModal}
+              onRequestSubmit={saveReport}
+            >
+              <div>
+                <TextInput
+                  id="title"
+                  labelText={`Report Title`}
+                  onChange={handleReportTitleChange}
+                  maxCount={50}
+                  placeholder="Enter report title"
+                />
+                <TextArea
+                  id="description"
+                  className={styles.reportDescription}
+                  labelText={`Report Description`}
+                  onChange={handleReportDescChange}
+                  rows={2}
+                  placeholder="Enter report description"
+                />
+              </div>
+            </Modal>
           )}
         </>
       ) : (
