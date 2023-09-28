@@ -61,7 +61,7 @@ import {
 } from "./reporting.resource";
 import dayjs from "dayjs";
 import { showToast } from "@openmrs/esm-framework";
-import ParametersContainer from "../parameter-container/parameters-container.component";
+import ItemSelector from "../item-selector/item-selector.component";
 
 type ChartType = "list" | "pivot" | "line" | "bar" | "pie";
 type ReportType = "fixed" | "dynamic";
@@ -185,7 +185,7 @@ const Reporting: React.FC = () => {
     report_request_object: JSON.stringify(pivotTableData),
   });
 
-  const moveAllFromLeftToRight = (selectedParameter) => {
+  const moveFromLeftToRight = (selectedParameter) => {
     const updatedAvailableParameters = availableParameters.filter(
       (parameter) => parameter !== selectedParameter
     );
@@ -194,7 +194,7 @@ const Reporting: React.FC = () => {
     setSelectedParameters([...selectedParameters, selectedParameter]);
   };
 
-  const moveAllFromRightToLeft = (selectedParameter) => {
+  const moveFromRightToLeft = (selectedParameter) => {
     const updatedSelectedParameters = selectedParameters.filter(
       (parameter) => parameter !== selectedParameter
     );
@@ -457,11 +457,11 @@ const Reporting: React.FC = () => {
                       />
                     </FormGroup>
                     <div>
-                      <ParametersContainer
+                      <ItemSelector
                         availableParameters={availableParameters}
                         selectedParameters={selectedParameters}
-                        moveAllFromLeftToRight={moveAllFromLeftToRight}
-                        moveAllFromRightToLeft={moveAllFromRightToLeft}
+                        moveFromLeftToRight={moveFromLeftToRight}
+                        moveFromRightToLeft={moveFromRightToLeft}
                         moveAllParametersLeft={moveAllParametersLeft}
                         moveAllParametersRight={moveAllParametersRight}
                       />

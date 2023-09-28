@@ -4,20 +4,20 @@ import Panel from "../panel/panel.component";
 import { ArrowLeft, ArrowRight } from "@carbon/react/icons";
 import { Button } from "@carbon/react";
 
-interface ParametersContainerProps {
+interface ItemSelectorProps {
   availableParameters: any[];
   selectedParameters: any[];
-  moveAllFromLeftToRight: (indicator: Indicator) => void;
-  moveAllFromRightToLeft: (indicator: Indicator) => void;
+  moveFromLeftToRight: (indicator: Indicator) => void;
+  moveFromRightToLeft: (indicator: Indicator) => void;
   moveAllParametersLeft: () => void;
   moveAllParametersRight: () => void;
 }
 
-const ParametersContainer: React.FC<ParametersContainerProps> = ({
+const ItemSelector: React.FC<ItemSelectorProps> = ({
   availableParameters,
   selectedParameters,
-  moveAllFromLeftToRight,
-  moveAllFromRightToLeft,
+  moveFromLeftToRight,
+  moveFromRightToLeft,
   moveAllParametersLeft,
   moveAllParametersRight,
 }) => {
@@ -31,7 +31,7 @@ const ParametersContainer: React.FC<ParametersContainerProps> = ({
                 role="menuitem"
                 className={styles.leftListItem}
                 key={parameter.label}
-                onClick={() => moveAllFromLeftToRight(parameter)}
+                onClick={() => moveFromLeftToRight(parameter)}
               >
                 {parameter.label}
               </li>
@@ -67,7 +67,7 @@ const ParametersContainer: React.FC<ParametersContainerProps> = ({
                 className={styles.rightListItem}
                 key={parameter.label}
                 role="menuitem"
-                onClick={() => moveAllFromRightToLeft(parameter)}
+                onClick={() => moveFromRightToLeft(parameter)}
               >
                 {parameter.label}
               </li>
@@ -79,4 +79,4 @@ const ParametersContainer: React.FC<ParametersContainerProps> = ({
   );
 };
 
-export default ParametersContainer;
+export default ItemSelector;
