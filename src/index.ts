@@ -38,6 +38,20 @@ export const dataVisualizerDashboardLink = getSyncLifecycle(
   options
 );
 
+export const userDashboard = getAsyncLifecycle(
+  () => import("./user-dashboard/user-dashboard.component"),
+  options
+);
+
+export const userDashboardLink = getSyncLifecycle(
+  createDashboardLink({
+    name: "user-dashboard",
+    slot: "user-dashboard-slot",
+    title: "User Dashboard",
+  }),
+  options
+);
+
 export function startupApp() {
   defineConfigSchema(moduleName, configSchema);
 }

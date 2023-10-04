@@ -4,7 +4,7 @@ import { Calendar, Location } from "@carbon/react/icons";
 import { formatDate, useSession } from "@openmrs/esm-framework";
 import styles from "./header.scss";
 
-const HomeHeader: React.FC<{
+const Header: React.FC<{
   title?: string;
   illustrationComponent: JSX.Element;
 }> = ({ title, illustrationComponent }) => {
@@ -40,4 +40,4 @@ const HomeHeader: React.FC<{
   );
 };
 
-export default HomeHeader;
+export default Header;
