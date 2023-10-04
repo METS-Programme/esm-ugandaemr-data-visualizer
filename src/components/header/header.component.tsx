@@ -1,11 +1,13 @@
-import React from "react";
+import React, { JSX } from "react";
 import { useTranslation } from "react-i18next";
 import { Calendar, Location } from "@carbon/react/icons";
 import { formatDate, useSession } from "@openmrs/esm-framework";
-import Illustration from "./illustration.component";
 import styles from "./header.scss";
 
-const HomeHeader: React.FC<{ title?: string }> = ({ title }) => {
+const HomeHeader: React.FC<{
+  title?: string;
+  illustrationComponent: JSX.Element;
+}> = ({ title, illustrationComponent }) => {
   const { t } = useTranslation();
   const userSession = useSession();
   const userLocation = userSession?.sessionLocation?.display;
@@ -14,7 +16,7 @@ const HomeHeader: React.FC<{ title?: string }> = ({ title }) => {
     <>
       <div className={styles.header}>
         <div className={styles["left-justified-items"]}>
-          <Illustration />
+          {illustrationComponent}
           <div className={styles["page-labels"]}>
             <p>{t("home", "Home")}</p>
             <p className={styles["page-name"]}>

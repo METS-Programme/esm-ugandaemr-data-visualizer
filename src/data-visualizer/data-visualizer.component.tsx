@@ -3,6 +3,7 @@ import PivotTableUI from "react-pivottable/PivotTableUI";
 import TableRenderers from "react-pivottable/TableRenderers";
 import Plot from "react-plotly.js";
 import createPlotlyRenderers from "react-pivottable/PlotlyRenderers";
+import Illustration from "./data-visualizer-illustration.component";
 import {
   ArrowLeft,
   ArrowRight,
@@ -47,7 +48,7 @@ import DataList from "../components/data-table/data-table.component";
 import EmptyStateIllustration from "../components/empty-state/empty-state-illustration.component";
 import Panel from "../components/panel/panel.component";
 import pivotTableStyles from "!!raw-loader!react-pivottable/pivottable.css";
-import styles from "./reporting.scss";
+import styles from "./data-visualizer.scss";
 import {
   createColumns,
   useDynamicReportFetcher,
@@ -57,7 +58,7 @@ import {
   useGetPatientAtrributes,
   useReports,
   useSaveReport,
-} from "./reporting.resource";
+} from "./data-visualizer.resource";
 import dayjs from "dayjs";
 import { showToast } from "@openmrs/esm-framework";
 
@@ -67,7 +68,7 @@ type ReportCategory = "facility" | "national";
 type ReportingDuration = "fixed" | "relative";
 type ReportingPeriod = "today" | "week" | "month" | "quarter" | "lastQuarter";
 
-const Reporting: React.FC = () => {
+const DataVisualizer: React.FC = () => {
   let title,
     description = "";
   const PlotlyRenderers = createPlotlyRenderers(Plot);
@@ -343,7 +344,7 @@ const Reporting: React.FC = () => {
 
   return (
     <>
-      <ReportingHomeHeader />
+      <ReportingHomeHeader illustrationComponent={<Illustration />} />
 
       <div className={styles.container}>
         <Accordion className={styles.accordion}>
@@ -740,4 +741,4 @@ const Reporting: React.FC = () => {
   );
 };
 
-export default Reporting;
+export default DataVisualizer;
