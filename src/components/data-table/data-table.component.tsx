@@ -15,7 +15,6 @@ import {
   TableToolbarSearch,
   Tile,
 } from "@carbon/react";
-import { DocumentDownload } from "@carbon/react/icons";
 import {
   isDesktop,
   useLayoutType,
@@ -47,7 +46,7 @@ const DataList: React.FC<ListProps> = ({ columns, data }) => {
   const isTablet = useLayoutType() === "tablet";
   const responsiveSize = isTablet ? "lg" : "sm";
   const [allRows, setAllRows] = useState([]);
-  const [list, setList] = useState(data);
+  const [list] = useState(data);
   const [documentType, setDocumentType] = useState<DocumentType>(null);
   const pageSizes = [10, 20, 30, 40, 50];
   const [currentPageSize, setPageSize] = useState(10);
@@ -97,7 +96,7 @@ const DataList: React.FC<ListProps> = ({ columns, data }) => {
       const jsonBlob = new Blob([csvString], { type: "application/json" });
       saveAs(jsonBlob, "data.json");
     }
-  }, [columns, documentType]);
+  }, [list, columns, documentType]);
 
   const convertToCSV = (data, columns) => {
     const header = columns.map((col) => col.header).join(",");
@@ -113,7 +112,7 @@ const DataList: React.FC<ListProps> = ({ columns, data }) => {
       rows={allRows}
       headers={columns}
       filterRows={handleFilter}
-      overflowMenuOnHover={isDesktop(layout) ? true : false}
+      overflowMenuOnHover={isDesktop(layout)}
       size={isTablet ? "lg" : "sm"}
       useZebraStyles
     >

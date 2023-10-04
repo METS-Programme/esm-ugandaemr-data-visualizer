@@ -25,7 +25,7 @@ export const root = getAsyncLifecycle(
 );
 
 export const reportingComponent = getAsyncLifecycle(
-  () => import("./components/reporting/reporting.component"),
+  () => import("./data-visualizer/reporting.component"),
   options
 );
 

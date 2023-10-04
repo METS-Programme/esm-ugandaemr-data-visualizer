@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useMemo } from "react";
+import React, { useEffect, useState } from "react";
 import PivotTableUI from "react-pivottable/PivotTableUI";
 import TableRenderers from "react-pivottable/TableRenderers";
 import Plot from "react-plotly.js";
@@ -12,7 +12,6 @@ import {
   ChartPie,
   CrossTab,
   Intersect,
-  Save,
 } from "@carbon/react/icons";
 import {
   Accordion,
@@ -38,15 +37,15 @@ import {
   OverflowMenuItem,
   Tile,
 } from "@carbon/react";
-import ReportingHomeHeader from "../reporting-header/reporting-home-header.component";
+import ReportingHomeHeader from "../components/header/header.component";
 import {
   facilityReports,
   nationalReports,
   reportIndicators,
-} from "../../constants";
-import DataList from "../reporting-helper/data-table.component";
-import EmptyStateIllustration from "./empty-state-illustration.component";
-import Panel from "../panel/panel.component";
+} from "../constants";
+import DataList from "../components/data-table/data-table.component";
+import EmptyStateIllustration from "../components/empty-state/empty-state-illustration.component";
+import Panel from "../components/panel/panel.component";
 import pivotTableStyles from "!!raw-loader!react-pivottable/pivottable.css";
 import styles from "./reporting.scss";
 import {
@@ -459,7 +458,7 @@ const Reporting: React.FC = () => {
                     <div className={styles.panelContainer}>
                       <Panel heading="Available parameters">
                         <ul className={styles.list}>
-                          {availableParameters.map((parameter, index) => (
+                          {availableParameters.map((parameter) => (
                             <li
                               role="menuitem"
                               className={styles.leftListItem}
@@ -495,7 +494,7 @@ const Reporting: React.FC = () => {
                       </div>
                       <Panel heading="Selected parameters">
                         <ul className={styles.list}>
-                          {selectedParameters.map((parameter, index) => (
+                          {selectedParameters.map((parameter) => (
                             <li
                               className={styles.rightListItem}
                               key={parameter.label}
