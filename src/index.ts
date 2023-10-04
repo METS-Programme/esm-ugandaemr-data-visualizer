@@ -25,7 +25,7 @@ export const root = getAsyncLifecycle(
 );
 
 export const reportingComponent = getAsyncLifecycle(
-  () => import("./components/reporting/reporting.component"),
+  () => import("./data-visualizer/data-visualizer.component"),
   options
 );
 
@@ -34,6 +34,20 @@ export const dataVisualizerDashboardLink = getSyncLifecycle(
     name: "data-visualizer",
     slot: "data-visualizer-dashboard-slot",
     title: "Data visualizer",
+  }),
+  options
+);
+
+export const userDashboard = getAsyncLifecycle(
+  () => import("./user-dashboard/user-dashboard.component"),
+  options
+);
+
+export const userDashboardLink = getSyncLifecycle(
+  createDashboardLink({
+    name: "user-dashboard",
+    slot: "user-dashboard-slot",
+    title: "User Dashboard",
   }),
   options
 );

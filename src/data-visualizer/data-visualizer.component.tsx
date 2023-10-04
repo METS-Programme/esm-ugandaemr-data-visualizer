@@ -1,8 +1,9 @@
-import React, { useEffect, useState, useMemo } from "react";
+import React, { useEffect, useState } from "react";
 import PivotTableUI from "react-pivottable/PivotTableUI";
 import TableRenderers from "react-pivottable/TableRenderers";
 import Plot from "react-plotly.js";
 import createPlotlyRenderers from "react-pivottable/PlotlyRenderers";
+import Illustration from "./data-visualizer-illustration.component";
 import {
   ArrowLeft,
   ArrowRight,
@@ -12,7 +13,6 @@ import {
   ChartPie,
   CrossTab,
   Intersect,
-  Save,
 } from "@carbon/react/icons";
 import {
   Accordion,
@@ -38,17 +38,17 @@ import {
   OverflowMenuItem,
   Tile,
 } from "@carbon/react";
-import ReportingHomeHeader from "../reporting-header/reporting-home-header.component";
+import ReportingHomeHeader from "../components/header/header.component";
 import {
   facilityReports,
   nationalReports,
   reportIndicators,
-} from "../../constants";
-import DataList from "../reporting-helper/data-table.component";
-import EmptyStateIllustration from "./empty-state-illustration.component";
-import Panel from "../panel/panel.component";
+} from "../constants";
+import DataList from "../components/data-table/data-table.component";
+import EmptyStateIllustration from "../components/empty-state/empty-state-illustration.component";
+import Panel from "../components/panel/panel.component";
 import pivotTableStyles from "!!raw-loader!react-pivottable/pivottable.css";
-import styles from "./reporting.scss";
+import styles from "./data-visualizer.scss";
 import {
   createColumns,
   useDynamicReportFetcher,
@@ -58,7 +58,7 @@ import {
   useGetPatientAtrributes,
   useReports,
   useSaveReport,
-} from "./reporting.resource";
+} from "./data-visualizer.resource";
 import dayjs from "dayjs";
 import { showToast } from "@openmrs/esm-framework";
 
@@ -68,7 +68,7 @@ type ReportCategory = "facility" | "national";
 type ReportingDuration = "fixed" | "relative";
 type ReportingPeriod = "today" | "week" | "month" | "quarter" | "lastQuarter";
 
-const Reporting: React.FC = () => {
+const DataVisualizer: React.FC = () => {
   let title,
     description = "";
   const PlotlyRenderers = createPlotlyRenderers(Plot);
@@ -108,7 +108,7 @@ const Reporting: React.FC = () => {
   const [selectedParameters, setSelectedParameters] = useState<
     Array<Indicator>
   >([]);
-  const [showFilters, setShowFilters] = useState(true);
+  const [showFilters, setShowFilters] = useState(false);
   const [reportName, setReportName] = useState("Patient List");
   const { identifiers, isLoadingIdentifiers } = useGetIdentifiers();
   const { personAttributes, isLoadingAttributes } = useGetPatientAtrributes();
@@ -344,7 +344,7 @@ const Reporting: React.FC = () => {
 
   return (
     <>
-      <ReportingHomeHeader />
+      <ReportingHomeHeader illustrationComponent={<Illustration />} />
 
       <div className={styles.container}>
         <Accordion className={styles.accordion}>
@@ -459,7 +459,7 @@ const Reporting: React.FC = () => {
                     <div className={styles.panelContainer}>
                       <Panel heading="Available parameters">
                         <ul className={styles.list}>
-                          {availableParameters.map((parameter, index) => (
+                          {availableParameters.map((parameter) => (
                             <li
                               role="menuitem"
                               className={styles.leftListItem}
@@ -495,7 +495,7 @@ const Reporting: React.FC = () => {
                       </div>
                       <Panel heading="Selected parameters">
                         <ul className={styles.list}>
-                          {selectedParameters.map((parameter, index) => (
+                          {selectedParameters.map((parameter) => (
                             <li
                               className={styles.rightListItem}
                               key={parameter.label}
@@ -741,4 +741,4 @@ const Reporting: React.FC = () => {
   );
 };
 
-export default Reporting;
+export default DataVisualizer;

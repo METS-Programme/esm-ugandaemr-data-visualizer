@@ -25,7 +25,7 @@ type saveReportRequest = {
 
 export function useReports(params: fixedReportRequest) {
   const apiUrl = `${restBaseUrl}ugandaemrreports/reportingDefinition?uuid=${params.reportUUID}&startDate=${params.startDate}&endDate=${params.endDate}`;
-  const { data, error, isLoading, isValidating, mutate } = useSWR<
+  const { data, error, isLoading, isValidating } = useSWR<
     { data: { results: any } },
     Error
   >(params.reportUUID ? apiUrl : null, openmrsFetch);
@@ -39,7 +39,7 @@ export function useReports(params: fixedReportRequest) {
 
 export function useGetIdentifiers() {
   const apiUrl = `${restBaseUrl}patientidentifiertype`;
-  const { data, error, isLoading, isValidating, mutate } = useSWR<
+  const { data, error, isLoading, mutate } = useSWR<
     { data: { results: any } },
     Error
   >(apiUrl, openmrsFetch);
@@ -55,7 +55,7 @@ export function useGetIdentifiers() {
 
 export function useGetPatientAtrributes() {
   const apiUrl = `${restBaseUrl}personattributetype`;
-  const { data, error, isLoading, isValidating, mutate } = useSWR<
+  const { data, error, isLoading, mutate } = useSWR<
     { data: { results: any } },
     Error
   >(apiUrl, openmrsFetch);
@@ -71,10 +71,10 @@ export function useGetPatientAtrributes() {
 
 export function useGetEncounterType() {
   const apiUrl = `${restBaseUrl}encountertype`;
-  const { data, error, isLoading, isValidating, mutate } = useSWR<
-    { data: { results: any } },
-    Error
-  >(apiUrl, openmrsFetch);
+  const { data, error, isLoading } = useSWR<{ data: { results: any } }, Error>(
+    apiUrl,
+    openmrsFetch
+  );
   return {
     encounterTypes: data ? mapDataElements(data?.data["results"]) : [],
     isError: error,
@@ -84,7 +84,7 @@ export function useGetEncounterType() {
 
 export function useGetEncounterConcepts(uuid: string) {
   const apiUrl = `${restBaseUrl}ugandaemrreports/concepts/encountertype?uuid=${uuid}`;
-  const { data, error, isLoading, isValidating, mutate } = useSWR<
+  const { data, error, isLoading, mutate } = useSWR<
     {
       data: {
         results: any;
@@ -213,7 +213,7 @@ export function mapDataElements(
   let arrayToReturn: Array<Indicator> = [];
   if (dataArray) {
     if (category === "concepts") {
-      dataArray.map((encounterType: Record<string, string>, index) => {
+      dataArray.map((encounterType: Record<string, string>) => {
         arrayToReturn.push({
           id: encounterType.uuid,
           label: encounterType.conceptName,
@@ -221,7 +221,7 @@ export function mapDataElements(
         });
       });
     } else {
-      dataArray.map((encounterType: Record<string, string>, index) => {
+      dataArray.map((encounterType: Record<string, string>) => {
         arrayToReturn.push({
           id: encounterType.uuid,
           label: encounterType.display,

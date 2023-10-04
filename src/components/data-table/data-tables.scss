@@ -31,7 +31,7 @@
 .searchField {
   width: 100%;
   max-width: 250px;
-  border: 0px !important;
+  border: 0 !important;
 }
 
 .container {
@@ -137,7 +137,7 @@
     height: spacing.$spacing-09;
   }
 }
- 
+
 :global(.omrs-breakpoint-gt-tablet) {
   .toolbarWrapper {
     height: spacing.$spacing-07;
@@ -157,13 +157,13 @@
   :global(.cds--table-toolbar) {
     position: relative;
     height: 2rem;
-    min-height: 0rem;  
+    min-height: 0;
     overflow: visible;
     top: 0;
   }
 
   &:global(.cds--data-table-container) {
-    padding-top: 0rem;
+    padding-top: 0;
   }
 
   a {
@@ -173,7 +173,7 @@
   tr {
     width: spacing.$spacing-01;
   }
-  
+
   .cds--table-sort__description {
     display: none;
   }

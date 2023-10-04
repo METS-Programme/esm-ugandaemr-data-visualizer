@@ -1,6 +1,6 @@
 import React from "react";
 
-const ReportingHomeIllustration: React.FC = () => {
+const Illustration: React.FC = () => {
   return (
     <svg
       width="100"
@@ -28,4 +28,4 @@ const ReportingHomeIllustration: React.FC = () => {
   );
 };
 
-export default ReportingHomeIllustration;
+export default Illustration;

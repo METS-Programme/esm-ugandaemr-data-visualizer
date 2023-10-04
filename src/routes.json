@@ -9,7 +9,6 @@
       "name": "data-visualizer-dashboard-link",
       "component": "dataVisualizerDashboardLink",
       "slot": "homepage-dashboard-slot",
-      "order" : 2,
       "meta": {
         "name": "data-visualizer",
         "slot": "data-visualizer-dashboard-slot",
@@ -20,6 +19,21 @@
       "component": "root",
       "name": "data-visualizer-dashboard",
       "slot": "data-visualizer-dashboard-slot"
+    },
+    {
+      "name": "user-dashboard-link",
+      "component": "userDashboardLink",
+      "slot": "homepage-dashboard-slot",
+      "meta": {
+        "name": "user-dashboard",
+        "slot": "user-dashboard-slot",
+        "title": "User Dashboard"
+      }
+    },
+    {
+      "component": "root",
+      "name": "user-dashboard",
+      "slot": "user-dashboard-slot"
     }
   ]
 }

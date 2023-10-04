@@ -1,5 +1,6 @@
-@use '@carbon/styles/scss/colors';
-@use '@carbon/styles/scss/spacing';
+@use 'node_modules/@carbon/styles/scss/colors';
+@use 'node_modules/@carbon/styles/scss/spacing';
+@use 'node_modules/@carbon/styles/scss/type/index';
 @use '@carbon/styles/scss/type';
 
 .container {
@@ -150,7 +151,7 @@
   width: 14rem;
   display: flex;
   height: spacing.$spacing-07;
-  margin: 0rem;
+  margin: 0;
 }
 
 .layer {
