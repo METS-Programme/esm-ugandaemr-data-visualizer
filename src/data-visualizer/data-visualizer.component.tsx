@@ -108,7 +108,7 @@ const DataVisualizer: React.FC = () => {
   const [selectedParameters, setSelectedParameters] = useState<
     Array<Indicator>
   >([]);
-  const [showFilters, setShowFilters] = useState(true);
+  const [showFilters, setShowFilters] = useState(false);
   const [reportName, setReportName] = useState("Patient List");
   const { identifiers, isLoadingIdentifiers } = useGetIdentifiers();
   const { personAttributes, isLoadingAttributes } = useGetPatientAtrributes();
