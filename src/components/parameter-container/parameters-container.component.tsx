@@ -65,7 +65,6 @@ const ParametersContainer: React.FC<ParametersContainerProps> = ({
       ...SelectedParametersProps,
     ]);
     setLocalAvailableParameters([]);
-    console.log("hey");
   };
 
   return (
