@@ -40,6 +40,7 @@ import {
 } from "@carbon/react";
 import ReportingHomeHeader from "../components/header/header.component";
 import {
+  cqiReports,
   facilityReports,
   nationalReports,
   reportIndicators,
@@ -64,7 +65,7 @@ import { showToast } from "@openmrs/esm-framework";
 
 type ChartType = "list" | "pivot" | "line" | "bar" | "pie";
 type ReportType = "fixed" | "dynamic";
-type ReportCategory = "facility" | "national";
+type ReportCategory = "facility" | "national" | "cqi";
 type ReportingDuration = "fixed" | "relative";
 type ReportingPeriod = "today" | "week" | "month" | "quarter" | "lastQuarter";
 
@@ -388,6 +389,12 @@ const DataVisualizer: React.FC = () => {
                           onClick={() => setReportCategory("national")}
                           value="national"
                         />
+                        <RadioButton
+                          id="cqiReport"
+                          labelText="CQI Reports"
+                          onClick={() => setReportCategory("cqi")}
+                          value="cqi"
+                        />
                       </RadioButtonGroup>
                     </FormGroup>
 
@@ -416,6 +423,20 @@ const DataVisualizer: React.FC = () => {
                           ariaLabel="Select national report"
                           id="nationalReportsCombobox"
                           items={nationalReports.reports}
+                          hideLabel
+                        />
+                      </FormGroup>
+                    )}
+
+                    {reportCategory === "cqi" && (
+                      <FormGroup>
+                        <FormLabel className={styles.label}>
+                          CQI Reports
+                        </FormLabel>
+                        <ComboBox
+                          ariaLabel="Select CQI report"
+                          id="CQIReportsCombobox"
+                          items={cqiReports.reports}
                           hideLabel
                         />
                       </FormGroup>

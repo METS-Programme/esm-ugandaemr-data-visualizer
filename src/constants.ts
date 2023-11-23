@@ -131,23 +131,81 @@ export const facilityReports: ReportProps = {
 };
 
 export const nationalReports: ReportProps = {
-  categoryName: "MONTHLY REPORTS",
+  categoryName: "MER INDICATOR REPORTS",
   reports: [
     {
-      id: "HMIS106-1A",
-      label: "HMIS 106A",
+      id: "43636326-36c5-4104-b358-b912a038ee9d",
+      label: "HTS_RECENT Report",
     },
     {
-      id: "HMIS-105",
-      label: "HMIS 105",
+      id: "9d041ea6-2052-4203-8e40-c47fc359b8e1",
+      label: "HCT_TST_Facility Report",
     },
     {
-      id: "TxC28",
+      id: "8dafdc32-97b7-4f49-828e-475cd4f09669",
       label: "Tx Current_28Days Report",
     },
     {
-      id: "TxC90",
+      id: "214fb8ef-6219-43f3-b20b-023261c0dec6",
       label: "Tx Current_90Days Report",
+    },
+    {
+      id: "65fec0844-1970-43c5-bf77-b296415daa34",
+      label: "Tx New Report",
+    },
+    {
+      id: "a781267d-2793-496f-81a6-aa460df5777e",
+      label: "TB STAT Report",
+    },
+    {
+      id: "ebab92eb-90b8-460d-a356-c2f7800e068f",
+      label: "TB ART Report",
+    },
+    {
+      id: "2356ee4a-c974-40e3-b28d-5b56f76ce295",
+      label: "PMTCT STAT Report",
+    },
+    {
+      id: "c17ea006-b599-45c4-94c9-33f6f4d99f4c",
+      label: "MER TX RTT Report",
+    },
+    {
+      id: "47246504-69df-4060-b202-e2903305c456",
+      label: "PMTCT ART Report",
+    },
+    {
+      id: "5b922f62-f844-4962-9465-61cf8f52f4b7",
+      label: "TX_ML Report",
+    },
+    {
+      id: "d055029b-655f-4adb-84a0-405351892e09",
+      label: "TX_TB Report",
+    },
+  ],
+};
+
+export const cqiReports: ReportProps = {
+  categoryName: "CQI REPORTS",
+  reports: [
+    {
+      id: "2017e2e0-fc1c-4ba2-8816-92f822290c84",
+      label: "HIV Care and Treatment Audit Tool-Resized",
+    },
+    {
+      id: "b5cbec70-3dcf-4b4b-99f9-45e0f0a9a23b",
+      label: "HIV Care and Treatment Audit Tool",
+    },
+    {
+      id: "bc18e380-039e-482a-96c0-1555f3fdb773",
+      label: "PMTCT Audit tool",
+    },
+    {
+      id: "9f629343-0b9b-4717-a824-2ba02f853a96",
+      label: "PMTCT Audit tool-Resized",
+    },
+    {
+      id: "d6aecd70-f997-45ab-b43d-cfb270c0b4e1",
+      label: "Care and Treatment Audit Summary",
     },
   ],
 };
