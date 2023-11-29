@@ -1,17 +1,16 @@
 import useSWR from "swr";
 import { openmrsFetch, restBaseUrl } from "@openmrs/esm-framework";
 
-type fixedReportRequest = {
-  reportUUID: string;
-  startDate: string;
-  endDate: string;
-};
-
-type dynamicReportRequest = {
+type ReportRequest = {
   uuid: string;
-  reportIndicators: Array<Indicator>;
   startDate: string;
   endDate: string;
+  reportCategory?: {
+    category: ReportCategory;
+    renderType?: RenderType;
+  };
+  reportIndicators?: Array<Indicator>;
+  reportType: ReportType;
 };
 
 type saveReportRequest = {
@@ -23,18 +22,52 @@ type saveReportRequest = {
   report_request_object: string;
 };
 
-export function useReports(params: fixedReportRequest) {
-  const apiUrl = `${restBaseUrl}ugandaemrreports/reportingDefinition?uuid=${params.reportUUID}&startDate=${params.startDate}&endDate=${params.endDate}`;
-  const { data, error, isLoading, isValidating } = useSWR<
-    { data: { results: any } },
-    Error
-  >(params.reportUUID ? apiUrl : null, openmrsFetch);
-  return {
-    reportData: data ? data?.data : [],
-    isLoading,
-    isError: error,
-    isValidating,
-  };
+export async function getReport(params: ReportRequest) {
+  const abortController = new AbortController();
+  let apiUrl = `${restBaseUrl}ugandaemrreports/dataDefinition`;
+  let fixedReportUrl = `${apiUrl}?startDate=${params.startDate}&endDate=${params.endDate}&uuid=${params.uuid}`;
+
+  if (params.reportType === "fixed") {
+    if (params.reportCategory.renderType === "html") {
+      fixedReportUrl += `&renderType=${params.reportCategory.renderType}`;
+    }
+    return openmrsFetch(fixedReportUrl, {
+      headers: {
+        "Content-Type": "application/json",
+      },
+      signal: abortController.signal,
+    });
+  } else {
+    const parameters =
+      params.reportIndicators.length > 0
+        ? formatReportArray(params.reportIndicators)
+        : [];
+
+    return openmrsFetch(apiUrl, {
+      method: "POST",
+      signal: abortController.signal,
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: {
+        cohort: {
+          clazz: "",
+          uuid: params.uuid,
+          name: "",
+          description: "",
+          parameters: [
+            {
+              startDate: params.startDate,
+            },
+            {
+              endDate: params.endDate,
+            },
+          ],
+        },
+        columns: parameters,
+      },
+    });
+  }
 }
 
 export function useGetIdentifiers() {
@@ -99,58 +132,6 @@ export function useGetEncounterConcepts(uuid: string) {
     isError: error,
     isLoadingEncounterConcepts: isLoading,
     mutate,
-  };
-}
-
-export function useDynamicReportFetcher(params: dynamicReportRequest) {
-  const parameters =
-    params.reportIndicators.length > 0
-      ? formatReportArray(params.reportIndicators)
-      : [];
-  const abortController = new AbortController();
-  const apiUrl = params.uuid
-    ? `${restBaseUrl}ugandaemrreports/dataDefinition`
-    : null;
-  const fetcher = () =>
-    openmrsFetch(apiUrl, {
-      method: "POST",
-      signal: abortController.signal,
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: {
-        cohort: {
-          clazz: "",
-          uuid: params.uuid,
-          name: "",
-          description: "",
-          parameters: [
-            {
-              startDate: params.startDate,
-            },
-            {
-              endDate: params.endDate,
-            },
-          ],
-        },
-        columns: parameters,
-      },
-    });
-
-  const { data, error, isLoading, isValidating } = useSWR<
-    {
-      data: {
-        results: any;
-      };
-    },
-    Error
-  >(apiUrl, fetcher);
-
-  return {
-    dynamicReportData: data ? data?.data : [],
-    isError: error,
-    isLoadingDynamicReport: isLoading,
-    isValidatingDynamicReport: isValidating,
   };
 }
 
