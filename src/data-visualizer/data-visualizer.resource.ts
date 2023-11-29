@@ -135,42 +135,25 @@ export function useGetEncounterConcepts(uuid: string) {
   };
 }
 
-export function useSaveReport(params: saveReportRequest) {
-  const apiUrl = params.reportName ? `${restBaseUrl}dashboardReport` : null;
+export async function saveReport(params: saveReportRequest) {
+  const apiUrl = `${restBaseUrl}dashboardReport`;
   const abortController = new AbortController();
 
-  const fetcher = () =>
-    openmrsFetch(apiUrl, {
-      method: "POST",
-      signal: abortController.signal,
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: {
-        name: params.reportName,
-        description: params?.reportDescription,
-        type: params?.reportType,
-        columns: params?.columns,
-        rows: params?.rows,
-        report_request_object: params.report_request_object,
-      },
-    });
-
-  const { data, error, isLoading, isValidating } = useSWR<
-    {
-      data: {
-        results: any;
-      };
+  return openmrsFetch(apiUrl, {
+    method: "POST",
+    signal: abortController.signal,
+    headers: {
+      "Content-Type": "application/json",
     },
-    Error
-  >(apiUrl, fetcher);
-
-  return {
-    savedReport: data ? data?.data : [],
-    isErrorInSaving: error,
-    isLoadingSaveReport: isLoading,
-    isValidatingSaveReport: isValidating,
-  };
+    body: {
+      name: params.reportName,
+      description: params?.reportDescription,
+      type: params?.reportType,
+      columns: params?.columns,
+      rows: params?.rows,
+      report_request_object: params.report_request_object,
+    },
+  });
 }
 
 export function createColumns(columns: Array<string>) {

@@ -53,11 +53,11 @@ import styles from "./data-visualizer.scss";
 import {
   createColumns,
   getReport,
+  saveReport,
   useGetEncounterConcepts,
   useGetEncounterType,
   useGetIdentifiers,
   useGetPatientAtrributes,
-  useSaveReport,
 } from "./data-visualizer.resource";
 import dayjs from "dayjs";
 import { showNotification, showToast } from "@openmrs/esm-framework";
@@ -108,7 +108,7 @@ const DataVisualizer: React.FC = () => {
   const { personAttributes, isLoadingAttributes } = useGetPatientAtrributes();
   const { encounterTypes } = useGetEncounterType();
   const [hasRetrievedConcepts, setHasRetrievedConcepts] = useState(false);
-  const [showSaveReportModal, setShowSaveReportModal] = useState(false);
+  const [saveReportModal, setSaveReportModal] = useState(false);
   const [reportTitle, setReportTitle] = useState(null);
   const [reportDescription, setReportDescription] = useState(null);
 
@@ -201,20 +201,47 @@ const DataVisualizer: React.FC = () => {
     setReportingDuration(period);
   };
 
-  const handleSaveReport = () => {
-    setShowSaveReportModal(true);
+  const showSaveReportModal = () => {
+    setSaveReportModal(true);
   };
 
   const closeReportModal = () => {
-    setShowSaveReportModal(false);
+    setSaveReportModal(false);
   };
 
-  const saveReport = () => {
+  const handleSaveReport = useCallback(() => {
     setReportTitle(title);
     setReportDescription(description);
-    setCanSaveReport(true);
-    setShowSaveReportModal(false);
-  };
+
+    saveReport({
+      reportName: title,
+      reportDescription: description,
+      reportType: pivotTableData?.["rendererName"],
+      columns: "",
+      rows: "",
+      report_request_object: JSON.stringify(pivotTableData),
+    }).then(
+      (response) => {
+        if (response.status === 200) {
+          showToast({
+            critical: true,
+            title: "Saving Report",
+            kind: "success",
+            description: `Report ${reportTitle} saved Successfully`,
+          });
+          setSaveReportModal(false);
+        }
+      },
+      (error) => {
+        showNotification({
+          title: "Error saving report",
+          kind: "error",
+          critical: true,
+          description: error?.message,
+        });
+      }
+    );
+  }, [description, pivotTableData, reportTitle, title]);
 
   const handleReportTitleChange = (event) => {
     title = event.target.value;
@@ -223,15 +250,6 @@ const DataVisualizer: React.FC = () => {
   const handleReportDescChange = (event) => {
     description = event.target.value;
   };
-
-  const { isLoadingSaveReport, isErrorInSaving } = useSaveReport({
-    reportName: reportTitle,
-    reportDescription: reportDescription,
-    reportType: pivotTableData?.["rendererName"],
-    columns: "",
-    rows: "",
-    report_request_object: JSON.stringify(pivotTableData),
-  });
 
   const moveAllFromLeftToRight = (selectedParameter) => {
     const updatedAvailableParameters = availableParameters.filter(
@@ -312,19 +330,6 @@ const DataVisualizer: React.FC = () => {
       setAvailableParameters(encounterConcepts);
       selectedIndicators.attributes = encounterConcepts as Array<Indicator>;
       setHasRetrievedConcepts(true);
-    }
-  }
-
-  if (!isLoadingSaveReport) {
-    if (!isErrorInSaving && canSaveReport) {
-      showToast({
-        critical: true,
-        title: "Saving Report",
-        kind: "success",
-        description: `Report ${reportTitle} saved Successfully`,
-      });
-      setReportTitle(null);
-      setCanSaveReport(false);
     }
   }
 
@@ -684,7 +689,7 @@ const DataVisualizer: React.FC = () => {
             <OverflowMenu aria-label="overflow-menu" flipped size="md" kind="">
               <OverflowMenuItem
                 itemText="Save Report"
-                onClick={handleSaveReport}
+                onClick={showSaveReportModal}
               />
               <OverflowMenuItem itemText="Open Saved Reports" />
             </OverflowMenu>
@@ -717,7 +722,7 @@ const DataVisualizer: React.FC = () => {
             </div>
           )}
 
-          {showSaveReportModal && (
+          {saveReportModal && (
             <Modal
               open
               size="sm"
@@ -727,7 +732,7 @@ const DataVisualizer: React.FC = () => {
               secondaryButtonText="Cancel"
               primaryButtonText="Save Report"
               onRequestClose={closeReportModal}
-              onRequestSubmit={saveReport}
+              onRequestSubmit={handleSaveReport}
             >
               <div>
                 <TextInput
