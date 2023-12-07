@@ -5,19 +5,8 @@
         "webservices.rest": "^2.2.0"
     },
     "extensions": [{
-            "name": "data-visualizer-dashboard-link",
-            "component": "dataVisualizerDashboardLink",
-            "slot": "homepage-dashboard-slot",
-            "meta": {
-                "name": "data-visualizer",
-                "slot": "data-visualizer-dashboard-slot",
-                "title": "Data visualizer"
-            }
-        },
-        {
-            "component": "root",
-            "name": "data-visualizer-dashboard",
-            "slot": "data-visualizer-dashboard-slot"
-        }
-    ]
+        "component": "root",
+        "name": "data-visualizer-dashboard",
+        "slot": "data-visualizer-dashboard-slot"
+    }]
 }
