@@ -134,12 +134,8 @@ export const nationalReports: ReportProps = {
   categoryName: "MER INDICATOR REPORTS",
   reports: [
     {
-      id: "43636326-36c5-4104-b358-b912a038ee9d",
-      label: "HTS_RECENT Report",
-    },
-    {
-      id: "9d041ea6-2052-4203-8e40-c47fc359b8e1",
-      label: "HCT_TST_Facility Report",
+      id: "65fec0844-1970-43c5-bf77-b296415daa34",
+      label: "Tx New Report",
     },
     {
       id: "8dafdc32-97b7-4f49-828e-475cd4f09669",
@@ -148,10 +144,6 @@ export const nationalReports: ReportProps = {
     {
       id: "214fb8ef-6219-43f3-b20b-023261c0dec6",
       label: "Tx Current_90Days Report",
-    },
-    {
-      id: "65fec0844-1970-43c5-bf77-b296415daa34",
-      label: "Tx New Report",
     },
     {
       id: "a781267d-2793-496f-81a6-aa460df5777e",
@@ -180,6 +172,14 @@ export const nationalReports: ReportProps = {
     {
       id: "d055029b-655f-4adb-84a0-405351892e09",
       label: "TX_TB Report",
+    },
+    {
+      id: "43636326-36c5-4104-b358-b912a038ee9d",
+      label: "HTS_RECENT Report",
+    },
+    {
+      id: "9d041ea6-2052-4203-8e40-c47fc359b8e1",
+      label: "HCT_TST_Facility Report",
     },
   ],
 };

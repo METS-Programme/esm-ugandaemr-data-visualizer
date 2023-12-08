@@ -8,11 +8,9 @@ import {
   ArrowLeft,
   ArrowRight,
   Catalog,
-  ChartColumn,
-  ChartLine,
-  ChartPie,
   CrossTab,
   Intersect,
+  ImageService,
 } from "@carbon/react/icons";
 import {
   Accordion,
@@ -61,7 +59,7 @@ import {
 } from "./data-visualizer.resource";
 import dayjs from "dayjs";
 import { showNotification, showToast } from "@openmrs/esm-framework";
-type ChartType = "list" | "pivot" | "line" | "bar" | "pie";
+type ChartType = "list" | "pivot" | "aggregate";
 type ReportingDuration = "fixed" | "relative";
 type ReportingPeriod = "today" | "week" | "month" | "quarter" | "lastQuarter";
 const DataVisualizer: React.FC = () => {
@@ -93,7 +91,6 @@ const DataVisualizer: React.FC = () => {
   const handleUpdateFacilityReport = ({ selectedItem }) => {
     setFacilityReport(selectedItem);
   };
-  const [canSaveReport, setCanSaveReport] = useState(false);
   const [startDate, setStartDate] = useState(null);
   const [endDate, setEndDate] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -111,7 +108,7 @@ const DataVisualizer: React.FC = () => {
   const [saveReportModal, setSaveReportModal] = useState(false);
   const [reportTitle, setReportTitle] = useState(null);
   const [reportDescription, setReportDescription] = useState(null);
-
+  const [htmlContent, setHTML] = useState("");
   const { encounterConcepts, isLoadingEncounterConcepts } =
     useGetEncounterConcepts(selectedIndicators?.id);
 
@@ -133,33 +130,37 @@ const DataVisualizer: React.FC = () => {
           let dataForReport: any = [];
           const reportData = response?.data;
           if (reportType === "fixed") {
-            const responseReportName = Object.keys(reportData)[0];
-            if (
-              reportData[responseReportName] &&
-              reportData[responseReportName][0]
-            ) {
-              const columnNames = Object.keys(
-                reportData[responseReportName][0]
-              );
-              headers = createColumns(columnNames).slice(0, 10);
-              dataForReport = reportData[responseReportName];
-              setLoading(false);
-              setShowFilters(false);
+            if (reportCategory.renderType === "html") {
+              response?.text().then((htmlString) => {;
+                setHTML(htmlString);
+              });
             } else {
-              setShowLineList(false);
+              const responseReportName = Object.keys(reportData)[0];
+              if (
+                reportData[responseReportName] &&
+                reportData[responseReportName][0]
+              ) {
+                const columnNames = Object.keys(
+                  reportData[responseReportName][0]
+                );
+                headers = createColumns(columnNames).slice(0, 10);
+                dataForReport = reportData[responseReportName];
+              } else {
+                setShowLineList(false);
+              }
             }
           } else {
             if (reportData[0]) {
               const columnNames = Object.keys(reportData[0]);
               headers = createColumns(columnNames).slice(0, 10);
               dataForReport = reportData;
-              setLoading(false);
-              setShowFilters(false);
             } else {
               setShowLineList(false);
             }
           }
 
+          setLoading(false);
+          setShowFilters(false);
           setTableHeaders(headers);
           setData(dataForReport);
           setPivotTableData(dataForReport);
@@ -171,6 +172,8 @@ const DataVisualizer: React.FC = () => {
         }
       },
       (error) => {
+        setLoading(false);
+        setShowFilters(false);
         showNotification({
           title: "Error fetching report",
           kind: "error",
@@ -325,6 +328,22 @@ const DataVisualizer: React.FC = () => {
     setEndDate(dayjs(selectedDate[0]).format("YYYY-MM-DD"));
   };
 
+  const handleReportCategoryChange = (selectedItem: ReportCategory) => {
+    if (selectedItem === "national") {
+      setReportCategory({
+        category: "national",
+        renderType: "html",
+      });
+      setChartType("aggregate");
+    } else if (selectedItem === "cqi") {
+      setReportCategory({ category: "cqi" });
+      setChartType("aggregate");
+    } else {
+      setReportCategory({ category: "facility" });
+      setChartType("list");
+    }
+  };
+
   if (!isLoadingEncounterConcepts && encounterConcepts?.length > 0) {
     if (!hasRetrievedConcepts) {
       setAvailableParameters(encounterConcepts);
@@ -380,26 +399,19 @@ const DataVisualizer: React.FC = () => {
                         <RadioButton
                           id="facilityReport"
                           labelText="Facility"
-                          onClick={() =>
-                            setReportCategory({ category: "facility" })
-                          }
+                          onClick={() => handleReportCategoryChange("facility")}
                           value="facility"
                         />
                         <RadioButton
                           id="nationalReport"
                           labelText="National"
-                          onClick={() =>
-                            setReportCategory({
-                              category: "national",
-                              renderType: "html",
-                            })
-                          }
+                          onClick={() => handleReportCategoryChange("national")}
                           value="national"
                         />
                         <RadioButton
                           id="cqiReport"
-                          labelText="CQI Reports"
-                          onClick={() => setReportCategory({ category: "cqi" })}
+                          labelText="CQI Report"
+                          onClick={() => handleReportCategoryChange("cqi")}
                           value="cqi"
                         />
                       </RadioButtonGroup>
@@ -416,7 +428,7 @@ const DataVisualizer: React.FC = () => {
                           items={facilityReports.reports}
                           hideLabel
                           onChange={handleUpdateFacilityReport}
-                          selectedItem={facilityReport}
+                          initialSelectedItem={facilityReports.reports[0]}
                         />
                       </FormGroup>
                     )}
@@ -431,6 +443,8 @@ const DataVisualizer: React.FC = () => {
                           id="nationalReportsCombobox"
                           items={nationalReports.reports}
                           hideLabel
+                          onChange={handleUpdateFacilityReport}
+                          initialSelectedItem={nationalReports.reports[0]}
                         />
                       </FormGroup>
                     )}
@@ -445,6 +459,8 @@ const DataVisualizer: React.FC = () => {
                           id="CQIReportsCombobox"
                           items={cqiReports.reports}
                           hideLabel
+                          onChange={handleUpdateFacilityReport}
+                          initialSelectedItem={cqiReports.reports[0]}
                         />
                       </FormGroup>
                     )}
@@ -641,36 +657,24 @@ const DataVisualizer: React.FC = () => {
       </div>
 
       <section className={styles.section}>
-        <div>
+        <div className={styles.contentSwitchContainer}>
           <ContentSwitcher onChange={handleChartTypeChange}>
-            <Switch name="list">
+            <Switch name="list" selected={chartType === "list"}>
               <div className={styles.switch}>
                 <Catalog />
                 <span>Patient list</span>
               </div>
             </Switch>
-            <Switch name="pivot">
+            <Switch name="pivot" disabled={chartType === "aggregate"}>
               <div className={styles.switch}>
                 <CrossTab />
                 <span>Pivot table</span>
               </div>
             </Switch>
-            <Switch name="line" disabled={true}>
+            <Switch name="aggregate" disabled={chartType !== "aggregate"}>
               <div className={styles.switch}>
-                <ChartLine />
-                <span>Line chart</span>
-              </div>
-            </Switch>
-            <Switch name="bar" disabled={true}>
-              <div className={styles.switch}>
-                <ChartColumn />
-                <span>Bar chart</span>
-              </div>
-            </Switch>
-            <Switch name="pie" disabled={true}>
-              <div className={styles.switch}>
-                <ChartPie />
-                <span>Pie chart</span>
+                <ImageService />
+                <span>Aggregate Report</span>
               </div>
             </Switch>
           </ContentSwitcher>
@@ -699,9 +703,7 @@ const DataVisualizer: React.FC = () => {
 
       {showLineList ? (
         <>
-          {chartType === "list" && loading && (
-            <DataTableSkeleton role="progressbar" />
-          )}
+          {loading && <DataTableSkeleton role="progressbar" />}
 
           {chartType === "list" && !loading && (
             <div className={styles.reportContainer}>
@@ -719,6 +721,12 @@ const DataVisualizer: React.FC = () => {
                 renderers={{ ...TableRenderers, ...PlotlyRenderers }}
                 {...pivotTableData}
               />
+            </div>
+          )}
+
+          {chartType === "aggregate" && !loading && (
+            <div className={styles.reportTableContainer}>
+              <div dangerouslySetInnerHTML={{ __html: htmlContent }} />
             </div>
           )}
 

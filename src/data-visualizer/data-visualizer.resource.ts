@@ -24,7 +24,7 @@ type saveReportRequest = {
 
 export async function getReport(params: ReportRequest) {
   const abortController = new AbortController();
-  let apiUrl = `${restBaseUrl}ugandaemrreports/dataDefinition`;
+  let apiUrl = `${restBaseUrl}ugandaemrreports/reportingDefinition`;
   let fixedReportUrl = `${apiUrl}?startDate=${params.startDate}&endDate=${params.endDate}&uuid=${params.uuid}`;
 
   if (params.reportType === "fixed") {
@@ -32,9 +32,6 @@ export async function getReport(params: ReportRequest) {
       fixedReportUrl += `&renderType=${params.reportCategory.renderType}`;
     }
     return openmrsFetch(fixedReportUrl, {
-      headers: {
-        "Content-Type": "application/json",
-      },
       signal: abortController.signal,
     });
   } else {
