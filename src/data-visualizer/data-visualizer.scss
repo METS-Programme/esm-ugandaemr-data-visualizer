@@ -213,18 +213,26 @@
   font-size: 0.92rem;
 }
 
-.reportTableContainer th, .reportTableContainer td {
-  border: 1px solid #dddddd;
+.reportTableContainer table tbody td {
+  border: 1px solid colors.$gray-40;
   text-align: left;
   padding: 8px;
 }
 
 .reportTableContainer th {
-  background-color: red;
+  border: 1px solid colors.$white;
+  background-color: var(--brand-03);
+  font-weight: bold;
+  padding: 8px;
+  color: white;
 }
 
 .reportTableContainer td {
   background-color: #ffffff;
   max-width: 0;
   white-space: unset;
+}
+
+.reportTableContainer tr:nth-child(even) td {
+  background-color: colors.$gray-20;
 }

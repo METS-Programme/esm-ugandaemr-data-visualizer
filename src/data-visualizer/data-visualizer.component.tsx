@@ -726,6 +726,10 @@ const DataVisualizer: React.FC = () => {
 
           {chartType === "aggregate" && !loading && (
             <div className={styles.reportTableContainer}>
+              <h3 className={styles.listHeading}>
+                {reportName} ({dayjs(startDate).format("DD/MM/YYYY")} -{" "}
+                {dayjs(endDate).format("DD/MM/YYYY")})
+              </h3>
               <div dangerouslySetInnerHTML={{ __html: htmlContent }} />
             </div>
           )}
