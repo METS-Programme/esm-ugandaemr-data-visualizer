@@ -29,29 +29,6 @@ export const reportingComponent = getAsyncLifecycle(
   options
 );
 
-export const dataVisualizerDashboardLink = getSyncLifecycle(
-  createDashboardLink({
-    name: "data-visualizer",
-    slot: "data-visualizer-dashboard-slot",
-    title: "Data visualizer",
-  }),
-  options
-);
-
-export const userDashboard = getAsyncLifecycle(
-  () => import("./user-dashboard/user-dashboard.component"),
-  options
-);
-
-export const userDashboardLink = getSyncLifecycle(
-  createDashboardLink({
-    name: "user-dashboard",
-    slot: "user-dashboard-slot",
-    title: "User Dashboard",
-  }),
-  options
-);
-
 export function startupApp() {
   defineConfigSchema(moduleName, configSchema);
 }
