@@ -11,6 +11,7 @@ import {
   CrossTab,
   Intersect,
   ImageService,
+  SendAlt,
 } from "@carbon/react/icons";
 import {
   Accordion,
@@ -131,7 +132,7 @@ const DataVisualizer: React.FC = () => {
           const reportData = response?.data;
           if (reportType === "fixed") {
             if (reportCategory.renderType === "html") {
-              response?.text().then((htmlString) => {;
+              response?.text().then((htmlString) => {
                 setHTML(htmlString);
               });
             } else {
@@ -428,7 +429,7 @@ const DataVisualizer: React.FC = () => {
                           items={facilityReports.reports}
                           hideLabel
                           onChange={handleUpdateFacilityReport}
-                          initialSelectedItem={facilityReports.reports[0]}
+                          selectedItem={selectedReport}
                         />
                       </FormGroup>
                     )}
@@ -444,7 +445,6 @@ const DataVisualizer: React.FC = () => {
                           items={nationalReports.reports}
                           hideLabel
                           onChange={handleUpdateFacilityReport}
-                          initialSelectedItem={nationalReports.reports[0]}
                         />
                       </FormGroup>
                     )}
@@ -460,7 +460,6 @@ const DataVisualizer: React.FC = () => {
                           items={cqiReports.reports}
                           hideLabel
                           onChange={handleUpdateFacilityReport}
-                          initialSelectedItem={cqiReports.reports[0]}
                         />
                       </FormGroup>
                     )}
@@ -477,10 +476,7 @@ const DataVisualizer: React.FC = () => {
                       <ComboBox
                         ariaLabel="Select report type"
                         id="reportTypeCombobox"
-                        items={[
-                          ...facilityReports.reports,
-                          ...nationalReports.reports,
-                        ]}
+                        items={facilityReports.reports}
                         placeholder="Choose the report you want to generate"
                         onChange={handleDynamicReportTypeChange}
                         selectedItem={selectedReport}
@@ -659,7 +655,7 @@ const DataVisualizer: React.FC = () => {
       <section className={styles.section}>
         <div className={styles.contentSwitchContainer}>
           <ContentSwitcher onChange={handleChartTypeChange}>
-            <Switch name="list" selected={chartType === "list"}>
+            <Switch name="list" disabled={chartType === "aggregate"}>
               <div className={styles.switch}>
                 <Catalog />
                 <span>Patient list</span>
@@ -731,6 +727,16 @@ const DataVisualizer: React.FC = () => {
                 {dayjs(endDate).format("DD/MM/YYYY")})
               </h3>
               <div dangerouslySetInnerHTML={{ __html: htmlContent }} />
+              <div className={styles.sendReportBtn}>
+                <Button
+                  size="md"
+                  kind="primary"
+                  className={styles.actionButton}
+                >
+                  <SendAlt />
+                  <span>Send Report to DHIS2</span>
+                </Button>
+              </div>
             </div>
           )}
 
