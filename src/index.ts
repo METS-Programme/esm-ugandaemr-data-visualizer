@@ -24,11 +24,15 @@ export const root = getAsyncLifecycle(
   options
 );
 
-export const reportingComponent = getAsyncLifecycle(
-  () => import("./data-visualizer/data-visualizer.component"),
-  options
-);
-
 export function startupApp() {
   defineConfigSchema(moduleName, configSchema);
 }
+
+export const dataVisualizerDashboardLink = getSyncLifecycle(
+  createDashboardLink({
+    name: "data-visualizer",
+    slot: "data-visualizer-dashboard-slot",
+    title: "Data visualizer",
+  }),
+  options
+);
