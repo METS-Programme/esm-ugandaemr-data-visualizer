@@ -246,7 +246,7 @@ export function getDateRange(selectedPeriod: string) {
         end: endOfMonth,
       };
     case "quarter":
-      const quarter = Math.floor((currentDate.getMonth() / 3));
+      const quarter = Math.floor(currentDate.getMonth() / 3);
       const startOfQuarter = new Date(
         currentDate.getFullYear(),
         Math.floor(currentDate.getMonth() / 3) * 3,
