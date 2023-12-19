@@ -130,7 +130,7 @@ export const facilityReports: ReportProps = {
   ],
 };
 
-export const nationalReports: ReportProps = {
+export const donorReports: ReportProps = {
   categoryName: "MER INDICATOR REPORTS",
   reports: [
     {
@@ -180,6 +180,20 @@ export const nationalReports: ReportProps = {
     {
       id: "9d041ea6-2052-4203-8e40-c47fc359b8e1",
       label: "HCT_TST_Facility Report",
+    },
+  ],
+};
+
+export const nationalReports: ReportProps = {
+  categoryName: "NATIONAL REPORTS",
+  reports: [
+    {
+      id: "5718901d-3dae-4a0d-9847-df345bf0de39",
+      label: "HMIS 106 1A",
+    },
+    {
+      id: "b5cbec70-3dcf-4b4b-99f9-45e0f0a9a23b",
+      label: "HMIS 105",
     },
   ],
 };

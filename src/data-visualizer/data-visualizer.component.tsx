@@ -39,7 +39,7 @@ import {
 } from "@carbon/react";
 import ReportingHomeHeader from "../components/header/header.component";
 import {
-  cqiReports,
+  cqiReports, donorReports,
   facilityReports,
   nationalReports,
   reportIndicators,
@@ -86,11 +86,9 @@ const DataVisualizer: React.FC = () => {
     label: string;
     uuid?: string;
   }>(facilityReports.reports[0]);
-  const [facilityReport, setFacilityReport] = useState(
-    facilityReports.reports[0]
-  );
-  const handleUpdateFacilityReport = ({ selectedItem }) => {
-    setFacilityReport(selectedItem);
+  const [report, setReport] = useState(facilityReports.reports[0]);
+  const handleSelectedReport = ({ selectedItem }) => {
+    setReport(selectedItem);
   };
   const [startDate, setStartDate] = useState(null);
   const [endDate, setEndDate] = useState(null);
@@ -118,7 +116,7 @@ const DataVisualizer: React.FC = () => {
     setLoading(true);
 
     getReport({
-      uuid: reportType === "fixed" ? facilityReport.id : selectedReport.id,
+      uuid: reportType === "fixed" ? report.id : selectedReport.id,
       startDate: startDate,
       endDate: endDate,
       reportCategory: reportCategory,
@@ -166,9 +164,7 @@ const DataVisualizer: React.FC = () => {
           setData(dataForReport);
           setPivotTableData(dataForReport);
           setReportName(
-            reportType === "fixed"
-              ? facilityReport?.label
-              : selectedReport?.label
+            reportType === "fixed" ? report?.label : selectedReport?.label
           );
         }
       },
@@ -185,7 +181,7 @@ const DataVisualizer: React.FC = () => {
     );
   }, [
     endDate,
-    facilityReport,
+    report,
     reportCategory,
     reportType,
     selectedParameters,
@@ -339,6 +335,12 @@ const DataVisualizer: React.FC = () => {
     } else if (selectedItem === "cqi") {
       setReportCategory({ category: "cqi" });
       setChartType("aggregate");
+    } else if (selectedItem === "donor") {
+      setReportCategory({
+        category: "donor",
+        renderType: "html",
+      });
+      setChartType("aggregate");
     } else {
       setReportCategory({ category: "facility" });
       setChartType("list");
@@ -389,8 +391,7 @@ const DataVisualizer: React.FC = () => {
                   <>
                     <FormGroup>
                       <FormLabel className={styles.label}>
-                        Do you want to show a facility report or a national
-                        report?
+                        Which kind of report do you want to show?
                       </FormLabel>
                       <RadioButtonGroup
                         defaultSelected="facility"
@@ -399,15 +400,21 @@ const DataVisualizer: React.FC = () => {
                       >
                         <RadioButton
                           id="facilityReport"
-                          labelText="Facility"
+                          labelText="Facility Report"
                           onClick={() => handleReportCategoryChange("facility")}
                           value="facility"
                         />
                         <RadioButton
                           id="nationalReport"
-                          labelText="National"
+                          labelText="National Report"
                           onClick={() => handleReportCategoryChange("national")}
                           value="national"
+                        />
+                        <RadioButton
+                          id="donorReport"
+                          labelText="Donor Report"
+                          onClick={() => handleReportCategoryChange("donor")}
+                          value="donor"
                         />
                         <RadioButton
                           id="cqiReport"
@@ -421,14 +428,14 @@ const DataVisualizer: React.FC = () => {
                     {reportCategory.category === "facility" && (
                       <FormGroup>
                         <FormLabel className={styles.label}>
-                          Facility report
+                          Facility Reports
                         </FormLabel>
                         <ComboBox
                           ariaLabel="Select facility report"
                           id="facilityReportsCombobox"
                           items={facilityReports.reports}
                           hideLabel
-                          onChange={handleUpdateFacilityReport}
+                          onChange={handleSelectedReport}
                           selectedItem={selectedReport}
                         />
                       </FormGroup>
@@ -437,14 +444,29 @@ const DataVisualizer: React.FC = () => {
                     {reportCategory.category === "national" && (
                       <FormGroup>
                         <FormLabel className={styles.label}>
-                          National report
+                          National Reports
                         </FormLabel>
                         <ComboBox
                           ariaLabel="Select national report"
                           id="nationalReportsCombobox"
                           items={nationalReports.reports}
                           hideLabel
-                          onChange={handleUpdateFacilityReport}
+                          onChange={handleSelectedReport}
+                        />
+                      </FormGroup>
+                    )}
+
+                    {reportCategory.category === "donor" && (
+                      <FormGroup>
+                        <FormLabel className={styles.label}>
+                          Donor Reports
+                        </FormLabel>
+                        <ComboBox
+                          ariaLabel="Select donor report"
+                          id="donorReportsCombobox"
+                          items={donorReports.reports}
+                          hideLabel
+                          onChange={handleSelectedReport}
                         />
                       </FormGroup>
                     )}
@@ -459,7 +481,7 @@ const DataVisualizer: React.FC = () => {
                           id="CQIReportsCombobox"
                           items={cqiReports.reports}
                           hideLabel
-                          onChange={handleUpdateFacilityReport}
+                          onChange={handleSelectedReport}
                         />
                       </FormGroup>
                     )}
@@ -683,7 +705,7 @@ const DataVisualizer: React.FC = () => {
             className={styles.actionButton}
           >
             <Intersect />
-            <span>Update report</span>
+            <span>View Report</span>
           </Button>
           {data.length > 0 && (
             <OverflowMenu aria-label="overflow-menu" flipped size="md" kind="">
@@ -722,10 +744,12 @@ const DataVisualizer: React.FC = () => {
 
           {chartType === "aggregate" && !loading && (
             <div className={styles.reportTableContainer}>
-              <h3 className={styles.listHeading}>
-                {reportName} ({dayjs(startDate).format("DD/MM/YYYY")} -{" "}
-                {dayjs(endDate).format("DD/MM/YYYY")})
-              </h3>
+              <section className={styles.reportOptions}>
+                <h3 className={styles.listHeading}>
+                  {reportName} ({dayjs(startDate).format("DD/MM/YYYY")} -{" "}
+                  {dayjs(endDate).format("DD/MM/YYYY")})
+                </h3>
+              </section>
               <div dangerouslySetInnerHTML={{ __html: htmlContent }} />
               <div className={styles.sendReportBtn}>
                 <Button
