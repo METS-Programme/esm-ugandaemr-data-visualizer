@@ -39,7 +39,8 @@ import {
 } from "@carbon/react";
 import ReportingHomeHeader from "../components/header/header.component";
 import {
-  cqiReports, donorReports,
+  cqiReports,
+  donorReports,
   facilityReports,
   nationalReports,
   reportIndicators,
@@ -51,6 +52,7 @@ import pivotTableStyles from "!!raw-loader!react-pivottable/pivottable.css";
 import styles from "./data-visualizer.scss";
 import {
   createColumns,
+  getDateRange,
   getReport,
   saveReport,
   useGetEncounterConcepts,
@@ -110,84 +112,6 @@ const DataVisualizer: React.FC = () => {
   const [htmlContent, setHTML] = useState("");
   const { encounterConcepts, isLoadingEncounterConcepts } =
     useGetEncounterConcepts(selectedIndicators?.id);
-
-  const handleUpdateReport = useCallback(() => {
-    setShowLineList(true);
-    setLoading(true);
-
-    getReport({
-      uuid: reportType === "fixed" ? report.id : selectedReport.id,
-      startDate: startDate,
-      endDate: endDate,
-      reportCategory: reportCategory,
-      reportIndicators: selectedParameters,
-      reportType: reportType,
-    }).then(
-      (response) => {
-        if (response.status === 200) {
-          let headers = [];
-          let dataForReport: any = [];
-          const reportData = response?.data;
-          if (reportType === "fixed") {
-            if (reportCategory.renderType === "html") {
-              response?.text().then((htmlString) => {
-                setHTML(htmlString);
-              });
-            } else {
-              const responseReportName = Object.keys(reportData)[0];
-              if (
-                reportData[responseReportName] &&
-                reportData[responseReportName][0]
-              ) {
-                const columnNames = Object.keys(
-                  reportData[responseReportName][0]
-                );
-                headers = createColumns(columnNames).slice(0, 10);
-                dataForReport = reportData[responseReportName];
-              } else {
-                setShowLineList(false);
-              }
-            }
-          } else {
-            if (reportData[0]) {
-              const columnNames = Object.keys(reportData[0]);
-              headers = createColumns(columnNames).slice(0, 10);
-              dataForReport = reportData;
-            } else {
-              setShowLineList(false);
-            }
-          }
-
-          setLoading(false);
-          setShowFilters(false);
-          setTableHeaders(headers);
-          setData(dataForReport);
-          setPivotTableData(dataForReport);
-          setReportName(
-            reportType === "fixed" ? report?.label : selectedReport?.label
-          );
-        }
-      },
-      (error) => {
-        setLoading(false);
-        setShowFilters(false);
-        showNotification({
-          title: "Error fetching report",
-          kind: "error",
-          critical: true,
-          description: error?.message,
-        });
-      }
-    );
-  }, [
-    endDate,
-    report,
-    reportCategory,
-    reportType,
-    selectedParameters,
-    selectedReport,
-    startDate,
-  ]);
 
   const handleChartTypeChange = ({ name }) => {
     setChartType(name);
@@ -346,6 +270,91 @@ const DataVisualizer: React.FC = () => {
       setChartType("list");
     }
   };
+
+  const handleReportingPeriod = (selectedPeriod: ReportingPeriod) => {
+    setReportingPeriod(selectedPeriod);
+    const dateRange = getDateRange(selectedPeriod);
+    setStartDate(dayjs(dateRange.start).format("YYYY-MM-DD"));
+    setEndDate(dayjs(dateRange.end).format("YYYY-MM-DD"));
+  };
+
+  const handleUpdateReport = useCallback(() => {
+    setShowLineList(true);
+    setLoading(true);
+
+    getReport({
+      uuid: reportType === "fixed" ? report.id : selectedReport.id,
+      startDate: startDate,
+      endDate: endDate,
+      reportCategory: reportCategory,
+      reportIndicators: selectedParameters,
+      reportType: reportType,
+    }).then(
+      (response) => {
+        if (response.status === 200) {
+          let headers = [];
+          let dataForReport: any = [];
+          const reportData = response?.data;
+          if (reportType === "fixed") {
+            if (reportCategory.renderType === "html") {
+              response?.text().then((htmlString) => {
+                setHTML(htmlString);
+              });
+            } else {
+              const responseReportName = Object.keys(reportData)[0];
+              if (
+                reportData[responseReportName] &&
+                reportData[responseReportName][0]
+              ) {
+                const columnNames = Object.keys(
+                  reportData[responseReportName][0]
+                );
+                headers = createColumns(columnNames).slice(0, 10);
+                dataForReport = reportData[responseReportName];
+              } else {
+                setShowLineList(false);
+              }
+            }
+          } else {
+            if (reportData[0]) {
+              const columnNames = Object.keys(reportData[0]);
+              headers = createColumns(columnNames).slice(0, 10);
+              dataForReport = reportData;
+            } else {
+              setShowLineList(false);
+            }
+          }
+
+          setLoading(false);
+          setShowFilters(false);
+          setTableHeaders(headers);
+          setData(dataForReport);
+          setPivotTableData(dataForReport);
+          setReportName(
+            reportType === "fixed" ? report?.label : selectedReport?.label
+          );
+        }
+      },
+      (error) => {
+        setLoading(false);
+        setShowFilters(false);
+        showNotification({
+          title: "Error fetching report",
+          kind: "error",
+          critical: true,
+          description: error?.message,
+        });
+      }
+    );
+  }, [
+    endDate,
+    report,
+    reportCategory,
+    reportType,
+    selectedParameters,
+    selectedReport,
+    startDate,
+  ]);
 
   if (!isLoadingEncounterConcepts && encounterConcepts?.length > 0) {
     if (!hasRetrievedConcepts) {
@@ -637,31 +646,31 @@ const DataVisualizer: React.FC = () => {
                     >
                       <RadioButton
                         id="today"
-                        onClick={() => setReportingPeriod("today")}
+                        onClick={() => handleReportingPeriod("today")}
                         labelText="Today"
                         value="today"
                       />
                       <RadioButton
                         id="week"
-                        onClick={() => setReportingPeriod("week")}
-                        labelText="Week"
+                        onClick={() => handleReportingPeriod("week")}
+                        labelText="This Week"
                         value="week"
                       />
                       <RadioButton
                         id="month"
-                        onClick={() => setReportingPeriod("month")}
-                        labelText="Month"
+                        onClick={() => handleReportingPeriod("month")}
+                        labelText=" This Month"
                         value="month"
                       />
                       <RadioButton
                         id="quarter"
-                        onClick={() => setReportingPeriod("quarter")}
-                        labelText="Quarter"
+                        onClick={() => handleReportingPeriod("quarter")}
+                        labelText="This Quarter"
                         value="quarter"
                       />
                       <RadioButton
                         id="lastQuarter"
-                        onClick={() => setReportingPeriod("lastQuarter")}
+                        onClick={() => handleReportingPeriod("lastQuarter")}
                         labelText="Last Quarter"
                         value="lastQuarter"
                       />

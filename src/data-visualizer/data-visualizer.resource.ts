@@ -209,3 +209,85 @@ export function formatReportArray(selectedItems: Array<Indicator>) {
 
   return arrayToReturn;
 }
+
+export function getDateRange(selectedPeriod: string) {
+  const currentDate = new Date();
+
+  switch (selectedPeriod) {
+    case "today":
+      return {
+        start: currentDate,
+        end: currentDate,
+      };
+    case "week":
+      const startOfWeek = new Date(currentDate);
+      startOfWeek.setDate(currentDate.getDate() - currentDate.getDay());
+
+      const endOfWeek = new Date(currentDate);
+      endOfWeek.setDate(currentDate.getDate() + (6 - currentDate.getDay()));
+
+      return {
+        start: startOfWeek,
+        end: endOfWeek,
+      };
+    case "month":
+      const startOfMonth = new Date(
+        currentDate.getFullYear(),
+        currentDate.getMonth(),
+        1
+      );
+      const endOfMonth = new Date(
+        currentDate.getFullYear(),
+        currentDate.getMonth() + 1,
+        0
+      );
+      return {
+        start: startOfMonth,
+        end: endOfMonth,
+      };
+    case "quarter":
+      const quarter = Math.floor((currentDate.getMonth() / 3));
+      const startOfQuarter = new Date(
+        currentDate.getFullYear(),
+        Math.floor(currentDate.getMonth() / 3) * 3,
+        1
+      );
+      const endOfQuarter = new Date(
+        currentDate.getFullYear(),
+        (quarter + 1) * 3,
+        0
+      );
+      return {
+        start: startOfQuarter,
+        end: endOfQuarter,
+      };
+    case "lastQuarter":
+      const currentQuarter = Math.floor(currentDate.getMonth() / 3) + 1;
+      let previousQuarter;
+      if (currentQuarter === 1) {
+        previousQuarter = 4;
+      } else {
+        previousQuarter = currentQuarter - 1;
+      }
+      const startOfPreviousQuarter = new Date(
+        currentDate.getFullYear(),
+        (previousQuarter - 1) * 3,
+        1
+      );
+      const endOfPreviousQuarter = new Date(
+        currentDate.getFullYear(),
+        previousQuarter * 3,
+        0
+      );
+
+      return {
+        start: startOfPreviousQuarter,
+        end: endOfPreviousQuarter,
+      };
+    default:
+      return {
+        start: null,
+        end: null,
+      };
+  }
+}
