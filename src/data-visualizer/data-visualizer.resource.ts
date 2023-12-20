@@ -1,17 +1,16 @@
 import useSWR from "swr";
 import { openmrsFetch, restBaseUrl } from "@openmrs/esm-framework";
 
-type fixedReportRequest = {
-  reportUUID: string;
-  startDate: string;
-  endDate: string;
-};
-
-type dynamicReportRequest = {
+type ReportRequest = {
   uuid: string;
-  reportIndicators: Array<Indicator>;
   startDate: string;
   endDate: string;
+  reportCategory?: {
+    category: ReportCategory;
+    renderType?: RenderType;
+  };
+  reportIndicators?: Array<Indicator>;
+  reportType: ReportType;
 };
 
 type saveReportRequest = {
@@ -23,18 +22,49 @@ type saveReportRequest = {
   report_request_object: string;
 };
 
-export function useReports(params: fixedReportRequest) {
-  const apiUrl = `${restBaseUrl}ugandaemrreports/reportingDefinition?uuid=${params.reportUUID}&startDate=${params.startDate}&endDate=${params.endDate}`;
-  const { data, error, isLoading, isValidating } = useSWR<
-    { data: { results: any } },
-    Error
-  >(params.reportUUID ? apiUrl : null, openmrsFetch);
-  return {
-    reportData: data ? data?.data : [],
-    isLoading,
-    isError: error,
-    isValidating,
-  };
+export async function getReport(params: ReportRequest) {
+  const abortController = new AbortController();
+  let apiUrl = `${restBaseUrl}ugandaemrreports/reportingDefinition`;
+  let fixedReportUrl = `${apiUrl}?startDate=${params.startDate}&endDate=${params.endDate}&uuid=${params.uuid}`;
+
+  if (params.reportType === "fixed") {
+    if (params.reportCategory.renderType === "html") {
+      fixedReportUrl += `&renderType=${params.reportCategory.renderType}`;
+    }
+    return openmrsFetch(fixedReportUrl, {
+      signal: abortController.signal,
+    });
+  } else {
+    const parameters =
+      params.reportIndicators.length > 0
+        ? formatReportArray(params.reportIndicators)
+        : [];
+
+    return openmrsFetch(apiUrl, {
+      method: "POST",
+      signal: abortController.signal,
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: {
+        cohort: {
+          clazz: "",
+          uuid: params.uuid,
+          name: "",
+          description: "",
+          parameters: [
+            {
+              startDate: params.startDate,
+            },
+            {
+              endDate: params.endDate,
+            },
+          ],
+        },
+        columns: parameters,
+      },
+    });
+  }
 }
 
 export function useGetIdentifiers() {
@@ -102,94 +132,25 @@ export function useGetEncounterConcepts(uuid: string) {
   };
 }
 
-export function useDynamicReportFetcher(params: dynamicReportRequest) {
-  const parameters =
-    params.reportIndicators.length > 0
-      ? formatReportArray(params.reportIndicators)
-      : [];
-  const abortController = new AbortController();
-  const apiUrl = params.uuid
-    ? `${restBaseUrl}ugandaemrreports/dataDefinition`
-    : null;
-  const fetcher = () =>
-    openmrsFetch(apiUrl, {
-      method: "POST",
-      signal: abortController.signal,
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: {
-        cohort: {
-          clazz: "",
-          uuid: params.uuid,
-          name: "",
-          description: "",
-          parameters: [
-            {
-              startDate: params.startDate,
-            },
-            {
-              endDate: params.endDate,
-            },
-          ],
-        },
-        columns: parameters,
-      },
-    });
-
-  const { data, error, isLoading, isValidating } = useSWR<
-    {
-      data: {
-        results: any;
-      };
-    },
-    Error
-  >(apiUrl, fetcher);
-
-  return {
-    dynamicReportData: data ? data?.data : [],
-    isError: error,
-    isLoadingDynamicReport: isLoading,
-    isValidatingDynamicReport: isValidating,
-  };
-}
-
-export function useSaveReport(params: saveReportRequest) {
-  const apiUrl = params.reportName ? `${restBaseUrl}dashboardReport` : null;
+export async function saveReport(params: saveReportRequest) {
+  const apiUrl = `${restBaseUrl}dashboardReport`;
   const abortController = new AbortController();
 
-  const fetcher = () =>
-    openmrsFetch(apiUrl, {
-      method: "POST",
-      signal: abortController.signal,
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: {
-        name: params.reportName,
-        description: params?.reportDescription,
-        type: params?.reportType,
-        columns: params?.columns,
-        rows: params?.rows,
-        report_request_object: params.report_request_object,
-      },
-    });
-
-  const { data, error, isLoading, isValidating } = useSWR<
-    {
-      data: {
-        results: any;
-      };
+  return openmrsFetch(apiUrl, {
+    method: "POST",
+    signal: abortController.signal,
+    headers: {
+      "Content-Type": "application/json",
     },
-    Error
-  >(apiUrl, fetcher);
-
-  return {
-    savedReport: data ? data?.data : [],
-    isErrorInSaving: error,
-    isLoadingSaveReport: isLoading,
-    isValidatingSaveReport: isValidating,
-  };
+    body: {
+      name: params.reportName,
+      description: params?.reportDescription,
+      type: params?.reportType,
+      columns: params?.columns,
+      rows: params?.rows,
+      report_request_object: params.report_request_object,
+    },
+  });
 }
 
 export function createColumns(columns: Array<string>) {
@@ -247,4 +208,86 @@ export function formatReportArray(selectedItems: Array<Indicator>) {
   }
 
   return arrayToReturn;
+}
+
+export function getDateRange(selectedPeriod: string) {
+  const currentDate = new Date();
+
+  switch (selectedPeriod) {
+    case "today":
+      return {
+        start: currentDate,
+        end: currentDate,
+      };
+    case "week":
+      const startOfWeek = new Date(currentDate);
+      startOfWeek.setDate(currentDate.getDate() - currentDate.getDay());
+
+      const endOfWeek = new Date(currentDate);
+      endOfWeek.setDate(currentDate.getDate() + (6 - currentDate.getDay()));
+
+      return {
+        start: startOfWeek,
+        end: endOfWeek,
+      };
+    case "month":
+      const startOfMonth = new Date(
+        currentDate.getFullYear(),
+        currentDate.getMonth(),
+        1
+      );
+      const endOfMonth = new Date(
+        currentDate.getFullYear(),
+        currentDate.getMonth() + 1,
+        0
+      );
+      return {
+        start: startOfMonth,
+        end: endOfMonth,
+      };
+    case "quarter":
+      const quarter = Math.floor(currentDate.getMonth() / 3);
+      const startOfQuarter = new Date(
+        currentDate.getFullYear(),
+        Math.floor(currentDate.getMonth() / 3) * 3,
+        1
+      );
+      const endOfQuarter = new Date(
+        currentDate.getFullYear(),
+        (quarter + 1) * 3,
+        0
+      );
+      return {
+        start: startOfQuarter,
+        end: endOfQuarter,
+      };
+    case "lastQuarter":
+      const currentQuarter = Math.floor(currentDate.getMonth() / 3) + 1;
+      let previousQuarter;
+      if (currentQuarter === 1) {
+        previousQuarter = 4;
+      } else {
+        previousQuarter = currentQuarter - 1;
+      }
+      const startOfPreviousQuarter = new Date(
+        currentDate.getFullYear(),
+        (previousQuarter - 1) * 3,
+        1
+      );
+      const endOfPreviousQuarter = new Date(
+        currentDate.getFullYear(),
+        previousQuarter * 3,
+        0
+      );
+
+      return {
+        start: startOfPreviousQuarter,
+        end: endOfPreviousQuarter,
+      };
+    default:
+      return {
+        start: null,
+        end: null,
+      };
+  }
 }

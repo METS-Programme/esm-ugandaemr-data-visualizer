@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import PivotTableUI from "react-pivottable/PivotTableUI";
 import TableRenderers from "react-pivottable/TableRenderers";
 import Plot from "react-plotly.js";
@@ -8,11 +8,10 @@ import {
   ArrowLeft,
   ArrowRight,
   Catalog,
-  ChartColumn,
-  ChartLine,
-  ChartPie,
   CrossTab,
   Intersect,
+  ImageService,
+  SendAlt,
 } from "@carbon/react/icons";
 import {
   Accordion,
@@ -40,6 +39,8 @@ import {
 } from "@carbon/react";
 import ReportingHomeHeader from "../components/header/header.component";
 import {
+  cqiReports,
+  donorReports,
   facilityReports,
   nationalReports,
   reportIndicators,
@@ -51,38 +52,32 @@ import pivotTableStyles from "!!raw-loader!react-pivottable/pivottable.css";
 import styles from "./data-visualizer.scss";
 import {
   createColumns,
-  useDynamicReportFetcher,
+  getDateRange,
+  getReport,
+  saveReport,
   useGetEncounterConcepts,
   useGetEncounterType,
   useGetIdentifiers,
   useGetPatientAtrributes,
-  useReports,
-  useSaveReport,
 } from "./data-visualizer.resource";
 import dayjs from "dayjs";
-import { showToast } from "@openmrs/esm-framework";
-
-type ChartType = "list" | "pivot" | "line" | "bar" | "pie";
-type ReportType = "fixed" | "dynamic";
-type ReportCategory = "facility" | "national";
+import { showNotification, showToast } from "@openmrs/esm-framework";
+type ChartType = "list" | "pivot" | "aggregate";
 type ReportingDuration = "fixed" | "relative";
 type ReportingPeriod = "today" | "week" | "month" | "quarter" | "lastQuarter";
-
 const DataVisualizer: React.FC = () => {
   let title,
     description = "";
   const PlotlyRenderers = createPlotlyRenderers(Plot);
   const [tableHeaders, setTableHeaders] = useState([]);
   const [data, setData] = useState([]);
-  const [fixedReportIdentifier, setFixedReportIdentifier] =
-    useState<string>(null);
-  const [dynamicReportIdentifier, setDynamicReportIdentifier] =
-    useState<string>(null);
   const [pivotTableData, setPivotTableData] = useState(data);
   const [chartType, setChartType] = useState<ChartType>("list");
   const [reportType, setReportType] = useState<ReportType>("fixed");
-  const [reportCategory, setReportCategory] =
-    useState<ReportCategory>("facility");
+  const [reportCategory, setReportCategory] = useState<{
+    category: ReportCategory;
+    renderType?: RenderType;
+  }>({ category: "facility", renderType: "list" });
   const [reportingDuration, setReportingDuration] =
     useState<ReportingDuration>("fixed");
   const [reportingPeriod, setReportingPeriod] =
@@ -93,13 +88,10 @@ const DataVisualizer: React.FC = () => {
     label: string;
     uuid?: string;
   }>(facilityReports.reports[0]);
-  const [facilityReport, setFacilityReport] = useState(
-    facilityReports.reports[0]
-  );
-  const handleUpdateFacilityReport = ({ selectedItem }) => {
-    setFacilityReport(selectedItem);
+  const [report, setReport] = useState(facilityReports.reports[0]);
+  const handleSelectedReport = ({ selectedItem }) => {
+    setReport(selectedItem);
   };
-  const [canSaveReport, setCanSaveReport] = useState(false);
   const [startDate, setStartDate] = useState(null);
   const [endDate, setEndDate] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -114,31 +106,12 @@ const DataVisualizer: React.FC = () => {
   const { personAttributes, isLoadingAttributes } = useGetPatientAtrributes();
   const { encounterTypes } = useGetEncounterType();
   const [hasRetrievedConcepts, setHasRetrievedConcepts] = useState(false);
-  const [hasUpdatedFixedReport, setHasUpdatedFixedReport] = useState(false);
-  const [hasUpdatedDynamicReport, setHasUpdatedDynamicReport] = useState(false);
-  const [showSaveReportModal, setShowSaveReportModal] = useState(false);
+  const [saveReportModal, setSaveReportModal] = useState(false);
   const [reportTitle, setReportTitle] = useState(null);
   const [reportDescription, setReportDescription] = useState(null);
-  const { reportData, isLoading } = useReports({
-    reportUUID: fixedReportIdentifier,
-    startDate: startDate,
-    endDate: endDate,
-  });
+  const [htmlContent, setHTML] = useState("");
   const { encounterConcepts, isLoadingEncounterConcepts } =
     useGetEncounterConcepts(selectedIndicators?.id);
-
-  const handleUpdateReport = () => {
-    if (reportType === "fixed") {
-      setFixedReportIdentifier(facilityReport.id);
-      setHasUpdatedFixedReport(false);
-    } else {
-      setDynamicReportIdentifier(selectedReport.id);
-      setHasUpdatedDynamicReport(false);
-    }
-
-    setShowLineList(true);
-    setLoading(true);
-  };
 
   const handleChartTypeChange = ({ name }) => {
     setChartType(name);
@@ -152,20 +125,47 @@ const DataVisualizer: React.FC = () => {
     setReportingDuration(period);
   };
 
-  const handleSaveReport = () => {
-    setShowSaveReportModal(true);
+  const showSaveReportModal = () => {
+    setSaveReportModal(true);
   };
 
   const closeReportModal = () => {
-    setShowSaveReportModal(false);
+    setSaveReportModal(false);
   };
 
-  const saveReport = () => {
+  const handleSaveReport = useCallback(() => {
     setReportTitle(title);
     setReportDescription(description);
-    setCanSaveReport(true);
-    setShowSaveReportModal(false);
-  };
+
+    saveReport({
+      reportName: title,
+      reportDescription: description,
+      reportType: pivotTableData?.["rendererName"],
+      columns: "",
+      rows: "",
+      report_request_object: JSON.stringify(pivotTableData),
+    }).then(
+      (response) => {
+        if (response.status === 200) {
+          showToast({
+            critical: true,
+            title: "Saving Report",
+            kind: "success",
+            description: `Report ${reportTitle} saved Successfully`,
+          });
+          setSaveReportModal(false);
+        }
+      },
+      (error) => {
+        showNotification({
+          title: "Error saving report",
+          kind: "error",
+          critical: true,
+          description: error?.message,
+        });
+      }
+    );
+  }, [description, pivotTableData, reportTitle, title]);
 
   const handleReportTitleChange = (event) => {
     title = event.target.value;
@@ -174,15 +174,6 @@ const DataVisualizer: React.FC = () => {
   const handleReportDescChange = (event) => {
     description = event.target.value;
   };
-
-  const { isLoadingSaveReport, isErrorInSaving } = useSaveReport({
-    reportName: reportTitle,
-    reportDescription: reportDescription,
-    reportType: pivotTableData?.["rendererName"],
-    columns: "",
-    rows: "",
-    report_request_object: JSON.stringify(pivotTableData),
-  });
 
   const moveAllFromLeftToRight = (selectedParameter) => {
     const updatedAvailableParameters = availableParameters.filter(
@@ -258,37 +249,112 @@ const DataVisualizer: React.FC = () => {
     setEndDate(dayjs(selectedDate[0]).format("YYYY-MM-DD"));
   };
 
-  const { dynamicReportData, isLoadingDynamicReport } = useDynamicReportFetcher(
-    {
-      uuid: dynamicReportIdentifier,
-      reportIndicators: selectedParameters,
+  const handleReportCategoryChange = (selectedItem: ReportCategory) => {
+    if (selectedItem === "national") {
+      setReportCategory({
+        category: "national",
+        renderType: "html",
+      });
+      setChartType("aggregate");
+    } else if (selectedItem === "cqi") {
+      setReportCategory({ category: "cqi" });
+      setChartType("aggregate");
+    } else if (selectedItem === "donor") {
+      setReportCategory({
+        category: "donor",
+        renderType: "html",
+      });
+      setChartType("aggregate");
+    } else {
+      setReportCategory({ category: "facility" });
+      setChartType("list");
+    }
+  };
+
+  const handleReportingPeriod = (selectedPeriod: ReportingPeriod) => {
+    setReportingPeriod(selectedPeriod);
+    const dateRange = getDateRange(selectedPeriod);
+    setStartDate(dayjs(dateRange.start).format("YYYY-MM-DD"));
+    setEndDate(dayjs(dateRange.end).format("YYYY-MM-DD"));
+  };
+
+  const handleUpdateReport = useCallback(() => {
+    setShowLineList(true);
+    setLoading(true);
+
+    getReport({
+      uuid: reportType === "fixed" ? report.id : selectedReport.id,
       startDate: startDate,
       endDate: endDate,
-    }
-  );
+      reportCategory: reportCategory,
+      reportIndicators: selectedParameters,
+      reportType: reportType,
+    }).then(
+      (response) => {
+        if (response.status === 200) {
+          let headers = [];
+          let dataForReport: any = [];
+          const reportData = response?.data;
+          if (reportType === "fixed") {
+            if (reportCategory.renderType === "html") {
+              response?.text().then((htmlString) => {
+                setHTML(htmlString);
+              });
+            } else {
+              const responseReportName = Object.keys(reportData)[0];
+              if (
+                reportData[responseReportName] &&
+                reportData[responseReportName][0]
+              ) {
+                const columnNames = Object.keys(
+                  reportData[responseReportName][0]
+                );
+                headers = createColumns(columnNames).slice(0, 10);
+                dataForReport = reportData[responseReportName];
+              } else {
+                setShowLineList(false);
+              }
+            }
+          } else {
+            if (reportData[0]) {
+              const columnNames = Object.keys(reportData[0]);
+              headers = createColumns(columnNames).slice(0, 10);
+              dataForReport = reportData;
+            } else {
+              setShowLineList(false);
+            }
+          }
 
-  if (reportType === "dynamic") {
-    if (!isLoadingDynamicReport) {
-      if (!hasUpdatedDynamicReport) {
-        let headers = [];
-        let dataForReport: any = [];
-        if (dynamicReportData[0]) {
-          const columnNames = Object.keys(dynamicReportData[0]);
-          headers = createColumns(columnNames).slice(0, 10);
-          dataForReport = dynamicReportData;
           setLoading(false);
           setShowFilters(false);
-        } else {
-          setShowLineList(false);
+          setTableHeaders(headers);
+          setData(dataForReport);
+          setPivotTableData(dataForReport);
+          setReportName(
+            reportType === "fixed" ? report?.label : selectedReport?.label
+          );
         }
-        setTableHeaders(headers);
-        setData(dataForReport);
-        setPivotTableData(dataForReport);
-        setReportName(selectedReport?.label);
-        setHasUpdatedDynamicReport(true);
+      },
+      (error) => {
+        setLoading(false);
+        setShowFilters(false);
+        showNotification({
+          title: "Error fetching report",
+          kind: "error",
+          critical: true,
+          description: error?.message,
+        });
       }
-    }
-  }
+    );
+  }, [
+    endDate,
+    report,
+    reportCategory,
+    reportType,
+    selectedParameters,
+    selectedReport,
+    startDate,
+  ]);
 
   if (!isLoadingEncounterConcepts && encounterConcepts?.length > 0) {
     if (!hasRetrievedConcepts) {
@@ -298,40 +364,6 @@ const DataVisualizer: React.FC = () => {
     }
   }
 
-  if (reportType === "fixed") {
-    if (!isLoading && !hasUpdatedFixedReport) {
-      let headers = [];
-      let dataForReport = [];
-      const responseReportName = Object.keys(reportData)[0];
-      if (reportData[responseReportName] && reportData[responseReportName][0]) {
-        const columnNames = Object.keys(reportData[responseReportName][0]);
-        headers = createColumns(columnNames).slice(0, 10);
-        dataForReport = reportData[responseReportName];
-        setLoading(false);
-        setShowFilters(false);
-      } else {
-        setShowLineList(false);
-      }
-      setTableHeaders(headers);
-      setData(dataForReport);
-      setPivotTableData(dataForReport);
-      setHasUpdatedFixedReport(true);
-      setReportName(facilityReport?.label);
-    }
-  }
-
-  if (!isLoadingSaveReport) {
-    if (!isErrorInSaving && canSaveReport) {
-      showToast({
-        critical: true,
-        title: "Saving Report",
-        kind: "success",
-        description: `Report ${reportTitle} saved Successfully`,
-      });
-      setReportTitle(null);
-      setCanSaveReport(false);
-    }
-  }
   useEffect(() => {
     const styleElement = document.createElement("style");
     styleElement.textContent = `${pivotTableStyles}`;
@@ -368,8 +400,7 @@ const DataVisualizer: React.FC = () => {
                   <>
                     <FormGroup>
                       <FormLabel className={styles.label}>
-                        Do you want to show a facility report or a national
-                        report?
+                        Which kind of report do you want to show?
                       </FormLabel>
                       <RadioButtonGroup
                         defaultSelected="facility"
@@ -378,45 +409,88 @@ const DataVisualizer: React.FC = () => {
                       >
                         <RadioButton
                           id="facilityReport"
-                          labelText="Facility"
-                          onClick={() => setReportCategory("facility")}
+                          labelText="Facility Report"
+                          onClick={() => handleReportCategoryChange("facility")}
                           value="facility"
                         />
                         <RadioButton
                           id="nationalReport"
-                          labelText="National"
-                          onClick={() => setReportCategory("national")}
+                          labelText="National Report"
+                          onClick={() => handleReportCategoryChange("national")}
                           value="national"
+                        />
+                        <RadioButton
+                          id="donorReport"
+                          labelText="Donor Report"
+                          onClick={() => handleReportCategoryChange("donor")}
+                          value="donor"
+                        />
+                        <RadioButton
+                          id="cqiReport"
+                          labelText="CQI Report"
+                          onClick={() => handleReportCategoryChange("cqi")}
+                          value="cqi"
                         />
                       </RadioButtonGroup>
                     </FormGroup>
 
-                    {reportCategory === "facility" && (
+                    {reportCategory.category === "facility" && (
                       <FormGroup>
                         <FormLabel className={styles.label}>
-                          Facility report
+                          Facility Reports
                         </FormLabel>
                         <ComboBox
                           ariaLabel="Select facility report"
                           id="facilityReportsCombobox"
                           items={facilityReports.reports}
                           hideLabel
-                          onChange={handleUpdateFacilityReport}
-                          selectedItem={facilityReport}
+                          onChange={handleSelectedReport}
+                          selectedItem={selectedReport}
                         />
                       </FormGroup>
                     )}
 
-                    {reportCategory === "national" && (
+                    {reportCategory.category === "national" && (
                       <FormGroup>
                         <FormLabel className={styles.label}>
-                          National report
+                          National Reports
                         </FormLabel>
                         <ComboBox
                           ariaLabel="Select national report"
                           id="nationalReportsCombobox"
                           items={nationalReports.reports}
                           hideLabel
+                          onChange={handleSelectedReport}
+                        />
+                      </FormGroup>
+                    )}
+
+                    {reportCategory.category === "donor" && (
+                      <FormGroup>
+                        <FormLabel className={styles.label}>
+                          Donor Reports
+                        </FormLabel>
+                        <ComboBox
+                          ariaLabel="Select donor report"
+                          id="donorReportsCombobox"
+                          items={donorReports.reports}
+                          hideLabel
+                          onChange={handleSelectedReport}
+                        />
+                      </FormGroup>
+                    )}
+
+                    {reportCategory.category === "cqi" && (
+                      <FormGroup>
+                        <FormLabel className={styles.label}>
+                          CQI Reports
+                        </FormLabel>
+                        <ComboBox
+                          ariaLabel="Select CQI report"
+                          id="CQIReportsCombobox"
+                          items={cqiReports.reports}
+                          hideLabel
+                          onChange={handleSelectedReport}
                         />
                       </FormGroup>
                     )}
@@ -433,10 +507,7 @@ const DataVisualizer: React.FC = () => {
                       <ComboBox
                         ariaLabel="Select report type"
                         id="reportTypeCombobox"
-                        items={[
-                          ...facilityReports.reports,
-                          ...nationalReports.reports,
-                        ]}
+                        items={facilityReports.reports}
                         placeholder="Choose the report you want to generate"
                         onChange={handleDynamicReportTypeChange}
                         selectedItem={selectedReport}
@@ -575,31 +646,31 @@ const DataVisualizer: React.FC = () => {
                     >
                       <RadioButton
                         id="today"
-                        onClick={() => setReportingPeriod("today")}
+                        onClick={() => handleReportingPeriod("today")}
                         labelText="Today"
                         value="today"
                       />
                       <RadioButton
                         id="week"
-                        onClick={() => setReportingPeriod("week")}
-                        labelText="Week"
+                        onClick={() => handleReportingPeriod("week")}
+                        labelText="This Week"
                         value="week"
                       />
                       <RadioButton
                         id="month"
-                        onClick={() => setReportingPeriod("month")}
-                        labelText="Month"
+                        onClick={() => handleReportingPeriod("month")}
+                        labelText=" This Month"
                         value="month"
                       />
                       <RadioButton
                         id="quarter"
-                        onClick={() => setReportingPeriod("quarter")}
-                        labelText="Quarter"
+                        onClick={() => handleReportingPeriod("quarter")}
+                        labelText="This Quarter"
                         value="quarter"
                       />
                       <RadioButton
                         id="lastQuarter"
-                        onClick={() => setReportingPeriod("lastQuarter")}
+                        onClick={() => handleReportingPeriod("lastQuarter")}
                         labelText="Last Quarter"
                         value="lastQuarter"
                       />
@@ -613,36 +684,24 @@ const DataVisualizer: React.FC = () => {
       </div>
 
       <section className={styles.section}>
-        <div>
+        <div className={styles.contentSwitchContainer}>
           <ContentSwitcher onChange={handleChartTypeChange}>
-            <Switch name="list">
+            <Switch name="list" disabled={chartType === "aggregate"}>
               <div className={styles.switch}>
                 <Catalog />
                 <span>Patient list</span>
               </div>
             </Switch>
-            <Switch name="pivot">
+            <Switch name="pivot" disabled={chartType === "aggregate"}>
               <div className={styles.switch}>
                 <CrossTab />
                 <span>Pivot table</span>
               </div>
             </Switch>
-            <Switch name="line" disabled={true}>
+            <Switch name="aggregate" disabled={chartType !== "aggregate"}>
               <div className={styles.switch}>
-                <ChartLine />
-                <span>Line chart</span>
-              </div>
-            </Switch>
-            <Switch name="bar" disabled={true}>
-              <div className={styles.switch}>
-                <ChartColumn />
-                <span>Bar chart</span>
-              </div>
-            </Switch>
-            <Switch name="pie" disabled={true}>
-              <div className={styles.switch}>
-                <ChartPie />
-                <span>Pie chart</span>
+                <ImageService />
+                <span>Aggregate Report</span>
               </div>
             </Switch>
           </ContentSwitcher>
@@ -655,13 +714,13 @@ const DataVisualizer: React.FC = () => {
             className={styles.actionButton}
           >
             <Intersect />
-            <span>Update report</span>
+            <span>View Report</span>
           </Button>
           {data.length > 0 && (
             <OverflowMenu aria-label="overflow-menu" flipped size="md" kind="">
               <OverflowMenuItem
                 itemText="Save Report"
-                onClick={handleSaveReport}
+                onClick={showSaveReportModal}
               />
               <OverflowMenuItem itemText="Open Saved Reports" />
             </OverflowMenu>
@@ -671,9 +730,7 @@ const DataVisualizer: React.FC = () => {
 
       {showLineList ? (
         <>
-          {chartType === "list" && loading && (
-            <DataTableSkeleton role="progressbar" />
-          )}
+          {loading && <DataTableSkeleton role="progressbar" />}
 
           {chartType === "list" && !loading && (
             <div className={styles.reportContainer}>
@@ -694,7 +751,29 @@ const DataVisualizer: React.FC = () => {
             </div>
           )}
 
-          {showSaveReportModal && (
+          {chartType === "aggregate" && !loading && (
+            <div className={styles.reportTableContainer}>
+              <section className={styles.reportOptions}>
+                <h3 className={styles.listHeading}>
+                  {reportName} ({dayjs(startDate).format("DD/MM/YYYY")} -{" "}
+                  {dayjs(endDate).format("DD/MM/YYYY")})
+                </h3>
+              </section>
+              <div dangerouslySetInnerHTML={{ __html: htmlContent }} />
+              <div className={styles.sendReportBtn}>
+                <Button
+                  size="md"
+                  kind="primary"
+                  className={styles.actionButton}
+                >
+                  <SendAlt />
+                  <span>Send Report to DHIS2</span>
+                </Button>
+              </div>
+            </div>
+          )}
+
+          {saveReportModal && (
             <Modal
               open
               size="sm"
@@ -704,7 +783,7 @@ const DataVisualizer: React.FC = () => {
               secondaryButtonText="Cancel"
               primaryButtonText="Save Report"
               onRequestClose={closeReportModal}
-              onRequestSubmit={saveReport}
+              onRequestSubmit={handleSaveReport}
             >
               <div>
                 <TextInput

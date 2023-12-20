@@ -8,5 +8,17 @@
         "component": "root",
         "name": "data-visualizer-dashboard",
         "slot": "data-visualizer-dashboard-slot"
-    }]
+    },
+      {
+        "name": "data-visualizer-dashboard-link",
+        "component": "dataVisualizerDashboardLink",
+        "slot": "homepage-dashboard-slot",
+        "order": 5,
+        "meta": {
+          "name": "data-visualizer",
+          "slot": "data-visualizer-dashboard-slot",
+          "title": "Data visualizer"
+        }
+      }
+    ]
 }
