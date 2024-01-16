@@ -42,6 +42,7 @@ import {
   cqiReports,
   donorReports,
   facilityReports,
+  integrationDataExports,
   nationalReports,
   reportIndicators,
 } from "../constants";
@@ -265,6 +266,9 @@ const DataVisualizer: React.FC = () => {
         renderType: "html",
       });
       setChartType("aggregate");
+    } else if (selectedItem === "integration") {
+      setReportCategory({ category: "integration" });
+      setChartType("list");
     } else {
       setReportCategory({ category: "facility" });
       setChartType("list");
@@ -431,6 +435,14 @@ const DataVisualizer: React.FC = () => {
                           onClick={() => handleReportCategoryChange("cqi")}
                           value="cqi"
                         />
+                        <RadioButton
+                          id="intergrationDataReport"
+                          labelText="Integration Data Exports"
+                          onClick={() =>
+                            handleReportCategoryChange("integration")
+                          }
+                          value="integration"
+                        />
                       </RadioButtonGroup>
                     </FormGroup>
 
@@ -476,6 +488,7 @@ const DataVisualizer: React.FC = () => {
                           items={donorReports.reports}
                           hideLabel
                           onChange={handleSelectedReport}
+                          initialSelectedItem={donorReports.reports[0]}
                         />
                       </FormGroup>
                     )}
@@ -489,6 +502,21 @@ const DataVisualizer: React.FC = () => {
                           ariaLabel="Select CQI report"
                           id="CQIReportsCombobox"
                           items={cqiReports.reports}
+                          hideLabel
+                          onChange={handleSelectedReport}
+                        />
+                      </FormGroup>
+                    )}
+
+                    {reportCategory.category === "integration" && (
+                      <FormGroup>
+                        <FormLabel className={styles.label}>
+                          Integration Data Exports
+                        </FormLabel>
+                        <ComboBox
+                          ariaLabel="Select Integration Data Exports"
+                          id="integrationDataExportCombobox"
+                          items={integrationDataExports.reports}
                           hideLabel
                           onChange={handleSelectedReport}
                         />

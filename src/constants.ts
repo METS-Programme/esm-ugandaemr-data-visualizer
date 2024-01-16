@@ -224,6 +224,24 @@ export const cqiReports: ReportProps = {
   ],
 };
 
+export const integrationDataExports: ReportProps = {
+  categoryName: "Integration Data Exports",
+  reports: [
+    {
+      id: "bf79f017-8591-4eaf-88c9-1cde33226517",
+      label: "Family Connect EMTCT Module Data Export",
+    },
+    {
+      id: "662d4c00-d6bb-4494-8180-48776f415802",
+      label: "Recency HTS Client Card Data Export",
+    },
+    {
+      id: "9ec815ed-e3ac-4710-a480-360e2777c7d1",
+      label: "ART Access Register",
+    },
+  ],
+};
+
 export const reportIndicators: Array<Indicator> = [
   {
     id: "IDN",
