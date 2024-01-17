@@ -84,11 +84,36 @@ const DataVisualizer: React.FC = () => {
   const [reportingPeriod, setReportingPeriod] =
     useState<ReportingPeriod>("today");
   const [selectedIndicators, setSelectedIndicators] = useState<Indicator>(null);
-  const [selectedReport, setSelectedReport] = useState<{
-    id: string;
-    label: string;
-    uuid?: string;
-  }>(facilityReports.reports[0]);
+  const [selectedReport, setSelectedReport] = useState<Report>(
+    facilityReports.reports[0]
+  );
+
+  useEffect(() => {
+    let firstReport;
+
+    switch (reportCategory.category) {
+      case "facility":
+        firstReport = facilityReports.reports[0];
+        break;
+      case "donor":
+        firstReport = donorReports.reports[0];
+        break;
+      case "national":
+        firstReport = nationalReports.reports[0];
+        break;
+      case "cqi":
+        firstReport = cqiReports.reports[0];
+        break;
+      case "integration":
+        firstReport = integrationDataExports.reports[0];
+        break;
+      default:
+        firstReport = facilityReports.reports[0];
+    }
+
+    setSelectedReport(firstReport);
+  }, [reportCategory]);
+
   const [report, setReport] = useState(facilityReports.reports[0]);
   const handleSelectedReport = ({ selectedItem }) => {
     setReport(selectedItem);
@@ -310,11 +335,29 @@ const DataVisualizer: React.FC = () => {
                 reportData[responseReportName] &&
                 reportData[responseReportName][0]
               ) {
-                const columnNames = Object.keys(
+                let columnNames = Object.keys(
                   reportData[responseReportName][0]
                 );
-                headers = createColumns(columnNames).slice(0, 10);
-                dataForReport = reportData[responseReportName];
+                if (
+                  selectedReport.id === "bf79f017-8591-4eaf-88c9-1cde33226517"
+                ) {
+                  columnNames = columnNames
+                    .reverse()
+                    .filter((column) => column !== "EDD" && column !== "Names");
+                  headers = createColumns(columnNames);
+                  dataForReport = reportData[responseReportName].map((row) => {
+                    if (row.PhoneNumber && row.PhoneNumber.startsWith("0")) {
+                      return {
+                        ...row,
+                        PhoneNumber: "+256" + row.PhoneNumber.substring(1),
+                      };
+                    }
+                    return row;
+                  });
+                } else {
+                  headers = createColumns(columnNames).slice(0, 10);
+                  dataForReport = reportData[responseReportName];
+                }
               } else {
                 setShowLineList(false);
               }
@@ -488,7 +531,7 @@ const DataVisualizer: React.FC = () => {
                           items={donorReports.reports}
                           hideLabel
                           onChange={handleSelectedReport}
-                          initialSelectedItem={donorReports.reports[0]}
+                          initialSelectedItem={donorReports.reports}
                         />
                       </FormGroup>
                     )}
