@@ -53,6 +53,7 @@ import pivotTableStyles from "!!raw-loader!react-pivottable/pivottable.css";
 import styles from "./data-visualizer.scss";
 import {
   createColumns,
+  extractDate,
   getDateRange,
   getReport,
   saveReport,
@@ -348,10 +349,12 @@ const DataVisualizer: React.FC = () => {
                   dataForReport = reportData[responseReportName]
                     .filter((row) => row.PhoneNumber)
                     .map((row) => {
+                      const formattedDate = extractDate(row.LastVisitDate);
                       if (row.PhoneNumber && row.PhoneNumber.startsWith("0")) {
                         return {
                           ...row,
                           PhoneNumber: "256" + row.PhoneNumber.substring(1),
+                          LastVisitDate: formattedDate,
                         };
                       }
                       return row;
