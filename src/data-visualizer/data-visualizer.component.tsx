@@ -345,15 +345,17 @@ const DataVisualizer: React.FC = () => {
                     .reverse()
                     .filter((column) => column !== "EDD" && column !== "Names");
                   headers = createColumns(columnNames);
-                  dataForReport = reportData[responseReportName].map((row) => {
-                    if (row.PhoneNumber && row.PhoneNumber.startsWith("0")) {
-                      return {
-                        ...row,
-                        PhoneNumber: "+256" + row.PhoneNumber.substring(1),
-                      };
-                    }
-                    return row;
-                  });
+                  dataForReport = reportData[responseReportName]
+                    .filter((row) => row.PhoneNumber)
+                    .map((row) => {
+                      if (row.PhoneNumber && row.PhoneNumber.startsWith("0")) {
+                        return {
+                          ...row,
+                          PhoneNumber: "256" + row.PhoneNumber.substring(1),
+                        };
+                      }
+                      return row;
+                    });
                 } else {
                   headers = createColumns(columnNames).slice(0, 10);
                   dataForReport = reportData[responseReportName];
@@ -809,6 +811,23 @@ const DataVisualizer: React.FC = () => {
               <DataList columns={tableHeaders} data={data} />
             </div>
           )}
+
+          {chartType === "list" &&
+            !loading &&
+            selectedReport.id === "bf79f017-8591-4eaf-88c9-1cde33226517" && (
+              <>
+                <div className={styles.sendReportBtn}>
+                  <Button
+                    size="md"
+                    kind="primary"
+                    className={styles.actionButton}
+                  >
+                    <SendAlt />
+                    <span>Send Report to Family Connect</span>
+                  </Button>
+                </div>
+              </>
+            )}
 
           {chartType === "pivot" && (
             <div className={styles.reportContainer}>
