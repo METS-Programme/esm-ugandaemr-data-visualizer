@@ -11,7 +11,7 @@ const Item = () => {
     <ClickableTile
       className={styles.customTile}
       id="menu-item"
-      href={`${openmrsSpaBase}stock-management`}
+      href={`${openmrsSpaBase}home/data-visualizer`}
     >
       <div className="customTileTitle">{<Analytics size={24} />}</div>
       <div>Data Visualizer</div>
