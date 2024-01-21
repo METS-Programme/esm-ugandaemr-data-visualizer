@@ -1,6 +1,6 @@
 import { ClickableTile } from "@carbon/react";
 import React from "react";
-import styles from "./item.scss";
+import styles from "./visualizer-menu-app-item.scss";
 import { Analytics } from "@carbon/react/icons";
 
 const Item = () => {
