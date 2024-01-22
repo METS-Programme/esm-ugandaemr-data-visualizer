@@ -52,7 +52,7 @@ type savedDashboard = {
   items: any;
 };
 
-type ReportCategory = "facility" | "national" | "cqi" | "donor";
+type ReportCategory = "facility" | "national" | "cqi" | "donor" | "integration";
 
 type RenderType = "list" | "json" | "html";
 type ReportType = "fixed" | "dynamic";
