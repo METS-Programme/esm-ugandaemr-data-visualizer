@@ -39,6 +39,7 @@ import {
 } from "@carbon/react";
 import ReportingHomeHeader from "../components/header/header.component";
 import {
+  CQIReportHeaders,
   cqiReports,
   donorReports,
   facilityReports,
@@ -65,6 +66,7 @@ import {
 } from "./data-visualizer.resource";
 import dayjs from "dayjs";
 import { showNotification, showToast } from "@openmrs/esm-framework";
+import {CQIData} from "../sample-data";
 type ChartType = "list" | "pivot" | "aggregate";
 type ReportingDuration = "fixed" | "relative";
 type ReportingPeriod = "today" | "week" | "month" | "quarter" | "lastQuarter";
@@ -314,102 +316,112 @@ const DataVisualizer: React.FC = () => {
     setEndDate(dayjs(dateRange.end).format("YYYY-MM-DD"));
   };
 
-  const handleUpdateReport = useCallback(() => {
+  const handleUpdateReport = () => {
     setShowLineList(true);
-    setLoading(true);
+    setLoading(false);
+    setShowFilters(false);
+    setTableHeaders(CQIReportHeaders);
+    setData(CQIData);
+    setPivotTableData(CQIData);
+    setReportName(selectedReport?.label);
+  }
 
-    getReport({
-      uuid: selectedReport.id,
-      startDate: startDate,
-      endDate: endDate,
-      reportCategory: reportCategory,
-      reportIndicators: selectedParameters,
-      reportType: reportType,
-    }).then(
-      (response) => {
-        if (response.status === 200) {
-          let headers = [];
-          let dataForReport: any = [];
-          const reportData = response?.data;
-          if (reportType === "fixed") {
-            if (reportCategory.renderType === "html") {
-              response?.text().then((htmlString) => {
-                setHTML(htmlString);
-              });
-            } else {
-              const responseReportName = Object.keys(reportData)[0];
-              if (
-                reportData[responseReportName] &&
-                reportData[responseReportName][0]
-              ) {
-                let columnNames = Object.keys(
-                  reportData[responseReportName][0]
-                );
-                if (
-                  selectedReport.id === "bf79f017-8591-4eaf-88c9-1cde33226517"
-                ) {
-                  columnNames = columnNames
-                    .reverse()
-                    .filter((column) => column !== "EDD" && column !== "Names");
-                  headers = createColumns(columnNames);
-                  dataForReport = reportData[responseReportName]
-                    .filter((row) => row.PhoneNumber)
-                    .map((row) => {
-                      const formattedDate = extractDate(row.LastVisitDate);
-                      if (row.PhoneNumber && row.PhoneNumber.startsWith("0")) {
-                        return {
-                          ...row,
-                          PhoneNumber: "256" + row.PhoneNumber.substring(1),
-                          LastVisitDate: formattedDate,
-                        };
-                      }
-                      return row;
-                    });
-                } else {
-                  headers = createColumns(columnNames).slice(0, 10);
-                  dataForReport = reportData[responseReportName];
-                }
-              } else {
-                setShowLineList(false);
-              }
-            }
-          } else {
-            if (reportData[0]) {
-              const columnNames = Object.keys(reportData[0]);
-              headers = createColumns(columnNames).slice(0, 10);
-              dataForReport = reportData;
-            } else {
-              setShowLineList(false);
-            }
-          }
-
-          setLoading(false);
-          setShowFilters(false);
-          setTableHeaders(headers);
-          setData(dataForReport);
-          setPivotTableData(dataForReport);
-          setReportName(selectedReport?.label);
-        }
-      },
-      (error) => {
-        setLoading(false);
-        setShowFilters(false);
-        showNotification({
-          title: "Error fetching report",
-          kind: "error",
-          critical: true,
-          description: error?.message,
-        });
-      }
-    );
-  }, [
-    endDate,
-    reportCategory,
-    reportType,
-    selectedParameters,
-    selectedReport,
-    startDate,
-  ]);
+  // const handleUpdateReport = useCallback(() => {
+  //   setShowLineList(true);
+  //   setLoading(true);
+  //
+  //   getReport({
+  //     uuid: selectedReport.id,
+  //     startDate: startDate,
+  //     endDate: endDate,
+  //     reportCategory: reportCategory,
+  //     reportIndicators: selectedParameters,
+  //     reportType: reportType,
+  //   }).then(
+  //     (response) => {
+  //       if (response.status === 200) {
+  //         let headers = [];
+  //         let dataForReport: any = [];
+  //         const reportData = response?.data;
+  //         if (reportType === "fixed") {
+  //           if (reportCategory.renderType === "html") {
+  //             response?.text().then((htmlString) => {
+  //               setHTML(htmlString);
+  //             });
+  //           } else {
+  //             const responseReportName = Object.keys(reportData)[0];
+  //             if (
+  //               reportData[responseReportName] &&
+  //               reportData[responseReportName][0]
+  //             ) {
+  //               let columnNames = Object.keys(
+  //                 reportData[responseReportName][0]
+  //               );
+  //               if (
+  //                 selectedReport.id === "bf79f017-8591-4eaf-88c9-1cde33226517"
+  //               ) {
+  //                 columnNames = columnNames
+  //                   .reverse()
+  //                   .filter((column) => column !== "EDD" && column !== "Names");
+  //                 headers = createColumns(columnNames);
+  //                 dataForReport = reportData[responseReportName]
+  //                   .filter((row) => row.PhoneNumber)
+  //                   .map((row) => {
+  //                     const formattedDate = extractDate(row.LastVisitDate);
+  //                     if (row.PhoneNumber && row.PhoneNumber.startsWith("0")) {
+  //                       return {
+  //                         ...row,
+  //                         PhoneNumber: "256" + row.PhoneNumber.substring(1),
+  //                         LastVisitDate: formattedDate,
+  //                       };
+  //                     }
+  //                     return row;
+  //                   });
+  //               } else {
+  //                 headers = createColumns(columnNames).slice(0, 10);
+  //                 dataForReport = reportData[responseReportName];
+  //               }
+  //             } else {
+  //               setShowLineList(false);
+  //             }
+  //           }
+  //         } else {
+  //           if (reportData[0]) {
+  //             const columnNames = Object.keys(reportData[0]);
+  //             headers = createColumns(columnNames).slice(0, 10);
+  //             dataForReport = reportData;
+  //           } else {
+  //             setShowLineList(false);
+  //           }
+  //         }
+  //
+  //         setLoading(false);
+  //         setShowFilters(false);
+  //         setTableHeaders(headers);
+  //         setData(dataForReport);
+  //         setPivotTableData(dataForReport);
+  //         setReportName(selectedReport?.label);
+  //       }
+  //     },
+  //     (error) => {
+  //       setLoading(false);
+  //       setShowFilters(false);
+  //       showNotification({
+  //         title: "Error fetching report",
+  //         kind: "error",
+  //         critical: true,
+  //         description: error?.message,
+  //       });
+  //     }
+  //   );
+  // }, [
+  //   endDate,
+  //   reportCategory,
+  //   reportType,
+  //   selectedParameters,
+  //   selectedReport,
+  //   startDate,
+  // ]);
 
   if (!isLoadingEncounterConcepts && encounterConcepts?.length > 0) {
     if (!hasRetrievedConcepts) {
@@ -794,7 +806,9 @@ const DataVisualizer: React.FC = () => {
                 {reportName} ({dayjs(startDate).format("DD/MM/YYYY")} -{" "}
                 {dayjs(endDate).format("DD/MM/YYYY")})
               </h3>
-              <DataList columns={tableHeaders} data={data} />
+              <div className={styles.reportDataTable}>
+                <DataList columns={tableHeaders} data={data} />
+              </div>
             </div>
           )}
 

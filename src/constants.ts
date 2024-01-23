@@ -279,3 +279,386 @@ export const reportTypes: Array<{ id: string; label: string }> = [
     label: "Integration Data Exports",
   },
 ];
+
+export const CQIReportHeaders = [
+  {
+    key: "art_number",
+    header: "Client's ART/HIV Clinic No",
+    accessor: "art_number",
+  },
+  {
+    key: "nationality",
+    header: "Client Category",
+    accessor: "nationality",
+  },
+  {
+    key: "gender",
+    header: "Sex",
+    accessor: "gender",
+  },
+  {
+    key: "date_of_birth",
+    header: "Client's Date of birth",
+    accessor: "date_of_birth",
+  },
+  {
+    key: "age",
+    header: "Age",
+    accessor: "age",
+  },
+  {
+    key: "age_group",
+    header: "Age Groups",
+    accessor: "age_group",
+  },
+  {
+    key: "marital_status",
+    header: "Marital Status",
+    accessor: "marital_status",
+  },
+  {
+    key: "special_category",
+    header: "Special categories/  populations",
+    accessor: "special_category",
+  },
+  {
+    key: "known_status_children",
+    header: "No. of biological children/siblings <19 yrs",
+    accessor: "known_status_children",
+  },
+  {
+    key: "pos_status_children",
+    header: "No. of biological children/siblings <19 yrs with a known HIV status",
+    accessor: "pos_status_children",
+  },
+  {
+    key: "index_children_tested",
+    header: "Index testing of biological siblings of clients",
+    accessor: "index_children_tested",
+  },
+  {
+    key: "known_status_spouse",
+    header: "No of sexual partners",
+    accessor: "known_status_spouse",
+  },
+  {
+    key: "po_status_spouse",
+    header: "No of sexual partners with a known HIV status",
+    accessor: "po_status_spouse",
+  },
+  {
+    key: "index_spouse_tested",
+    header: "Index testing of sexual partners",
+    accessor: "index_spouse_tested",
+  },
+  {
+    key: "last_visit_date",
+    header: "Last Encounter Date ",
+    accessor: "last_visit_date",
+  },
+  {
+    key: "next_appointment_date",
+    header: "Next Appointment date",
+    accessor: "next_appointment_date",
+  },
+  {
+    key: "client_status",
+    header: "Client status at Facility in the review period",
+    accessor: "client_status",
+  },
+  {
+    key: "art_start_date",
+    header: "ART Start Date",
+    accessor: "art_start_date",
+  },
+  {
+    key: "duration_on_art",
+    header: "Duration on Art (Months)",
+    accessor: "duration_on_art",
+  },
+  {
+    key: "regimen_line",
+    header: "Current ART Regimen Line",
+    accessor: "regimen_line",
+  },
+  {
+    key: "current_regimen",
+    header: "Current ARV Regimen",
+    accessor: "current_regimen",
+  },
+  {
+    key: "current_arv_regimen_start_date",
+    header: "CURRENT ARV Start Date  ",
+    accessor: "current_arv_regimen_start_date",
+  },
+  {
+    key: "adherence",
+    header: "Adherence Grade",
+    accessor: "adherence",
+  },
+  {
+    key: "side_effects",
+    header: "Side effects of ART",
+    accessor: "side_effects",
+  },
+  {
+    key: "prescription_duration",
+    header: "No. ART refill days",
+    accessor: "prescription_duration",
+  },
+  {
+    key: "sample_type",
+    header: "Sample type",
+    accessor: "sample_type",
+  },
+  {
+    key: "current_vl",
+    header: "Current VL result (Copies/ml)",
+    accessor: "current_vl",
+  },
+  {
+    key: "vl_profiling",
+    header: "VL profiling",
+    accessor: "vl_profiling",
+  },
+  {
+    key: "vl_result_sample_date",
+    header: "VL result sample collection date",
+    accessor: "vl_result_sample_date",
+  },
+  {
+    key: "vl_updated",
+    header: "VL Updated",
+    accessor: "vl_updated",
+  },
+  {
+    key: "new_vl_sample_date",
+    header: " New VL sample collection date",
+    accessor: "new_vl_sample_date",
+  },
+  {
+    key: "next_vl_date",
+    header: "Next VL Date ",
+    accessor: "next_vl_date",
+  },
+  {
+    key: "iacs_no",
+    header: "No. of IAC sessions",
+    accessor: "iacs_no",
+  },
+  {
+    key: "repeat_vl_collection_date",
+    header: "Repeat VL& HIVDR sample collection date",
+    accessor: "repeat_vl_collection_date",
+  },
+  {
+    key: "repeat_vl_results_after_iacs",
+    header: "Repeal VL results after 3 G IAC/ P-IAC (Copies/ml)",
+    accessor: "repeat_vl_results_after_iacs",
+  },
+  {
+    key: "hivdrt_results",
+    header: "HIVDRT Results ",
+    accessor: "hivdrt_results",
+  },
+  {
+    key: "date_dr_results_received",
+    header: "Date DR results Received at facility",
+    accessor: "date_dr_results_received",
+  },
+  {
+    key: "decision",
+    header: "Clinical Decision",
+    accessor: "decision",
+  },
+  {
+    key: "pss",
+    header: "PSS",
+    accessor: "pss",
+  },
+  {
+    key: "ovc_screening",
+    header: "OVC Screening",
+    accessor: "ovc_screening",
+  },
+  {
+    key: "nutrition_status",
+    header: "Nutritional Status",
+    accessor: "nutrition_status",
+  },
+  {
+    key: "family_planning_status",
+    header: "Family Planning Status",
+    accessor: "family_planning_status",
+  },
+  {
+    key: "cacx_screening",
+    header: "Cancer Cx assessment",
+    accessor: "cacx_screening",
+  },
+  {
+    key: "hepatitis_b_status",
+    header: "Hepatitis B status",
+    accessor: "hepatitis_b_status",
+  },
+  {
+    key: "syphillis_status",
+    header: "Syphilis status",
+    accessor: "syphillis_status",
+  },
+  {
+    key: "tpt_status",
+    header: "TPT STATUS",
+    accessor: "tpt_status",
+  },
+  {
+    key: "tb_status",
+    header: "TB Status",
+    accessor: "tb_status",
+  },
+  {
+    key: "tb_lam_crag_results",
+    header: "TB Lam results(CD4 <200 )",
+    accessor: "tb_lam_crag_results",
+  },
+  {
+    key: "who_stage",
+    header: "WHO Stage at the last encounter",
+    accessor: "who_stage",
+  },
+  {
+    key: "advanced_disease",
+    header: "Advanced HIV Disease Status(AHD)& management",
+    accessor: "advanced_disease",
+  },
+  {
+    key: "",
+    header: "Follow up",
+    accessor: "",
+  },
+  {
+    key: "",
+    header: "Index testing of children(",
+    accessor: "",
+  },
+  {
+    key: "",
+    header: "Index testing of sexual partners",
+    accessor: "",
+  },
+  {
+    key: "",
+    header: "MMD",
+    accessor: "",
+  },
+  {
+    key: "",
+    header: "VL coverage",
+    accessor: "",
+  },
+  {
+    key: "",
+    header: "VL bleeding",
+    accessor: "",
+  },
+  {
+    key: "",
+    header: "VL TAT",
+    accessor: "",
+  },
+  {
+    key: "",
+    header: "IAC initiation",
+    accessor: "",
+  },
+  {
+    key: "",
+    header: " HIVDRT sample",
+    accessor: "",
+  },
+  {
+    key: "",
+    header: "HDRT TAT",
+    accessor: "",
+  },
+  {
+    key: "",
+    header: "Switching",
+    accessor: "",
+  },
+  {
+    key: "",
+    header: "PSS Assessment",
+    accessor: "",
+  },
+  {
+    key: "",
+    header: "Nutritional Assessment",
+    accessor: "",
+  },
+  {
+    key: "",
+    header: "F/P assessment",
+    accessor: "",
+  },
+  {
+    key: "",
+    header: " TPT Initiation",
+    accessor: "",
+  },
+  {
+    key: "",
+    header: "TB screening",
+    accessor: "",
+  },
+  {
+    key: "",
+    header: "Cancer screening",
+    accessor: "",
+  },
+  {
+    key: "",
+    header: "Hepatitis screening and treatment",
+    accessor: "",
+  },
+  {
+    key: "",
+    header: "Syphilis screening and treatment",
+    accessor: "",
+  },
+  {
+    key: "",
+    header: "CD4 Assessment",
+    accessor: "",
+  },
+  {
+    key: "",
+    header: "CRAG/LAM results",
+    accessor: "",
+  },
+  {
+    key: "",
+    header: "AHIVD assessment",
+    accessor: "",
+  },
+  {
+    key: "",
+    header: "OVC screening",
+    accessor: "",
+  },
+  {
+    key: "",
+    header: "No of pending Services",
+    accessor: "",
+  },
+  {
+    key: "",
+    header: "PSS Next visit date",
+    accessor: "",
+  },
+  {
+    key: "",
+    header: "Received PSS visit",
+    accessor: "",
+  },
+];
