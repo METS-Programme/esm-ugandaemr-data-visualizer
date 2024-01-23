@@ -45,6 +45,7 @@ import {
   integrationDataExports,
   nationalReports,
   reportIndicators,
+  reportTypes,
 } from "../constants";
 import DataList from "../components/data-table/data-table.component";
 import EmptyStateIllustration from "../components/empty-state/empty-state-illustration.component";
@@ -90,34 +91,38 @@ const DataVisualizer: React.FC = () => {
   );
 
   useEffect(() => {
-    let firstReport;
+    let initialSelectedReport;
 
-    switch (reportCategory.category) {
-      case "facility":
-        firstReport = facilityReports.reports[0];
-        break;
-      case "donor":
-        firstReport = donorReports.reports[0];
-        break;
-      case "national":
-        firstReport = nationalReports.reports[0];
-        break;
-      case "cqi":
-        firstReport = cqiReports.reports[0];
-        break;
-      case "integration":
-        firstReport = integrationDataExports.reports[0];
-        break;
-      default:
-        firstReport = facilityReports.reports[0];
+    if (reportType === "fixed") {
+      switch (reportCategory.category) {
+        case "facility":
+          initialSelectedReport = facilityReports.reports[0];
+          break;
+        case "donor":
+          initialSelectedReport = donorReports.reports[0];
+          break;
+        case "national":
+          initialSelectedReport = nationalReports.reports[0];
+          break;
+        case "cqi":
+          initialSelectedReport = cqiReports.reports[0];
+          break;
+        case "integration":
+          initialSelectedReport = integrationDataExports.reports[0];
+          break;
+        default:
+          initialSelectedReport = facilityReports.reports[0];
+      }
+    } else {
+      initialSelectedReport = facilityReports.reports[0];
+      setChartType("list");
     }
 
-    setSelectedReport(firstReport);
-  }, [reportCategory]);
+    setSelectedReport(initialSelectedReport);
+  }, [reportCategory, reportType]);
 
-  const [report, setReport] = useState(facilityReports.reports[0]);
   const handleSelectedReport = ({ selectedItem }) => {
-    setReport(selectedItem);
+    setSelectedReport(selectedItem);
   };
   const [startDate, setStartDate] = useState(null);
   const [endDate, setEndDate] = useState(null);
@@ -276,23 +281,24 @@ const DataVisualizer: React.FC = () => {
     setEndDate(dayjs(selectedDate[0]).format("YYYY-MM-DD"));
   };
 
-  const handleReportCategoryChange = (selectedItem: ReportCategory) => {
-    if (selectedItem === "national") {
+  const handleReportCategoryChange = (selectedItem) => {
+    const typeOfReport = selectedItem.selectedItem.id;
+    if (typeOfReport === "national") {
       setReportCategory({
         category: "national",
         renderType: "html",
       });
       setChartType("aggregate");
-    } else if (selectedItem === "cqi") {
+    } else if (typeOfReport === "cqi") {
       setReportCategory({ category: "cqi" });
       setChartType("aggregate");
-    } else if (selectedItem === "donor") {
+    } else if (typeOfReport === "donor") {
       setReportCategory({
         category: "donor",
         renderType: "html",
       });
       setChartType("aggregate");
-    } else if (selectedItem === "integration") {
+    } else if (typeOfReport === "integration") {
       setReportCategory({ category: "integration" });
       setChartType("list");
     } else {
@@ -313,7 +319,7 @@ const DataVisualizer: React.FC = () => {
     setLoading(true);
 
     getReport({
-      uuid: reportType === "fixed" ? report.id : selectedReport.id,
+      uuid: selectedReport.id,
       startDate: startDate,
       endDate: endDate,
       reportCategory: reportCategory,
@@ -382,9 +388,7 @@ const DataVisualizer: React.FC = () => {
           setTableHeaders(headers);
           setData(dataForReport);
           setPivotTableData(dataForReport);
-          setReportName(
-            reportType === "fixed" ? report?.label : selectedReport?.label
-          );
+          setReportName(selectedReport?.label);
         }
       },
       (error) => {
@@ -400,7 +404,6 @@ const DataVisualizer: React.FC = () => {
     );
   }, [
     endDate,
-    report,
     reportCategory,
     reportType,
     selectedParameters,
@@ -454,44 +457,18 @@ const DataVisualizer: React.FC = () => {
                       <FormLabel className={styles.label}>
                         Which kind of report do you want to show?
                       </FormLabel>
-                      <RadioButtonGroup
-                        defaultSelected="facility"
-                        legendText=""
-                        name="reportCategory"
-                      >
-                        <RadioButton
-                          id="facilityReport"
-                          labelText="Facility Report"
-                          onClick={() => handleReportCategoryChange("facility")}
-                          value="facility"
-                        />
-                        <RadioButton
-                          id="nationalReport"
-                          labelText="National Report"
-                          onClick={() => handleReportCategoryChange("national")}
-                          value="national"
-                        />
-                        <RadioButton
-                          id="donorReport"
-                          labelText="Donor Report"
-                          onClick={() => handleReportCategoryChange("donor")}
-                          value="donor"
-                        />
-                        <RadioButton
-                          id="cqiReport"
-                          labelText="CQI Report"
-                          onClick={() => handleReportCategoryChange("cqi")}
-                          value="cqi"
-                        />
-                        <RadioButton
-                          id="intergrationDataReport"
-                          labelText="Integration Data Exports"
-                          onClick={() =>
-                            handleReportCategoryChange("integration")
-                          }
-                          value="integration"
-                        />
-                      </RadioButtonGroup>
+                      <ComboBox
+                        ariaLabel="Select Report Type"
+                        id="ReportTypeCombobox"
+                        items={reportTypes}
+                        hideLabel
+                        onChange={handleReportCategoryChange}
+                        selectedItem={
+                          reportTypes.filter(
+                            (item) => item.id === reportCategory.category
+                          )[0]
+                        }
+                      />
                     </FormGroup>
 
                     {reportCategory.category === "facility" && (
@@ -521,6 +498,7 @@ const DataVisualizer: React.FC = () => {
                           items={nationalReports.reports}
                           hideLabel
                           onChange={handleSelectedReport}
+                          selectedItem={selectedReport}
                         />
                       </FormGroup>
                     )}
@@ -536,7 +514,7 @@ const DataVisualizer: React.FC = () => {
                           items={donorReports.reports}
                           hideLabel
                           onChange={handleSelectedReport}
-                          initialSelectedItem={donorReports.reports}
+                          selectedItem={selectedReport}
                         />
                       </FormGroup>
                     )}
@@ -552,6 +530,7 @@ const DataVisualizer: React.FC = () => {
                           items={cqiReports.reports}
                           hideLabel
                           onChange={handleSelectedReport}
+                          selectedItem={selectedReport}
                         />
                       </FormGroup>
                     )}
@@ -567,6 +546,7 @@ const DataVisualizer: React.FC = () => {
                           items={integrationDataExports.reports}
                           hideLabel
                           onChange={handleSelectedReport}
+                          selectedItem={selectedReport}
                         />
                       </FormGroup>
                     )}
@@ -810,7 +790,10 @@ const DataVisualizer: React.FC = () => {
 
           {chartType === "list" && !loading && (
             <div className={styles.reportContainer}>
-              <h3 className={styles.listHeading}>{reportName}</h3>
+              <h3 className={styles.listHeading}>
+                {reportName} ({dayjs(startDate).format("DD/MM/YYYY")} -{" "}
+                {dayjs(endDate).format("DD/MM/YYYY")})
+              </h3>
               <DataList columns={tableHeaders} data={data} />
             </div>
           )}

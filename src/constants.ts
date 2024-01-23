@@ -256,3 +256,26 @@ export const reportIndicators: Array<Indicator> = [
     attributes: [],
   },
 ];
+
+export const reportTypes: Array<{ id: string; label: string }> = [
+  {
+    id: "facility",
+    label: "Facility Report",
+  },
+  {
+    id: "national",
+    label: "National Report",
+  },
+  {
+    id: "donor",
+    label: "Donor Report",
+  },
+  {
+    id: "cqi",
+    label: "CQI Report",
+  },
+  {
+    id: "integration",
+    label: "Integration Data Exports",
+  },
+];
