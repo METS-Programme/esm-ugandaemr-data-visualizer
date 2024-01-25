@@ -186,3 +186,30 @@
 .patientListDownload {
   margin-top: 10px;
 }
+
+.redCell {
+  background-color: colors.$red-40 !important;
+}
+
+.grayCell {
+  background-color: colors.$gray-30 !important;
+}
+
+.greenCell {
+  background-color: colors.$green-30 !important;
+}
+
+.cellStyling {
+  border-right: 1px solid colors.$gray-20;
+  border-left: 1px solid colors.$gray-20;
+}
+
+.tableHeaderStyle {
+  font-weight: 600;
+  font-size: 12px;
+  line-height: 1px;
+}
+
+.tableHeaderFlag {
+  writing-mode: sideways-lr;
+}

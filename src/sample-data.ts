@@ -606,7 +606,7 @@ export const CQIData = [
     family_planning_flag: "N",
     current_arv_regimen_start_date: "2021-03-10",
     repeat_vl_results_after_iacs: "",
-    tpt_flag: "ON",
+    tpt_flag: "N",
     pss: "Y",
     current_regimen: "TDF/3TC/DTG",
     advanced_disease: "No Advanced Disease",

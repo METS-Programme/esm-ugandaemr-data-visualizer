@@ -49,6 +49,7 @@ import {
   reportTypes,
 } from "../constants";
 import DataList from "../components/data-table/data-table.component";
+import CQIDataList from "../components/cqi-components/cqi-data-table.component";
 import EmptyStateIllustration from "../components/empty-state/empty-state-illustration.component";
 import Panel from "../components/panel/panel.component";
 import pivotTableStyles from "!!raw-loader!react-pivottable/pivottable.css";
@@ -807,7 +808,7 @@ const DataVisualizer: React.FC = () => {
                 {dayjs(endDate).format("DD/MM/YYYY")})
               </h3>
               <div className={styles.reportDataTable}>
-                <DataList columns={tableHeaders} data={data} />
+                <CQIDataList columns={tableHeaders} data={data} />
               </div>
             </div>
           )}
