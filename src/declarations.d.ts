@@ -58,7 +58,7 @@ type RenderType = "list" | "json" | "html";
 type ReportType = "fixed" | "dynamic";
 
 declare type CQIReportItem = {
-  id: string;
+  ART_No: string;
   nationality: string;
   gender: string;
   date_of_birth: string;
@@ -75,7 +75,6 @@ declare type CQIReportItem = {
   tb_status: string;
   side_effects: string;
   family_planning_status: string;
-
   repeat_vl_collection_date: string;
   prescription_duration: string;
   syphilis_flag: string;
@@ -83,7 +82,6 @@ declare type CQIReportItem = {
   current_vl: string;
   HIVDR_tat: string;
   known_status_spouse: string;
-
   art_start_date: string;
   syphillis_status: string;
   HIVDR_sampling: string;
@@ -92,10 +90,8 @@ declare type CQIReportItem = {
   hep_b_flag: string;
   child_Tested_flag: string;
   index_children_tested: string;
-
   index_spouse_tested: string;
   iacs_no: string;
-
   next_appointment_date: string;
   po_status_spouse: string;
   date_dr_results_received: string;
@@ -116,7 +112,6 @@ declare type CQIReportItem = {
   tpt_status: string;
   vl_tat: string;
   adherence: string;
-
   vl_bleeding: string;
   vl_result_sample_date: string;
   hivdrt_results: string;
@@ -132,6 +127,5 @@ declare type CQIReportItem = {
   client_status: string;
   who_stage: string;
   vl_updated: string;
-
   known_status_children: string;
 };

@@ -282,9 +282,9 @@ export const reportTypes: Array<{ id: string; label: string }> = [
 
 export const CQIReportHeaders = [
   {
-    key: "art_number",
+    key: "ART_No",
     header: "ART/HIV Clinic No",
-    accessor: "art_number",
+    accessor: "ART_No",
     isFlag: false,
   },
   {

@@ -1,5 +1,6 @@
 import useSWR from "swr";
 import { openmrsFetch, restBaseUrl } from "@openmrs/esm-framework";
+import {CQIReportingCohort} from "./data-visualizer.component";
 
 type ReportRequest = {
   uuid: string;
@@ -11,6 +12,7 @@ type ReportRequest = {
   };
   reportIndicators?: Array<Indicator>;
   reportType: ReportType;
+  reportingCohort?: CQIReportingCohort;
 };
 
 type saveReportRequest = {
@@ -28,9 +30,14 @@ export async function getReport(params: ReportRequest) {
   let fixedReportUrl = `${apiUrl}?startDate=${params.startDate}&endDate=${params.endDate}&uuid=${params.uuid}`;
 
   if (params.reportType === "fixed") {
-    if (params.reportCategory.renderType === "html") {
-      fixedReportUrl += `&renderType=${params.reportCategory.renderType}`;
+    if (params.reportCategory.category === "cqi") {
+      fixedReportUrl += `&cohortList=${params.reportingCohort}`;
+    } else {
+      if (params.reportCategory.renderType === "html") {
+        fixedReportUrl += `&renderType=${params.reportCategory.renderType}`;
+      }
     }
+
     return openmrsFetch(fixedReportUrl, {
       signal: abortController.signal,
     });
