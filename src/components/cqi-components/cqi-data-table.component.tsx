@@ -15,7 +15,8 @@ import {
   TableToolbarContent,
   TableToolbarMenu,
   TableToolbarSearch,
-  Tile, TableExpandHeader,
+  Tile,
+  TableExpandHeader,
 } from "@carbon/react";
 import {
   isDesktop,
@@ -119,7 +120,15 @@ const CQIDataList: React.FC<ListProps> = ({ columns, data }) => {
       size={isTablet ? "lg" : "sm"}
       useZebraStyles
     >
-      {({ rows, headers, getHeaderProps, getTableProps, onInputChange, getRowProps, getExpandHeaderProps}) => (
+      {({
+        rows,
+        headers,
+        getHeaderProps,
+        getTableProps,
+        onInputChange,
+        getRowProps,
+        getExpandHeaderProps,
+      }) => (
         <div>
           <TableContainer className={styles.tableContainer}>
             <div className={styles.toolbarWrapper}>
@@ -160,9 +169,17 @@ const CQIDataList: React.FC<ListProps> = ({ columns, data }) => {
             <Table {...getTableProps()}>
               <TableHead>
                 <TableRow>
-                  <TableExpandHeader enableToggle={true} {...getExpandHeaderProps()}/>
+                  <TableExpandHeader
+                    enableToggle={true}
+                    {...getExpandHeaderProps()}
+                  />
                   {headers.map((header) => (
-                    <TableHeader className={`${styles.tableHeaderStyle} ${header.isFlag ? styles.tableHeaderFlag : null}`} {...getHeaderProps({ header })}>
+                    <TableHeader
+                      className={`${styles.tableHeaderStyle} ${
+                        header.isFlag ? styles.tableHeaderFlag : null
+                      }`}
+                      {...getHeaderProps({ header })}
+                    >
                       {header.header}
                     </TableHeader>
                   ))}
@@ -172,23 +189,43 @@ const CQIDataList: React.FC<ListProps> = ({ columns, data }) => {
                 {rows.map((row) => (
                   <React.Fragment key={row.id}>
                     <TableExpandRow {...getRowProps({ row })}>
-                      {row.cells.map((cell) => (
-                        cell.value === "Y" ?
-                          <TableCell key={cell.id} className={`${styles.greenCell} ${styles.cellStyling}`}></TableCell>
-                          : cell.value === "N" ?
-                            <TableCell key={cell.id} className={`${styles.redCell} ${styles.cellStyling}`}></TableCell>
-                          : cell.value === "NA" ?
-                              <TableCell key={cell.id} className={`${styles.grayCell} ${styles.cellStyling}`}></TableCell>
-                            :
+                      {row.cells.map((cell) =>
+                        cell.value === "Y" ? (
+                          <TableCell
+                            key={cell.id}
+                            className={`${styles.greenCell} ${styles.cellStyling}`}
+                          ></TableCell>
+                        ) : cell.value === "N" ? (
+                          <TableCell
+                            key={cell.id}
+                            className={`${styles.redCell} ${styles.cellStyling}`}
+                          ></TableCell>
+                        ) : cell.value === "NA" ? (
+                          <TableCell
+                            key={cell.id}
+                            className={`${styles.grayCell} ${styles.cellStyling}`}
+                          ></TableCell>
+                        ) : (
                           <TableCell key={cell.id}>{cell.value}</TableCell>
-                      ))}
+                        )
+                      )}
                     </TableExpandRow>
                     {row.isExpanded ? (
                       <TableExpandedRow
                         className={styles.expandedActiveVisitRow}
                         colSpan={headers.length + 1}
                       >
-                        <RowDetail reportItem={data.filter(item => item.art_number === row.cells.find(cell=> cell.id === row.id +':art_number')?.value)[0]}/>
+                        <RowDetail
+                          reportItem={
+                            data.filter(
+                              (item) =>
+                                item.art_number ===
+                                row.cells.find(
+                                  (cell) => cell.id === row.id + ":art_number"
+                                )?.value
+                            )[0]
+                          }
+                        />
                       </TableExpandedRow>
                     ) : (
                       <TableExpandedRow

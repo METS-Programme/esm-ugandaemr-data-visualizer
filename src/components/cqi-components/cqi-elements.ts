@@ -23,7 +23,8 @@ export const SiblingsTestingElements = [
   },
   {
     key: "pos_status_children",
-    label: "No. of biological children/siblings <19 yrs with a known HIV status",
+    label:
+      "No. of biological children/siblings <19 yrs with a known HIV status",
   },
   {
     key: "index_children_tested",

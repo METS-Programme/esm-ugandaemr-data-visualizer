@@ -1,6 +1,6 @@
 import useSWR from "swr";
 import { openmrsFetch, restBaseUrl } from "@openmrs/esm-framework";
-import {CQIReportingCohort} from "./data-visualizer.component";
+import { CQIReportingCohort } from "./data-visualizer.component";
 
 type ReportRequest = {
   uuid: string;

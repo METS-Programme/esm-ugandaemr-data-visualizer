@@ -1,20 +1,29 @@
-import React, {useState} from "react";
+import React, { useState } from "react";
 import styles from "./detail.scss";
-import {ContentSwitcher, Switch} from "@carbon/react";
+import { ContentSwitcher, Switch } from "@carbon/react";
 import {
   ClientStatusElements,
   DemographicsElements,
   OtherElements,
-  PartnerTestingElements, RegimenDetailsElements,
-  SiblingsTestingElements, VlCdElements
+  PartnerTestingElements,
+  RegimenDetailsElements,
+  SiblingsTestingElements,
+  VlCdElements,
 } from "./cqi-elements";
 interface RowDetailProps {
   reportItem: any;
 }
 
-type TabType = "client_demographics" | "siblings_testing" | "partner_testing" | "client_status" | "regimen_details" | "vl_cd4" | "other_details";
+type TabType =
+  | "client_demographics"
+  | "siblings_testing"
+  | "partner_testing"
+  | "client_status"
+  | "regimen_details"
+  | "vl_cd4"
+  | "other_details";
 
-const RowDetail: React.FC<RowDetailProps> = ({reportItem}) => {
+const RowDetail: React.FC<RowDetailProps> = ({ reportItem }) => {
   const [tabType, setTabType] = useState<TabType>("client_demographics");
 
   const handleTabTypeChange = ({ name }) => {
@@ -25,9 +34,11 @@ const RowDetail: React.FC<RowDetailProps> = ({reportItem}) => {
     return (
       <div className={styles.detailItem}>
         <span className={styles.detailLabel}>{item.label}:</span>
-        <span className={styles.detailValue}>{reportItem?.[`${item.key}`]}</span>
+        <span className={styles.detailValue}>
+          {reportItem?.[`${item.key}`]}
+        </span>
       </div>
-    )
+    );
   };
 
   return (
@@ -73,13 +84,20 @@ const RowDetail: React.FC<RowDetailProps> = ({reportItem}) => {
       </div>
 
       <div className={styles.detailContainer}>
-        {tabType === "client_demographics" && (DemographicsElements.map(item => createReportDetail(item)))}
-        {tabType === "siblings_testing" && (SiblingsTestingElements.map(item => createReportDetail(item)))}
-        {tabType === "partner_testing" && (PartnerTestingElements.map(item => createReportDetail(item)))}
-        {tabType === "client_status" && (ClientStatusElements.map(item => createReportDetail(item)))}
-        {tabType === "regimen_details" && (RegimenDetailsElements.map(item => createReportDetail(item)))}
-        {tabType === "vl_cd4" && (VlCdElements.map(item => createReportDetail(item)))}
-        {tabType === "other_details" && (OtherElements.map(item => createReportDetail(item)))}
+        {tabType === "client_demographics" &&
+          DemographicsElements.map((item) => createReportDetail(item))}
+        {tabType === "siblings_testing" &&
+          SiblingsTestingElements.map((item) => createReportDetail(item))}
+        {tabType === "partner_testing" &&
+          PartnerTestingElements.map((item) => createReportDetail(item))}
+        {tabType === "client_status" &&
+          ClientStatusElements.map((item) => createReportDetail(item))}
+        {tabType === "regimen_details" &&
+          RegimenDetailsElements.map((item) => createReportDetail(item))}
+        {tabType === "vl_cd4" &&
+          VlCdElements.map((item) => createReportDetail(item))}
+        {tabType === "other_details" &&
+          OtherElements.map((item) => createReportDetail(item))}
       </div>
     </>
   );

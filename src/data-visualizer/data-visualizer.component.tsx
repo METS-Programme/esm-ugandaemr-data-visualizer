@@ -69,7 +69,9 @@ import dayjs from "dayjs";
 import { showNotification, showToast } from "@openmrs/esm-framework";
 type ChartType = "list" | "pivot" | "aggregate";
 type ReportingDuration = "fixed" | "relative";
-export type CQIReportingCohort = "Patients with encounters" | "Patients on appointment";
+export type CQIReportingCohort =
+  | "Patients with encounters"
+  | "Patients on appointment";
 type ReportingPeriod = "today" | "week" | "month" | "quarter" | "lastQuarter";
 const DataVisualizer: React.FC = () => {
   let title,
@@ -92,7 +94,9 @@ const DataVisualizer: React.FC = () => {
   const [selectedReport, setSelectedReport] = useState<Report>(
     facilityReports.reports[0]
   );
-  const [cqiReportingCohort, setCQIReportingCohort] = useState<CQIReportingCohort>("Patients with encounters");
+  const [cqiReportingCohort, setCQIReportingCohort] =
+    useState<CQIReportingCohort>("Patients with encounters");
+
   useEffect(() => {
     let initialSelectedReport;
 
@@ -341,8 +345,8 @@ const DataVisualizer: React.FC = () => {
           const reportData = response?.data;
           if (reportType === "fixed") {
             if (reportCategory.category === "cqi") {
-                dataForReport = response?.data?.A;
-                headers = CQIReportHeaders;
+              dataForReport = response?.data?.A;
+              headers = CQIReportHeaders;
             } else {
               if (reportCategory.renderType === "html") {
                 response?.text().then((htmlString) => {
@@ -362,13 +366,18 @@ const DataVisualizer: React.FC = () => {
                   ) {
                     columnNames = columnNames
                       .reverse()
-                      .filter((column) => column !== "EDD" && column !== "Names");
+                      .filter(
+                        (column) => column !== "EDD" && column !== "Names"
+                      );
                     headers = createColumns(columnNames);
                     dataForReport = reportData[responseReportName]
                       .filter((row) => row.PhoneNumber)
                       .map((row) => {
                         const formattedDate = extractDate(row.LastVisitDate);
-                        if (row.PhoneNumber && row.PhoneNumber.startsWith("0")) {
+                        if (
+                          row.PhoneNumber &&
+                          row.PhoneNumber.startsWith("0")
+                        ) {
                           return {
                             ...row,
                             PhoneNumber: "256" + row.PhoneNumber.substring(1),
@@ -386,7 +395,6 @@ const DataVisualizer: React.FC = () => {
                 }
               }
             }
-
           } else {
             if (reportData[0]) {
               const columnNames = Object.keys(reportData[0]);
@@ -417,6 +425,7 @@ const DataVisualizer: React.FC = () => {
       }
     );
   }, [
+    cqiReportingCohort,
     endDate,
     reportCategory,
     reportType,
@@ -834,7 +843,11 @@ const DataVisualizer: React.FC = () => {
                 {dayjs(endDate).format("DD/MM/YYYY")})
               </h3>
               <div className={styles.reportDataTable}>
-                <CQIDataList columns={tableHeaders} data={data} />
+                {reportCategory.category === "cqi" ? (
+                  <CQIDataList columns={tableHeaders} data={data} />
+                ) : (
+                  <DataList columns={tableHeaders} data={data} />
+                )}
               </div>
             </div>
           )}
