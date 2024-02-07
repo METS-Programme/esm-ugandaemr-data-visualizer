@@ -256,3 +256,173 @@ export const reportIndicators: Array<Indicator> = [
     attributes: [],
   },
 ];
+
+export const reportTypes: Array<{ id: string; label: string }> = [
+  {
+    id: "facility",
+    label: "Facility Report",
+  },
+  {
+    id: "national",
+    label: "National Report",
+  },
+  {
+    id: "donor",
+    label: "Donor Report",
+  },
+  {
+    id: "cqi",
+    label: "CQI Report",
+  },
+  {
+    id: "integration",
+    label: "Integration Data Exports",
+  },
+];
+
+export const CQIReportHeaders = [
+  {
+    key: "ART_No",
+    header: "ART/HIV Clinic No",
+    accessor: "ART_No",
+    isFlag: false,
+  },
+  {
+    key: "gender",
+    header: "Sex",
+    accessor: "gender",
+    isFlag: false,
+  },
+  {
+    key: "age",
+    header: "Age",
+    accessor: "age",
+    isFlag: false,
+  },
+  {
+    key: "age_group",
+    header: "Age Groups",
+    accessor: "age_group",
+    isFlag: false,
+  },
+  {
+    key: "followup",
+    header: "Follow up",
+    accessor: "followup",
+    isFlag: true,
+  },
+  {
+    key: "child_Tested_flag",
+    header: "Children testing",
+    accessor: "child_Tested_flag",
+    isFlag: true,
+  },
+  {
+    key: "spouses_Tested_flag",
+    header: "Partner testing",
+    accessor: "spouses_Tested_flag",
+    isFlag: true,
+  },
+  {
+    key: "mmd_flag",
+    header: "MMD",
+    accessor: "mmd_flag",
+    isFlag: true,
+  },
+  {
+    key: "vl_coverage",
+    header: "VL coverage",
+    accessor: "vl_coverage",
+    isFlag: true,
+  },
+  {
+    key: "vl_bleeding",
+    header: "VL bleeding",
+    accessor: "vl_bleeding",
+    isFlag: true,
+  },
+  {
+    key: "vl_tat",
+    header: "VL TAT",
+    accessor: "vl_tat",
+    isFlag: true,
+  },
+  {
+    key: "iac",
+    header: "IAC",
+    accessor: "iac",
+    isFlag: true,
+  },
+  {
+    key: "HIVDR_sampling",
+    header: " HIVDRT",
+    accessor: "HIVDR_sampling",
+    isFlag: true,
+  },
+  {
+    key: "HIVDR_tat",
+    header: "HDRT TAT",
+    accessor: "HIVDR_tat",
+    isFlag: true,
+  },
+  {
+    key: "switched",
+    header: "Switching",
+    accessor: "switched",
+    isFlag: true,
+  },
+  {
+    key: "pss",
+    header: "PSS",
+    accessor: "pss",
+    isFlag: true,
+  },
+  {
+    key: "nutrition_support_flag",
+    header: "Nutrition",
+    accessor: "nutrition_support_flag",
+    isFlag: true,
+  },
+  {
+    key: "family_planning_flag",
+    header: "F/P",
+    accessor: "family_planning_flag",
+    isFlag: true,
+  },
+  {
+    key: "tpt_flag",
+    header: " TPT",
+    accessor: "tpt_flag",
+    isFlag: true,
+  },
+  {
+    key: "cacx_flag",
+    header: "Cacx",
+    accessor: "cacx_flag",
+    isFlag: true,
+  },
+  {
+    key: "hep_b_flag",
+    header: "Hepatitis",
+    accessor: "hep_b_flag",
+    isFlag: true,
+  },
+  {
+    key: "syphilis_flag",
+    header: "Syphilis",
+    accessor: "syphilis_flag",
+    isFlag: true,
+  },
+  {
+    key: "adv_disease_flag",
+    header: "AHIVD",
+    accessor: "adv_disease_flag",
+    isFlag: true,
+  },
+  {
+    key: "ovc_flag",
+    header: "OVC",
+    accessor: "ovc_flag",
+    isFlag: true,
+  },
+];

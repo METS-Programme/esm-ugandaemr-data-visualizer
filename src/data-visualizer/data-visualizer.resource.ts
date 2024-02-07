@@ -1,5 +1,6 @@
 import useSWR from "swr";
 import { openmrsFetch, restBaseUrl } from "@openmrs/esm-framework";
+import { CQIReportingCohort } from "./data-visualizer.component";
 
 type ReportRequest = {
   uuid: string;
@@ -11,6 +12,7 @@ type ReportRequest = {
   };
   reportIndicators?: Array<Indicator>;
   reportType: ReportType;
+  reportingCohort?: CQIReportingCohort;
 };
 
 type saveReportRequest = {
@@ -28,9 +30,14 @@ export async function getReport(params: ReportRequest) {
   let fixedReportUrl = `${apiUrl}?startDate=${params.startDate}&endDate=${params.endDate}&uuid=${params.uuid}`;
 
   if (params.reportType === "fixed") {
-    if (params.reportCategory.renderType === "html") {
-      fixedReportUrl += `&renderType=${params.reportCategory.renderType}`;
+    if (params.reportCategory.category === "cqi") {
+      fixedReportUrl += `&cohortList=${params.reportingCohort}`;
+    } else {
+      if (params.reportCategory.renderType === "html") {
+        fixedReportUrl += `&renderType=${params.reportCategory.renderType}`;
+      }
     }
+
     return openmrsFetch(fixedReportUrl, {
       signal: abortController.signal,
     });
@@ -40,7 +47,7 @@ export async function getReport(params: ReportRequest) {
         ? formatReportArray(params.reportIndicators)
         : [];
 
-    return openmrsFetch(apiUrl, {
+    return openmrsFetch(`${restBaseUrl}ugandaemrreports/dataDefinition`, {
       method: "POST",
       signal: abortController.signal,
       headers: {
@@ -264,18 +271,24 @@ export function getDateRange(selectedPeriod: string) {
     case "lastQuarter":
       const currentQuarter = Math.floor(currentDate.getMonth() / 3) + 1;
       let previousQuarter;
+      let previousQuarterYear;
+
       if (currentQuarter === 1) {
         previousQuarter = 4;
+        previousQuarterYear = currentDate.getFullYear() - 1;
       } else {
         previousQuarter = currentQuarter - 1;
+        previousQuarterYear = currentDate.getFullYear();
       }
+
       const startOfPreviousQuarter = new Date(
-        currentDate.getFullYear(),
+        previousQuarterYear,
         (previousQuarter - 1) * 3,
         1
       );
+
       const endOfPreviousQuarter = new Date(
-        currentDate.getFullYear(),
+        previousQuarterYear,
         previousQuarter * 3,
         0
       );

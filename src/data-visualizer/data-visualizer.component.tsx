@@ -39,14 +39,17 @@ import {
 } from "@carbon/react";
 import ReportingHomeHeader from "../components/header/header.component";
 import {
+  CQIReportHeaders,
   cqiReports,
   donorReports,
   facilityReports,
   integrationDataExports,
   nationalReports,
   reportIndicators,
+  reportTypes,
 } from "../constants";
 import DataList from "../components/data-table/data-table.component";
+import CQIDataList from "../components/cqi-components/cqi-data-table.component";
 import EmptyStateIllustration from "../components/empty-state/empty-state-illustration.component";
 import Panel from "../components/panel/panel.component";
 import pivotTableStyles from "!!raw-loader!react-pivottable/pivottable.css";
@@ -66,6 +69,9 @@ import dayjs from "dayjs";
 import { showNotification, showToast } from "@openmrs/esm-framework";
 type ChartType = "list" | "pivot" | "aggregate";
 type ReportingDuration = "fixed" | "relative";
+export type CQIReportingCohort =
+  | "Patients with encounters"
+  | "Patients on appointment";
 type ReportingPeriod = "today" | "week" | "month" | "quarter" | "lastQuarter";
 const DataVisualizer: React.FC = () => {
   let title,
@@ -88,36 +94,42 @@ const DataVisualizer: React.FC = () => {
   const [selectedReport, setSelectedReport] = useState<Report>(
     facilityReports.reports[0]
   );
+  const [cqiReportingCohort, setCQIReportingCohort] =
+    useState<CQIReportingCohort>("Patients with encounters");
 
   useEffect(() => {
-    let firstReport;
+    let initialSelectedReport;
 
-    switch (reportCategory.category) {
-      case "facility":
-        firstReport = facilityReports.reports[0];
-        break;
-      case "donor":
-        firstReport = donorReports.reports[0];
-        break;
-      case "national":
-        firstReport = nationalReports.reports[0];
-        break;
-      case "cqi":
-        firstReport = cqiReports.reports[0];
-        break;
-      case "integration":
-        firstReport = integrationDataExports.reports[0];
-        break;
-      default:
-        firstReport = facilityReports.reports[0];
+    if (reportType === "fixed") {
+      switch (reportCategory.category) {
+        case "facility":
+          initialSelectedReport = facilityReports.reports[0];
+          break;
+        case "donor":
+          initialSelectedReport = donorReports.reports[0];
+          break;
+        case "national":
+          initialSelectedReport = nationalReports.reports[0];
+          break;
+        case "cqi":
+          initialSelectedReport = cqiReports.reports[0];
+          break;
+        case "integration":
+          initialSelectedReport = integrationDataExports.reports[0];
+          break;
+        default:
+          initialSelectedReport = facilityReports.reports[0];
+      }
+    } else {
+      initialSelectedReport = facilityReports.reports[0];
+      setChartType("list");
     }
 
-    setSelectedReport(firstReport);
-  }, [reportCategory]);
+    setSelectedReport(initialSelectedReport);
+  }, [reportCategory, reportType]);
 
-  const [report, setReport] = useState(facilityReports.reports[0]);
   const handleSelectedReport = ({ selectedItem }) => {
-    setReport(selectedItem);
+    setSelectedReport(selectedItem);
   };
   const [startDate, setStartDate] = useState(null);
   const [endDate, setEndDate] = useState(null);
@@ -150,6 +162,10 @@ const DataVisualizer: React.FC = () => {
 
   const handleReportingDurationChange = (period) => {
     setReportingDuration(period);
+  };
+
+  const handleCohortChange = (cohort) => {
+    setCQIReportingCohort(cohort);
   };
 
   const showSaveReportModal = () => {
@@ -276,23 +292,24 @@ const DataVisualizer: React.FC = () => {
     setEndDate(dayjs(selectedDate[0]).format("YYYY-MM-DD"));
   };
 
-  const handleReportCategoryChange = (selectedItem: ReportCategory) => {
-    if (selectedItem === "national") {
+  const handleReportCategoryChange = (selectedItem) => {
+    const typeOfReport = selectedItem.selectedItem.id;
+    if (typeOfReport === "national") {
       setReportCategory({
         category: "national",
         renderType: "html",
       });
       setChartType("aggregate");
-    } else if (selectedItem === "cqi") {
+    } else if (typeOfReport === "cqi") {
       setReportCategory({ category: "cqi" });
-      setChartType("aggregate");
-    } else if (selectedItem === "donor") {
+      setChartType("list");
+    } else if (typeOfReport === "donor") {
       setReportCategory({
         category: "donor",
         renderType: "html",
       });
       setChartType("aggregate");
-    } else if (selectedItem === "integration") {
+    } else if (typeOfReport === "integration") {
       setReportCategory({ category: "integration" });
       setChartType("list");
     } else {
@@ -313,12 +330,13 @@ const DataVisualizer: React.FC = () => {
     setLoading(true);
 
     getReport({
-      uuid: reportType === "fixed" ? report.id : selectedReport.id,
+      uuid: selectedReport.id,
       startDate: startDate,
       endDate: endDate,
       reportCategory: reportCategory,
       reportIndicators: selectedParameters,
       reportType: reportType,
+      reportingCohort: cqiReportingCohort,
     }).then(
       (response) => {
         if (response.status === 200) {
@@ -326,45 +344,55 @@ const DataVisualizer: React.FC = () => {
           let dataForReport: any = [];
           const reportData = response?.data;
           if (reportType === "fixed") {
-            if (reportCategory.renderType === "html") {
-              response?.text().then((htmlString) => {
-                setHTML(htmlString);
-              });
+            if (reportCategory.category === "cqi") {
+              dataForReport = response?.data?.A;
+              headers = CQIReportHeaders;
             } else {
-              const responseReportName = Object.keys(reportData)[0];
-              if (
-                reportData[responseReportName] &&
-                reportData[responseReportName][0]
-              ) {
-                let columnNames = Object.keys(
-                  reportData[responseReportName][0]
-                );
-                if (
-                  selectedReport.id === "bf79f017-8591-4eaf-88c9-1cde33226517"
-                ) {
-                  columnNames = columnNames
-                    .reverse()
-                    .filter((column) => column !== "EDD" && column !== "Names");
-                  headers = createColumns(columnNames);
-                  dataForReport = reportData[responseReportName]
-                    .filter((row) => row.PhoneNumber)
-                    .map((row) => {
-                      const formattedDate = extractDate(row.LastVisitDate);
-                      if (row.PhoneNumber && row.PhoneNumber.startsWith("0")) {
-                        return {
-                          ...row,
-                          PhoneNumber: "256" + row.PhoneNumber.substring(1),
-                          LastVisitDate: formattedDate,
-                        };
-                      }
-                      return row;
-                    });
-                } else {
-                  headers = createColumns(columnNames).slice(0, 10);
-                  dataForReport = reportData[responseReportName];
-                }
+              if (reportCategory.renderType === "html") {
+                response?.text().then((htmlString) => {
+                  setHTML(htmlString);
+                });
               } else {
-                setShowLineList(false);
+                const responseReportName = Object.keys(reportData)[0];
+                if (
+                  reportData[responseReportName] &&
+                  reportData[responseReportName][0]
+                ) {
+                  let columnNames = Object.keys(
+                    reportData[responseReportName][0]
+                  );
+                  if (
+                    selectedReport.id === "bf79f017-8591-4eaf-88c9-1cde33226517"
+                  ) {
+                    columnNames = columnNames
+                      .reverse()
+                      .filter(
+                        (column) => column !== "EDD" && column !== "Names"
+                      );
+                    headers = createColumns(columnNames);
+                    dataForReport = reportData[responseReportName]
+                      .filter((row) => row.PhoneNumber)
+                      .map((row) => {
+                        const formattedDate = extractDate(row.LastVisitDate);
+                        if (
+                          row.PhoneNumber &&
+                          row.PhoneNumber.startsWith("0")
+                        ) {
+                          return {
+                            ...row,
+                            PhoneNumber: "256" + row.PhoneNumber.substring(1),
+                            LastVisitDate: formattedDate,
+                          };
+                        }
+                        return row;
+                      });
+                  } else {
+                    headers = createColumns(columnNames).slice(0, 10);
+                    dataForReport = reportData[responseReportName];
+                  }
+                } else {
+                  setShowLineList(false);
+                }
               }
             }
           } else {
@@ -382,9 +410,7 @@ const DataVisualizer: React.FC = () => {
           setTableHeaders(headers);
           setData(dataForReport);
           setPivotTableData(dataForReport);
-          setReportName(
-            reportType === "fixed" ? report?.label : selectedReport?.label
-          );
+          setReportName(selectedReport?.label);
         }
       },
       (error) => {
@@ -399,8 +425,8 @@ const DataVisualizer: React.FC = () => {
       }
     );
   }, [
+    cqiReportingCohort,
     endDate,
-    report,
     reportCategory,
     reportType,
     selectedParameters,
@@ -454,44 +480,18 @@ const DataVisualizer: React.FC = () => {
                       <FormLabel className={styles.label}>
                         Which kind of report do you want to show?
                       </FormLabel>
-                      <RadioButtonGroup
-                        defaultSelected="facility"
-                        legendText=""
-                        name="reportCategory"
-                      >
-                        <RadioButton
-                          id="facilityReport"
-                          labelText="Facility Report"
-                          onClick={() => handleReportCategoryChange("facility")}
-                          value="facility"
-                        />
-                        <RadioButton
-                          id="nationalReport"
-                          labelText="National Report"
-                          onClick={() => handleReportCategoryChange("national")}
-                          value="national"
-                        />
-                        <RadioButton
-                          id="donorReport"
-                          labelText="Donor Report"
-                          onClick={() => handleReportCategoryChange("donor")}
-                          value="donor"
-                        />
-                        <RadioButton
-                          id="cqiReport"
-                          labelText="CQI Report"
-                          onClick={() => handleReportCategoryChange("cqi")}
-                          value="cqi"
-                        />
-                        <RadioButton
-                          id="intergrationDataReport"
-                          labelText="Integration Data Exports"
-                          onClick={() =>
-                            handleReportCategoryChange("integration")
-                          }
-                          value="integration"
-                        />
-                      </RadioButtonGroup>
+                      <ComboBox
+                        ariaLabel="Select Report Type"
+                        id="ReportTypeCombobox"
+                        items={reportTypes}
+                        hideLabel
+                        onChange={handleReportCategoryChange}
+                        selectedItem={
+                          reportTypes.filter(
+                            (item) => item.id === reportCategory.category
+                          )[0]
+                        }
+                      />
                     </FormGroup>
 
                     {reportCategory.category === "facility" && (
@@ -521,6 +521,7 @@ const DataVisualizer: React.FC = () => {
                           items={nationalReports.reports}
                           hideLabel
                           onChange={handleSelectedReport}
+                          selectedItem={selectedReport}
                         />
                       </FormGroup>
                     )}
@@ -536,7 +537,7 @@ const DataVisualizer: React.FC = () => {
                           items={donorReports.reports}
                           hideLabel
                           onChange={handleSelectedReport}
-                          initialSelectedItem={donorReports.reports}
+                          selectedItem={selectedReport}
                         />
                       </FormGroup>
                     )}
@@ -552,6 +553,7 @@ const DataVisualizer: React.FC = () => {
                           items={cqiReports.reports}
                           hideLabel
                           onChange={handleSelectedReport}
+                          selectedItem={selectedReport}
                         />
                       </FormGroup>
                     )}
@@ -567,6 +569,7 @@ const DataVisualizer: React.FC = () => {
                           items={integrationDataExports.reports}
                           hideLabel
                           onChange={handleSelectedReport}
+                          selectedItem={selectedReport}
                         />
                       </FormGroup>
                     )}
@@ -656,6 +659,31 @@ const DataVisualizer: React.FC = () => {
                       </Panel>
                     </div>
                   </Stack>
+                )}
+
+                {reportCategory.category === "cqi" && (
+                  <FormGroup>
+                    <FormLabel className={styles.label}>
+                      Select your cohort of interest
+                    </FormLabel>
+                    <RadioButtonGroup
+                      legendText=""
+                      name="patientCohort"
+                      onChange={handleCohortChange}
+                      defaultSelected="Patients with encounters"
+                    >
+                      <RadioButton
+                        id="patient_with_encounters"
+                        labelText="Patient with encounters"
+                        value="Patients with encounters"
+                      />
+                      <RadioButton
+                        id="patients_on_appointment"
+                        labelText="Patients on appointment"
+                        value="Patients on appointment"
+                      />
+                    </RadioButtonGroup>
+                  </FormGroup>
                 )}
 
                 <FormGroup>
@@ -810,8 +838,17 @@ const DataVisualizer: React.FC = () => {
 
           {chartType === "list" && !loading && (
             <div className={styles.reportContainer}>
-              <h3 className={styles.listHeading}>{reportName}</h3>
-              <DataList columns={tableHeaders} data={data} />
+              <h3 className={styles.listHeading}>
+                {reportName} ({dayjs(startDate).format("DD/MM/YYYY")} -{" "}
+                {dayjs(endDate).format("DD/MM/YYYY")})
+              </h3>
+              <div className={styles.reportDataTable}>
+                {reportCategory.category === "cqi" ? (
+                  <CQIDataList columns={tableHeaders} data={data} />
+                ) : (
+                  <DataList columns={tableHeaders} data={data} />
+                )}
+              </div>
             </div>
           )}
 
