@@ -5,6 +5,7 @@ import {
 } from "@openmrs/esm-framework";
 import { configSchema } from "./config-schema";
 import { createDashboardLink } from "./create-dashboard-link.component";
+import appMenu from "./components/visualizer-menu-app/visualizer-menu-app-item.component";
 
 const moduleName = "@ugandaemr/esm-data-visualizer-app";
 const options = {
@@ -23,6 +24,8 @@ export const root = getAsyncLifecycle(
   () => import("./root.component"),
   options
 );
+
+export const dataVisualizerAppMenuItem = getSyncLifecycle(appMenu, options);
 
 export function startupApp() {
   defineConfigSchema(moduleName, configSchema);
