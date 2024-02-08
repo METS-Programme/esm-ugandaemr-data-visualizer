@@ -74,8 +74,6 @@ export type CQIReportingCohort =
   | "Patients on appointment";
 type ReportingPeriod = "today" | "week" | "month" | "quarter" | "lastQuarter";
 const DataVisualizer: React.FC = () => {
-  let title,
-    description = "";
   const PlotlyRenderers = createPlotlyRenderers(Plot);
   const [tableHeaders, setTableHeaders] = useState([]);
   const [data, setData] = useState([]);
@@ -138,7 +136,7 @@ const DataVisualizer: React.FC = () => {
   const [availableParameters, setAvailableParameters] = useState([]);
   const [selectedParameters, setSelectedParameters] = useState<
     Array<Indicator>
-  >([]);
+    >([]);
   const [showFilters, setShowFilters] = useState(false);
   const [reportName, setReportName] = useState("Patient List");
   const { identifiers, isLoadingIdentifiers } = useGetIdentifiers();
@@ -146,8 +144,8 @@ const DataVisualizer: React.FC = () => {
   const { encounterTypes } = useGetEncounterType();
   const [hasRetrievedConcepts, setHasRetrievedConcepts] = useState(false);
   const [saveReportModal, setSaveReportModal] = useState(false);
-  const [reportTitle, setReportTitle] = useState(null);
-  const [reportDescription, setReportDescription] = useState(null);
+  const [reportTitle, setReportTitle] = useState("");
+  const [reportDescription, setReportDescription] = useState("");
   const [htmlContent, setHTML] = useState("");
   const { encounterConcepts, isLoadingEncounterConcepts } =
     useGetEncounterConcepts(selectedIndicators?.id);
@@ -177,19 +175,17 @@ const DataVisualizer: React.FC = () => {
   };
 
   const handleSaveReport = useCallback(() => {
-    setReportTitle(title);
-    setReportDescription(description);
 
     saveReport({
-      reportName: title,
-      reportDescription: description,
+      reportName: reportTitle,
+      reportDescription: reportDescription,
       reportType: pivotTableData?.["rendererName"],
       columns: "",
       rows: "",
       report_request_object: JSON.stringify(pivotTableData),
     }).then(
       (response) => {
-        if (response.status === 200) {
+        if (response.status === 201) {
           showToast({
             critical: true,
             title: "Saving Report",
@@ -208,14 +204,14 @@ const DataVisualizer: React.FC = () => {
         });
       }
     );
-  }, [description, pivotTableData, reportTitle, title]);
+  }, [reportDescription, pivotTableData, reportTitle]);
 
   const handleReportTitleChange = (event) => {
-    title = event.target.value;
+    setReportTitle(event.target.value);
   };
 
   const handleReportDescChange = (event) => {
-    description = event.target.value;
+    setReportDescription(event.target.value);
   };
 
   const moveAllFromLeftToRight = (selectedParameter) => {
