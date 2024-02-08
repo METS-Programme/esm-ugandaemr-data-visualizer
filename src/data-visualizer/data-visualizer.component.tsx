@@ -136,7 +136,7 @@ const DataVisualizer: React.FC = () => {
   const [availableParameters, setAvailableParameters] = useState([]);
   const [selectedParameters, setSelectedParameters] = useState<
     Array<Indicator>
-    >([]);
+  >([]);
   const [showFilters, setShowFilters] = useState(false);
   const [reportName, setReportName] = useState("Patient List");
   const { identifiers, isLoadingIdentifiers } = useGetIdentifiers();
@@ -175,7 +175,6 @@ const DataVisualizer: React.FC = () => {
   };
 
   const handleSaveReport = useCallback(() => {
-
     saveReport({
       reportName: reportTitle,
       reportDescription: reportDescription,
