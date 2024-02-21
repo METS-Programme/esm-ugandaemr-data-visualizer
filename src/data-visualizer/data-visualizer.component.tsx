@@ -12,6 +12,8 @@ import {
   Intersect,
   ImageService,
   SendAlt,
+  DocumentDownload,
+  Save,
 } from "@carbon/react/icons";
 import {
   Accordion,
@@ -35,7 +37,7 @@ import {
   TextArea,
   OverflowMenu,
   OverflowMenuItem,
-  Tile,
+  Tile, ButtonSet,
 } from "@carbon/react";
 import ReportingHomeHeader from "../components/header/header.component";
 import {
@@ -55,7 +57,7 @@ import Panel from "../components/panel/panel.component";
 import pivotTableStyles from "!!raw-loader!react-pivottable/pivottable.css";
 import styles from "./data-visualizer.scss";
 import {
-  createColumns,
+  createColumns, downloadReport,
   extractDate,
   getDateRange,
   getReport,
@@ -173,6 +175,33 @@ const DataVisualizer: React.FC = () => {
   const closeReportModal = () => {
     setSaveReportModal(false);
   };
+
+  const handleDownloadReport = useCallback(()=> {
+    downloadReport({
+      uuid: selectedReport.id,
+      startDate: startDate,
+      endDate: endDate,
+    }).then(
+      async (response) => {
+        try {
+          const blob = await response.blob();
+          const url = window.URL.createObjectURL(blob);
+
+          const currentDate = new Date();
+          const filename = `${selectedReport.label}_${currentDate.toISOString().replace(/:/g, '-')}.csv`;
+
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = filename;
+
+          a.click();
+          window.URL.revokeObjectURL(url);
+        }catch (error) {
+          console.error('Error downloading file:', error);
+        }
+      }
+    )
+  },[startDate, endDate, selectedReport]);
 
   const handleSaveReport = useCallback(() => {
     saveReport({
@@ -806,24 +835,36 @@ const DataVisualizer: React.FC = () => {
           </ContentSwitcher>
         </div>
         <div className={styles.actionButtonContainer}>
-          <Button
-            size="md"
-            kind="primary"
-            onClick={handleUpdateReport}
-            className={styles.actionButton}
-          >
-            <Intersect />
-            <span>View Report</span>
-          </Button>
-          {data.length > 0 && (
-            <OverflowMenu aria-label="overflow-menu" flipped size="md" kind="">
-              <OverflowMenuItem
-                itemText="Save Report"
-                onClick={showSaveReportModal}
-              />
-              <OverflowMenuItem itemText="Open Saved Reports" />
-            </OverflowMenu>
-          )}
+          <ButtonSet>
+            <Button
+              size="md"
+              kind="primary"
+              onClick={handleUpdateReport}
+              className={styles.actionButton}
+            >
+              <Intersect />
+              <span>View Report</span>
+            </Button>
+            <Button
+              size="md"
+              kind="secondary"
+              iconDescription="Save Report"
+              onClick={showSaveReportModal}
+              className={styles.actionButton}
+              renderIcon={Save}
+              hasIconOnly
+            />
+            <Button
+              size="md"
+              kind="tertiary"
+              iconDescription="Download Report"
+              tooltipAlignment="end"
+              onClick={handleDownloadReport}
+              className={styles.actionButton}
+              renderIcon={DocumentDownload}
+              hasIconOnly
+            />
+          </ButtonSet>
         </div>
       </section>
 
