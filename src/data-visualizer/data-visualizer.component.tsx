@@ -37,7 +37,8 @@ import {
   TextArea,
   OverflowMenu,
   OverflowMenuItem,
-  Tile, ButtonSet,
+  Tile,
+  ButtonSet,
 } from "@carbon/react";
 import ReportingHomeHeader from "../components/header/header.component";
 import {
@@ -57,7 +58,8 @@ import Panel from "../components/panel/panel.component";
 import pivotTableStyles from "!!raw-loader!react-pivottable/pivottable.css";
 import styles from "./data-visualizer.scss";
 import {
-  createColumns, downloadReport,
+  createColumns,
+  downloadReport,
   extractDate,
   getDateRange,
   getReport,
@@ -176,32 +178,32 @@ const DataVisualizer: React.FC = () => {
     setSaveReportModal(false);
   };
 
-  const handleDownloadReport = useCallback(()=> {
+  const handleDownloadReport = useCallback(() => {
     downloadReport({
       uuid: selectedReport.id,
       startDate: startDate,
       endDate: endDate,
-    }).then(
-      async (response) => {
-        try {
-          const blob = await response.blob();
-          const url = window.URL.createObjectURL(blob);
+    }).then(async (response) => {
+      try {
+        const blob = await response.blob();
+        const url = window.URL.createObjectURL(blob);
 
-          const currentDate = new Date();
-          const filename = `${selectedReport.label}_${currentDate.toISOString().replace(/:/g, '-')}.csv`;
+        const currentDate = new Date();
+        const filename = `${selectedReport.label}_${currentDate
+          .toISOString()
+          .replace(/:/g, "-")}.csv`;
 
-          const a = document.createElement('a');
-          a.href = url;
-          a.download = filename;
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = filename;
 
-          a.click();
-          window.URL.revokeObjectURL(url);
-        }catch (error) {
-          console.error('Error downloading file:', error);
-        }
+        a.click();
+        window.URL.revokeObjectURL(url);
+      } catch (error) {
+        console.error("Error downloading file:", error);
       }
-    )
-  },[startDate, endDate, selectedReport]);
+    });
+  }, [startDate, endDate, selectedReport]);
 
   const handleSaveReport = useCallback(() => {
     saveReport({
@@ -846,9 +848,9 @@ const DataVisualizer: React.FC = () => {
               <Intersect />
               <span>View Report</span>
             </Button>
-            {(data.length > 0 || htmlContent != "") ? (
+            {data.length > 0 || htmlContent != "" ? (
               <>
-                {(chartType === "pivot") ? (
+                {chartType === "pivot" ? (
                   <Button
                     size="md"
                     kind="secondary"
@@ -856,10 +858,11 @@ const DataVisualizer: React.FC = () => {
                     onClick={showSaveReportModal}
                     className={styles.actionButton}
                     renderIcon={Save}
-                    hasIconOnly/>
-                ) : null }
+                    hasIconOnly
+                  />
+                ) : null}
 
-                {(reportType === "fixed") ? (
+                {reportType === "fixed" ? (
                   <Button
                     size="md"
                     kind="tertiary"
@@ -868,11 +871,11 @@ const DataVisualizer: React.FC = () => {
                     onClick={handleDownloadReport}
                     className={styles.actionButton}
                     renderIcon={DocumentDownload}
-                    hasIconOnly/>
-                ) : null }
+                    hasIconOnly
+                  />
+                ) : null}
               </>
-            ) : null }
-
+            ) : null}
           </ButtonSet>
         </div>
       </section>
@@ -891,7 +894,11 @@ const DataVisualizer: React.FC = () => {
                 {reportCategory.category === "cqi" ? (
                   <CQIDataList columns={tableHeaders} data={data} />
                 ) : (
-                  <DataList columns={tableHeaders} data={data} report={{type: reportType, name: selectedReport.label}}/>
+                  <DataList
+                    columns={tableHeaders}
+                    data={data}
+                    report={{ type: reportType, name: selectedReport.label }}
+                  />
                 )}
               </div>
             </div>

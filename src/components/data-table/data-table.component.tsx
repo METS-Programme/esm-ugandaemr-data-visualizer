@@ -41,7 +41,7 @@ interface ListProps {
   report: {
     type: ReportType;
     name: string;
-  }
+  };
 }
 
 type DocumentType = "csv" | "pdf" | "json";
@@ -94,7 +94,9 @@ const DataList: React.FC<ListProps> = ({ columns, data, report }) => {
 
   const handleReportDownload = (documentType: string) => {
     const currentDate = new Date();
-    const filename = `${report.name}_${currentDate.toISOString().replace(/:/g, '-')}`;
+    const filename = `${report.name}_${currentDate
+      .toISOString()
+      .replace(/:/g, "-")}`;
     const csvString = convertToCSV(list, columns);
 
     if (documentType === "csv") {
@@ -137,7 +139,7 @@ const DataList: React.FC<ListProps> = ({ columns, data, report }) => {
                     placeholder={t("searchThisList", "Search this list")}
                     size={responsiveSize}
                   />
-                  {(report.type === "dynamic") ? (
+                  {report.type === "dynamic" ? (
                     <Button
                       size="sm"
                       kind="tertiary"
@@ -147,8 +149,7 @@ const DataList: React.FC<ListProps> = ({ columns, data, report }) => {
                       <DocumentDownload />
                       <span>Download Report</span>
                     </Button>
-                  ) : null }
-
+                  ) : null}
                 </TableToolbarContent>
               </TableToolbar>
             </div>
