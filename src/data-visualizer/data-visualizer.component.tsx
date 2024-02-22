@@ -350,6 +350,7 @@ const DataVisualizer: React.FC = () => {
   };
 
   const handleUpdateReport = useCallback(() => {
+    setHTML("");
     setShowLineList(true);
     setLoading(true);
 
@@ -845,25 +846,33 @@ const DataVisualizer: React.FC = () => {
               <Intersect />
               <span>View Report</span>
             </Button>
-            <Button
-              size="md"
-              kind="secondary"
-              iconDescription="Save Report"
-              onClick={showSaveReportModal}
-              className={styles.actionButton}
-              renderIcon={Save}
-              hasIconOnly
-            />
-            <Button
-              size="md"
-              kind="tertiary"
-              iconDescription="Download Report"
-              tooltipAlignment="end"
-              onClick={handleDownloadReport}
-              className={styles.actionButton}
-              renderIcon={DocumentDownload}
-              hasIconOnly
-            />
+            {(data.length > 0 || htmlContent != "") ? (
+              <>
+                {(chartType === "pivot") ? (
+                  <Button
+                    size="md"
+                    kind="secondary"
+                    iconDescription="Save Report"
+                    onClick={showSaveReportModal}
+                    className={styles.actionButton}
+                    renderIcon={Save}
+                    hasIconOnly/>
+                ) : null }
+
+                {(reportType === "fixed") ? (
+                  <Button
+                    size="md"
+                    kind="tertiary"
+                    iconDescription="Download Report"
+                    tooltipAlignment="end"
+                    onClick={handleDownloadReport}
+                    className={styles.actionButton}
+                    renderIcon={DocumentDownload}
+                    hasIconOnly/>
+                ) : null }
+              </>
+            ) : null }
+
           </ButtonSet>
         </div>
       </section>
@@ -882,7 +891,7 @@ const DataVisualizer: React.FC = () => {
                 {reportCategory.category === "cqi" ? (
                   <CQIDataList columns={tableHeaders} data={data} />
                 ) : (
-                  <DataList columns={tableHeaders} data={data} />
+                  <DataList columns={tableHeaders} data={data} report={{type: reportType, name: selectedReport.label}}/>
                 )}
               </div>
             </div>
