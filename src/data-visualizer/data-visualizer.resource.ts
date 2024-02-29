@@ -26,7 +26,7 @@ type saveReportRequest = {
 
 export async function getReport(params: ReportRequest) {
   const abortController = new AbortController();
-  let apiUrl = `${restBaseUrl}ugandaemrreports/reportingDefinition`;
+  let apiUrl = `${restBaseUrl}/ugandaemrreports/reportingDefinition`;
   let fixedReportUrl = `${apiUrl}?startDate=${params.startDate}&endDate=${params.endDate}&uuid=${params.uuid}`;
 
   if (params.reportType === "fixed") {
@@ -47,7 +47,7 @@ export async function getReport(params: ReportRequest) {
         ? formatReportArray(params.reportIndicators)
         : [];
 
-    return openmrsFetch(`${restBaseUrl}ugandaemrreports/dataDefinition`, {
+    return openmrsFetch(`${restBaseUrl}/ugandaemrreports/dataDefinition`, {
       method: "POST",
       signal: abortController.signal,
       headers: {
@@ -75,7 +75,7 @@ export async function getReport(params: ReportRequest) {
 }
 
 export function useGetIdentifiers() {
-  const apiUrl = `${restBaseUrl}patientidentifiertype`;
+  const apiUrl = `${restBaseUrl}/patientidentifiertype`;
   const { data, error, isLoading, mutate } = useSWR<
     { data: { results: any } },
     Error
@@ -91,7 +91,7 @@ export function useGetIdentifiers() {
 }
 
 export function useGetPatientAtrributes() {
-  const apiUrl = `${restBaseUrl}personattributetype`;
+  const apiUrl = `${restBaseUrl}/personattributetype`;
   const { data, error, isLoading, mutate } = useSWR<
     { data: { results: any } },
     Error
@@ -107,7 +107,7 @@ export function useGetPatientAtrributes() {
 }
 
 export function useGetEncounterType() {
-  const apiUrl = `${restBaseUrl}encountertype`;
+  const apiUrl = `${restBaseUrl}/encountertype`;
   const { data, error, isLoading } = useSWR<{ data: { results: any } }, Error>(
     apiUrl,
     openmrsFetch
@@ -120,7 +120,7 @@ export function useGetEncounterType() {
 }
 
 export function useGetEncounterConcepts(uuid: string) {
-  const apiUrl = `${restBaseUrl}ugandaemrreports/concepts/encountertype?uuid=${uuid}`;
+  const apiUrl = `${restBaseUrl}/ugandaemrreports/concepts/encountertype?uuid=${uuid}`;
   const { data, error, isLoading, mutate } = useSWR<
     {
       data: {
@@ -140,7 +140,7 @@ export function useGetEncounterConcepts(uuid: string) {
 }
 
 export async function saveReport(params: saveReportRequest) {
-  const apiUrl = `${restBaseUrl}dashboardReport`;
+  const apiUrl = `${restBaseUrl}/dashboardReport`;
   const abortController = new AbortController();
 
   return openmrsFetch(apiUrl, {
