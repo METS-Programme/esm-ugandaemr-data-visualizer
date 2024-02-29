@@ -189,13 +189,13 @@ const DataVisualizer: React.FC = () => {
         const url = window.URL.createObjectURL(blob);
 
         const currentDate = new Date();
-        const filename = `${selectedReport.label}_${currentDate
-          .toISOString()
-          .replace(/:/g, "-")}.csv`;
+        // const filename = `${selectedReport.label}_${currentDate
+        //   .toISOString()
+        //   .replace(/:/g, "-")}.csv`;
 
         const a = document.createElement("a");
         a.href = url;
-        a.download = filename;
+        // a.download = filename;
 
         a.click();
         window.URL.revokeObjectURL(url);
@@ -856,7 +856,7 @@ const DataVisualizer: React.FC = () => {
                     kind="secondary"
                     iconDescription="Save Report"
                     onClick={showSaveReportModal}
-                    className={styles.actionButton}
+                    className={styles.dsReportBtn}
                     renderIcon={Save}
                     hasIconOnly
                   />
@@ -869,7 +869,7 @@ const DataVisualizer: React.FC = () => {
                     iconDescription="Download Report"
                     tooltipAlignment="end"
                     onClick={handleDownloadReport}
-                    className={styles.actionButton}
+                    className={styles.dsReportBtn}
                     renderIcon={DocumentDownload}
                     hasIconOnly
                   />

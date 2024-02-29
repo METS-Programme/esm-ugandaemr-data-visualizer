@@ -82,7 +82,7 @@ export async function getReport(params: ReportRequest) {
 
 export async function downloadReport(params: ReportDownloadParams) {
   const abortController = new AbortController();
-  const apiUrl = `${restBaseUrl}ugandaemrreports/reportDownload?startDate=${params.startDate}&endDate=${params.endDate}&uuid=${params.uuid}`;
+  const apiUrl = `${restBaseUrl}/ugandaemrreports/reportDownload?startDate=${params.startDate}&endDate=${params.endDate}&uuid=${params.uuid}`;
 
   return openmrsFetch(apiUrl, {
     signal: abortController.signal,
