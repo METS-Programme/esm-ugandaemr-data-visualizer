@@ -19,6 +19,7 @@ import {
   Accordion,
   AccordionItem,
   Button,
+  ButtonSkeleton,
   ComboBox,
   ContentSwitcher,
   DataTableSkeleton,
@@ -35,10 +36,9 @@ import {
   Switch,
   TextInput,
   TextArea,
-  OverflowMenu,
-  OverflowMenuItem,
   Tile,
   ButtonSet,
+  InlineLoading,
 } from "@carbon/react";
 import ReportingHomeHeader from "../components/header/header.component";
 import {
@@ -153,6 +153,7 @@ const DataVisualizer: React.FC = () => {
   const [htmlContent, setHTML] = useState("");
   const { encounterConcepts, isLoadingEncounterConcepts } =
     useGetEncounterConcepts(selectedIndicators?.id);
+  const [isDownloading, setIsDownloading] = useState(false);
 
   const handleChartTypeChange = ({ name }) => {
     setChartType(name);
@@ -179,30 +180,44 @@ const DataVisualizer: React.FC = () => {
   };
 
   const handleDownloadReport = useCallback(() => {
+    setIsDownloading(true);
+
     downloadReport({
       uuid: selectedReport.id,
       startDate: startDate,
       endDate: endDate,
+      reportCategory: reportCategory.category,
+      reportingCohort: cqiReportingCohort
     }).then(async (response) => {
       try {
         const blob = await response.blob();
         const url = window.URL.createObjectURL(blob);
-
-        const currentDate = new Date();
-        // const filename = `${selectedReport.label}_${currentDate
-        //   .toISOString()
-        //   .replace(/:/g, "-")}.csv`;
-
+        const filename = response?.headers?.get('Content-Disposition')?.match(/filename=(.+)/)[1];
         const a = document.createElement("a");
         a.href = url;
-        // a.download = filename;
-
+        a.download = filename
         a.click();
-        window.URL.revokeObjectURL(url);
+        window.URL.revokeObjectURL(response?.url);
       } catch (error) {
-        console.error("Error downloading file:", error);
+        showNotification({
+          title: "Error downloading Report",
+          kind: "error",
+          critical: true,
+          description: `Error downloading file: ${error?.message}`,
+        });
       }
-    });
+      setIsDownloading(false);
+    },
+      (error) => {
+        showNotification({
+          title: "Error downloading Report",
+          kind: "error",
+          critical: true,
+          description: error?.message,
+        });
+        setIsDownloading(false);
+      }
+    );
   }, [startDate, endDate, selectedReport]);
 
   const handleSaveReport = useCallback(() => {
@@ -355,6 +370,7 @@ const DataVisualizer: React.FC = () => {
     setHTML("");
     setShowLineList(true);
     setLoading(true);
+    setShowFilters(false);
 
     getReport({
       uuid: selectedReport.id,
@@ -862,18 +878,20 @@ const DataVisualizer: React.FC = () => {
                   />
                 ) : null}
 
-                {reportType === "fixed" ? (
-                  <Button
-                    size="md"
-                    kind="tertiary"
-                    iconDescription="Download Report"
-                    tooltipAlignment="end"
-                    onClick={handleDownloadReport}
-                    className={styles.dsReportBtn}
-                    renderIcon={DocumentDownload}
-                    hasIconOnly
-                  />
-                ) : null}
+                {reportType === "fixed" ? isDownloading ?
+                  <InlineLoading />
+                    : (
+                      <Button
+                        size="md"
+                        kind="tertiary"
+                        iconDescription="Download Report"
+                        tooltipAlignment="end"
+                        onClick={handleDownloadReport}
+                        className={styles.dsReportBtn}
+                        renderIcon={DocumentDownload}
+                        hasIconOnly
+                      />
+                    ) : null}
               </>
             ) : null}
           </ButtonSet>

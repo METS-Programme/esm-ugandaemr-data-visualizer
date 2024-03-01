@@ -203,19 +203,11 @@ export const cqiReports: ReportProps = {
   reports: [
     {
       id: "2017e2e0-fc1c-4ba2-8816-92f822290c84",
-      label: "HIV Care and Treatment Audit Tool-Resized",
-    },
-    {
-      id: "b5cbec70-3dcf-4b4b-99f9-45e0f0a9a23b",
       label: "HIV Care and Treatment Audit Tool",
     },
     {
-      id: "bc18e380-039e-482a-96c0-1555f3fdb773",
-      label: "PMTCT Audit tool",
-    },
-    {
       id: "9f629343-0b9b-4717-a824-2ba02f853a96",
-      label: "PMTCT Audit tool-Resized",
+      label: "PMTCT Audit Tool",
     },
     {
       id: "d6aecd70-f997-45ab-b43d-cfb270c0b4e1",

@@ -208,6 +208,13 @@
 .reportTableContainer {
   margin: 20px;
   overflow-x: auto;
+  max-height: 500px;
+  overflow-y: auto;
+
+  :global(.gender) {
+    writing-mode: vertical-lr;
+    transform: rotate(180deg);
+  }
 }
 
 .reportTableContainer table {
@@ -215,7 +222,7 @@
   border-collapse: collapse;
   margin-top: 10px;
   font: caption;
-  font-size: 0.92rem;
+  font-size: 0.8rem;
 }
 
 .reportTableContainer table tbody td {
@@ -232,10 +239,14 @@
   color: white;
 }
 
+.reportTableContainer thead {
+  position: sticky;
+  top: 0;
+  z-index: 999;
+}
+
 .reportTableContainer td {
   background-color: #ffffff;
-  max-width: 0;
-  white-space: unset;
 }
 
 .reportTableContainer tr:nth-child(even) td {
