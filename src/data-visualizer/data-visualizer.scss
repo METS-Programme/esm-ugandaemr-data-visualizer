@@ -208,7 +208,7 @@
 .reportTableContainer {
   margin: 20px;
   overflow-x: auto;
-  max-height: 500px;
+  max-height: 80vh;
   overflow-y: auto;
 
   :global(.gender) {
@@ -251,10 +251,6 @@
 
 .reportTableContainer tr:nth-child(even) td {
   background-color: colors.$gray-20;
-}
-
-.sendReportBtn {
-  margin-top: 1.5rem;
 }
 
 .dsReportBtn {

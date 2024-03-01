@@ -249,7 +249,7 @@ export const reportIndicators: Array<Indicator> = [
   },
 ];
 
-export const reportTypes: Array<{ id: string; label: string }> = [
+export const reportTypes: Array<Item> = [
   {
     id: "facility",
     label: "Facility Report",
@@ -269,6 +269,29 @@ export const reportTypes: Array<{ id: string; label: string }> = [
   {
     id: "integration",
     label: "Integration Data Exports",
+  },
+];
+
+export const reportPeriod: Array<Item> = [
+  {
+    id: "today",
+    label: "Today",
+  },
+  {
+    id: "week",
+    label: "This Week",
+  },
+  {
+    id: "month",
+    label: "This Month",
+  },
+  {
+    id: "quarter",
+    label: "This Quarter",
+  },
+  {
+    id: "lastQuarter",
+    label: "Last Quarter",
   },
 ];
 

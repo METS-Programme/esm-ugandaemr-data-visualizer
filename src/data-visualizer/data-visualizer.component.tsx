@@ -19,7 +19,6 @@ import {
   Accordion,
   AccordionItem,
   Button,
-  ButtonSkeleton,
   ComboBox,
   ContentSwitcher,
   DataTableSkeleton,
@@ -50,6 +49,7 @@ import {
   nationalReports,
   reportIndicators,
   reportTypes,
+  reportPeriod
 } from "../constants";
 import DataList from "../components/data-table/data-table.component";
 import CQIDataList from "../components/cqi-components/cqi-data-table.component";
@@ -91,9 +91,9 @@ const DataVisualizer: React.FC = () => {
   const [reportingDuration, setReportingDuration] =
     useState<ReportingDuration>("fixed");
   const [reportingPeriod, setReportingPeriod] =
-    useState<ReportingPeriod>("today");
+    useState<Item>(reportPeriod[0]);
   const [selectedIndicators, setSelectedIndicators] = useState<Indicator>(null);
-  const [selectedReport, setSelectedReport] = useState<Report>(
+  const [selectedReport, setSelectedReport] = useState<Item>(
     facilityReports.reports[0]
   );
   const [cqiReportingCohort, setCQIReportingCohort] =
@@ -187,27 +187,30 @@ const DataVisualizer: React.FC = () => {
       startDate: startDate,
       endDate: endDate,
       reportCategory: reportCategory.category,
-      reportingCohort: cqiReportingCohort
-    }).then(async (response) => {
-      try {
-        const blob = await response.blob();
-        const url = window.URL.createObjectURL(blob);
-        const filename = response?.headers?.get('Content-Disposition')?.match(/filename=(.+)/)[1];
-        const a = document.createElement("a");
-        a.href = url;
-        a.download = filename
-        a.click();
-        window.URL.revokeObjectURL(response?.url);
-      } catch (error) {
-        showNotification({
-          title: "Error downloading Report",
-          kind: "error",
-          critical: true,
-          description: `Error downloading file: ${error?.message}`,
-        });
-      }
-      setIsDownloading(false);
-    },
+      reportingCohort: cqiReportingCohort,
+    }).then(
+      async (response) => {
+        try {
+          const blob = await response.blob();
+          const url = window.URL.createObjectURL(blob);
+          const filename = response?.headers
+            ?.get("Content-Disposition")
+            ?.match(/filename=(.+)/)[1];
+          const a = document.createElement("a");
+          a.href = url;
+          a.download = filename;
+          a.click();
+          window.URL.revokeObjectURL(response?.url);
+        } catch (error) {
+          showNotification({
+            title: "Error downloading Report",
+            kind: "error",
+            critical: true,
+            description: `Error downloading file: ${error?.message}`,
+          });
+        }
+        setIsDownloading(false);
+      },
       (error) => {
         showNotification({
           title: "Error downloading Report",
@@ -218,7 +221,7 @@ const DataVisualizer: React.FC = () => {
         setIsDownloading(false);
       }
     );
-  }, [startDate, endDate, selectedReport]);
+  }, [startDate, endDate, selectedReport, reportCategory, cqiReportingCohort]);
 
   const handleSaveReport = useCallback(() => {
     saveReport({
@@ -359,9 +362,9 @@ const DataVisualizer: React.FC = () => {
     }
   };
 
-  const handleReportingPeriod = (selectedPeriod: ReportingPeriod) => {
-    setReportingPeriod(selectedPeriod);
-    const dateRange = getDateRange(selectedPeriod);
+  const handleReportingPeriod = (selectedPeriod) => {
+    setReportingPeriod(selectedPeriod?.selectedItem);
+    const dateRange = getDateRange(selectedPeriod?.selectedItem?.id);
     setStartDate(dayjs(dateRange.start).format("YYYY-MM-DD"));
     setEndDate(dayjs(dateRange.end).format("YYYY-MM-DD"));
   };
@@ -781,47 +784,16 @@ const DataVisualizer: React.FC = () => {
                 )}
                 {reportingDuration === "relative" && (
                   <FormGroup>
-                    <FormLabel className={styles.label}>
-                      Select your desired reporting period
-                    </FormLabel>
-                    <RadioButtonGroup
-                      className={styles.wrapper}
-                      legendText=""
-                      name="reportingPeriod"
-                      orientation="vertical"
-                      defaultSelected="today"
-                    >
-                      <RadioButton
-                        id="today"
-                        onClick={() => handleReportingPeriod("today")}
-                        labelText="Today"
-                        value="today"
-                      />
-                      <RadioButton
-                        id="week"
-                        onClick={() => handleReportingPeriod("week")}
-                        labelText="This Week"
-                        value="week"
-                      />
-                      <RadioButton
-                        id="month"
-                        onClick={() => handleReportingPeriod("month")}
-                        labelText=" This Month"
-                        value="month"
-                      />
-                      <RadioButton
-                        id="quarter"
-                        onClick={() => handleReportingPeriod("quarter")}
-                        labelText="This Quarter"
-                        value="quarter"
-                      />
-                      <RadioButton
-                        id="lastQuarter"
-                        onClick={() => handleReportingPeriod("lastQuarter")}
-                        labelText="Last Quarter"
-                        value="lastQuarter"
-                      />
-                    </RadioButtonGroup>
+                    <FormLabel className={styles.label}>Select your desired reporting period</FormLabel>
+
+                    <ComboBox
+                      ariaLabel="Select reporting period"
+                      id="reportingPeriodCombobox"
+                      items={reportPeriod}
+                      placeholder="Choose the reporting period"
+                      onChange={handleReportingPeriod}
+                      selectedItem={reportingPeriod}
+                    />
                   </FormGroup>
                 )}
               </Stack>
@@ -878,20 +850,34 @@ const DataVisualizer: React.FC = () => {
                   />
                 ) : null}
 
-                {reportType === "fixed" ? isDownloading ?
-                  <InlineLoading />
-                    : (
-                      <Button
-                        size="md"
-                        kind="tertiary"
-                        iconDescription="Download Report"
-                        tooltipAlignment="end"
-                        onClick={handleDownloadReport}
-                        className={styles.dsReportBtn}
-                        renderIcon={DocumentDownload}
-                        hasIconOnly
-                      />
-                    ) : null}
+                {reportType === "fixed" ? (
+                  isDownloading ? (
+                    <InlineLoading />
+                  ) : (
+                    <Button
+                      size="md"
+                      kind="tertiary"
+                      iconDescription="Download Report"
+                      tooltipAlignment="end"
+                      onClick={handleDownloadReport}
+                      className={styles.dsReportBtn}
+                      renderIcon={DocumentDownload}
+                      hasIconOnly
+                    />
+                  )
+                ) : null}
+
+                {chartType === "aggregate" ? (
+                  <Button
+                    size="md"
+                    kind="secondary"
+                    iconDescription="Send Report to DHIS2"
+                    tooltipAlignment="end"
+                    className={styles.dsReportBtn}
+                    renderIcon={SendAlt}
+                    hasIconOnly
+                  />
+                ) : null}
               </>
             ) : null}
           </ButtonSet>
@@ -960,16 +946,6 @@ const DataVisualizer: React.FC = () => {
                 </h3>
               </section>
               <div dangerouslySetInnerHTML={{ __html: htmlContent }} />
-              <div className={styles.sendReportBtn}>
-                <Button
-                  size="md"
-                  kind="primary"
-                  className={styles.actionButton}
-                >
-                  <SendAlt />
-                  <span>Send Report to DHIS2</span>
-                </Button>
-              </div>
             </div>
           )}
 
