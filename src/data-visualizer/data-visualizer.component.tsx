@@ -49,7 +49,7 @@ import {
   nationalReports,
   reportIndicators,
   reportTypes,
-  reportPeriod
+  reportPeriod,
 } from "../constants";
 import DataList from "../components/data-table/data-table.component";
 import CQIDataList from "../components/cqi-components/cqi-data-table.component";
@@ -80,6 +80,7 @@ type ReportingPeriod = "today" | "week" | "month" | "quarter" | "lastQuarter";
 const DataVisualizer: React.FC = () => {
   const PlotlyRenderers = createPlotlyRenderers(Plot);
   const [tableHeaders, setTableHeaders] = useState([]);
+  const [downloadHeaders, setDownloadHeaders] = useState([]);
   const [data, setData] = useState([]);
   const [pivotTableData, setPivotTableData] = useState(data);
   const [chartType, setChartType] = useState<ChartType>("list");
@@ -90,8 +91,7 @@ const DataVisualizer: React.FC = () => {
   }>({ category: "facility", renderType: "list" });
   const [reportingDuration, setReportingDuration] =
     useState<ReportingDuration>("fixed");
-  const [reportingPeriod, setReportingPeriod] =
-    useState<Item>(reportPeriod[0]);
+  const [reportingPeriod, setReportingPeriod] = useState<Item>(reportPeriod[0]);
   const [selectedIndicators, setSelectedIndicators] = useState<Indicator>(null);
   const [selectedReport, setSelectedReport] = useState<Item>(
     facilityReports.reports[0]
@@ -387,6 +387,7 @@ const DataVisualizer: React.FC = () => {
       (response) => {
         if (response.status === 200) {
           let headers = [];
+          let headersForDownload = [];
           let dataForReport: any = [];
           const reportData = response?.data;
           if (reportType === "fixed") {
@@ -416,6 +417,7 @@ const DataVisualizer: React.FC = () => {
                         (column) => column !== "EDD" && column !== "Names"
                       );
                     headers = createColumns(columnNames);
+                    headersForDownload = headers;
                     dataForReport = reportData[responseReportName]
                       .filter((row) => row.PhoneNumber)
                       .map((row) => {
@@ -434,6 +436,7 @@ const DataVisualizer: React.FC = () => {
                       });
                   } else {
                     headers = createColumns(columnNames).slice(0, 10);
+                    headersForDownload = createColumns(columnNames);
                     dataForReport = reportData[responseReportName];
                   }
                 } else {
@@ -445,6 +448,7 @@ const DataVisualizer: React.FC = () => {
             if (reportData[0]) {
               const columnNames = Object.keys(reportData[0]);
               headers = createColumns(columnNames).slice(0, 10);
+              headersForDownload = createColumns(columnNames);
               dataForReport = reportData;
             } else {
               setShowLineList(false);
@@ -454,6 +458,7 @@ const DataVisualizer: React.FC = () => {
           setLoading(false);
           setShowFilters(false);
           setTableHeaders(headers);
+          setDownloadHeaders(headersForDownload);
           setData(dataForReport);
           setPivotTableData(dataForReport);
           setReportName(selectedReport?.label);
@@ -515,8 +520,13 @@ const DataVisualizer: React.FC = () => {
                 <Form>
                   <Stack gap={2}>
                     <FormGroup>
-                      <FormLabel className={styles.label}>Type of report</FormLabel>
-                      <ContentSwitcher size="sm" onChange={handleReportTypeChange}>
+                      <FormLabel className={styles.label}>
+                        Type of report
+                      </FormLabel>
+                      <ContentSwitcher
+                        size="sm"
+                        onChange={handleReportTypeChange}
+                      >
                         <Switch name="fixed" text="Fixed" />
                         <Switch name="dynamic" text="Dynamic" />
                       </ContentSwitcher>
@@ -642,7 +652,9 @@ const DataVisualizer: React.FC = () => {
                         </FormGroup>
 
                         <FormGroup>
-                          <FormLabel className={styles.label}>Indicators</FormLabel>
+                          <FormLabel className={styles.label}>
+                            Indicators
+                          </FormLabel>
 
                           <ComboBox
                             ariaLabel="Select indicators"
@@ -662,7 +674,9 @@ const DataVisualizer: React.FC = () => {
                                   role="menuitem"
                                   className={styles.leftListItem}
                                   key={parameter.label}
-                                  onClick={() => moveAllFromLeftToRight(parameter)}
+                                  onClick={() =>
+                                    moveAllFromLeftToRight(parameter)
+                                  }
                                 >
                                   {parameter.label}
                                 </li>
@@ -698,7 +712,9 @@ const DataVisualizer: React.FC = () => {
                                   className={styles.rightListItem}
                                   key={parameter.label}
                                   role="menuitem"
-                                  onClick={() => moveAllFromRightToLeft(parameter)}
+                                  onClick={() =>
+                                    moveAllFromRightToLeft(parameter)
+                                  }
                                 >
                                   {parameter.label}
                                 </li>
@@ -741,8 +757,8 @@ const DataVisualizer: React.FC = () => {
                   <Stack gap={3}>
                     <FormGroup>
                       <FormLabel className={styles.label}>
-                        Do you want your report to cover a fixed reporting period or
-                        a relative one?
+                        Do you want your report to cover a fixed reporting
+                        period or a relative one?
                       </FormLabel>
                       <RadioButtonGroup
                         legendText=""
@@ -791,7 +807,9 @@ const DataVisualizer: React.FC = () => {
                     )}
                     {reportingDuration === "relative" && (
                       <FormGroup>
-                        <FormLabel className={styles.label}>Select your desired reporting period</FormLabel>
+                        <FormLabel className={styles.label}>
+                          Select your desired reporting period
+                        </FormLabel>
 
                         <ComboBox
                           ariaLabel="Select reporting period"
@@ -908,6 +926,7 @@ const DataVisualizer: React.FC = () => {
                   <CQIDataList columns={tableHeaders} data={data} />
                 ) : (
                   <DataList
+                    downloadColumns={downloadHeaders}
                     columns={tableHeaders}
                     data={data}
                     report={{ type: reportType, name: selectedReport.label }}
