@@ -14,7 +14,24 @@
 }
 
 .form {
-  max-width: 50%;
+  width: 50%;
+}
+
+.formFirst {
+  margin-right: 2rem;
+}
+
+.formRight {
+  margin-top: 0.3rem;
+}
+
+.formContainer {
+  width: 100%;
+  display: flex;
+}
+
+.dateForm {
+  margin-top: 1.1rem;
 }
 
 .label {
