@@ -132,19 +132,6 @@
   justify-content: flex-end;
 }
 
-:global(.omrs-breakpoint-lt-desktop) {
-  .toolbarWrapper {
-    height: spacing.$spacing-09;
-  }
-}
-
-:global(.omrs-breakpoint-gt-tablet) {
-  .toolbarWrapper {
-    height: spacing.$spacing-07;
-  }
-}
-
-
 .tableContainer {
   padding: 0;
 
@@ -211,5 +198,14 @@
 }
 
 .tableHeaderFlag {
-  writing-mode: sideways-lr;
+  writing-mode: vertical-lr;
+  transform: rotate(180deg);
+}
+
+.actionButton {
+  margin-left: 1rem;
+
+  svg {
+    margin-right: 0.5rem;
+  }
 }

@@ -24,6 +24,14 @@ type saveReportRequest = {
   report_request_object: string;
 };
 
+type ReportDownloadParams = {
+  uuid: string;
+  startDate: string;
+  endDate: string;
+  reportCategory?: ReportCategory;
+  reportingCohort?: CQIReportingCohort;
+};
+
 export async function getReport(params: ReportRequest) {
   const abortController = new AbortController();
   let apiUrl = `${restBaseUrl}/ugandaemrreports/reportingDefinition`;
@@ -72,6 +80,18 @@ export async function getReport(params: ReportRequest) {
       },
     });
   }
+}
+
+export function downloadReport(params: ReportDownloadParams) {
+  const abortController = new AbortController();
+  let apiUrl = `${restBaseUrl}/ugandaemrreports/reportDownload?startDate=${params.startDate}&endDate=${params.endDate}&uuid=${params.uuid}`;
+  if (params.reportCategory === "cqi") {
+    apiUrl += `&cohortList=${params.reportingCohort}`;
+  }
+
+  return openmrsFetch(apiUrl, {
+    signal: abortController.signal,
+  });
 }
 
 export function useGetIdentifiers() {

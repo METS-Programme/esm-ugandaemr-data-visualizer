@@ -1,4 +1,5 @@
 import {
+  Button,
   DataTable,
   Pagination,
   Table,
@@ -20,6 +21,7 @@ import {
   useLayoutType,
   usePagination,
 } from "@openmrs/esm-framework";
+import { DocumentDownload } from "@carbon/react/icons";
 import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import styles from "./data-tables.scss";
@@ -34,20 +36,29 @@ type FilterProps = {
 };
 
 interface ListProps {
+  downloadColumns: any;
   columns: any;
   data: any;
+  report: {
+    type: ReportType;
+    name: string;
+  };
 }
 
 type DocumentType = "csv" | "pdf" | "json";
 
-const DataList: React.FC<ListProps> = ({ columns, data }) => {
+const DataList: React.FC<ListProps> = ({
+  downloadColumns,
+  columns,
+  data,
+  report,
+}) => {
   const { t } = useTranslation();
   const layout = useLayoutType();
   const isTablet = useLayoutType() === "tablet";
   const responsiveSize = isTablet ? "lg" : "sm";
   const [allRows, setAllRows] = useState([]);
   const [list] = useState(data);
-  const [documentType, setDocumentType] = useState<DocumentType>(null);
   const pageSizes = [10, 20, 30, 40, 50];
   const [currentPageSize, setPageSize] = useState(10);
   const {
@@ -87,16 +98,21 @@ const DataList: React.FC<ListProps> = ({ columns, data }) => {
     setAllRows(rows);
   }, [paginatedList, allRows]);
 
-  useEffect(() => {
-    const csvString = convertToCSV(list, columns);
+  const handleReportDownload = (documentType: string) => {
+    const currentDate = new Date();
+    const filename = `${report.name}_${currentDate
+      .toISOString()
+      .replace(/:/g, "-")}`;
+    const csvString = convertToCSV(list, downloadColumns);
+
     if (documentType === "csv") {
       const blob = new Blob([csvString], { type: "text/csv;charset=utf-8" });
-      saveAs(blob, "data.csv");
+      saveAs(blob, `${filename}.csv`);
     } else if (documentType === "json") {
       const jsonBlob = new Blob([csvString], { type: "application/json" });
-      saveAs(jsonBlob, "data.json");
+      saveAs(jsonBlob, `${filename}.json`);
     }
-  }, [list, columns, documentType]);
+  };
 
   const convertToCSV = (data, columns) => {
     const header = columns.map((col) => col.header).join(",");
@@ -129,28 +145,17 @@ const DataList: React.FC<ListProps> = ({ columns, data }) => {
                     placeholder={t("searchThisList", "Search this list")}
                     size={responsiveSize}
                   />
-
-                  <TableToolbarMenu>
-                    <TableToolbarAction
-                      className={styles.toolbarAction}
-                      onClick={() => setDocumentType("csv")}
+                  {report.type === "dynamic" ? (
+                    <Button
+                      size="sm"
+                      kind="tertiary"
+                      onClick={() => handleReportDownload("csv")}
+                      className={styles.actionButton}
                     >
-                      Download as CSV
-                    </TableToolbarAction>
-                    <TableToolbarAction
-                      className={styles.toolbarAction}
-                      disabled
-                      onClick={() => setDocumentType("pdf")}
-                    >
-                      Download as PDF
-                    </TableToolbarAction>
-                    <TableToolbarAction
-                      className={styles.toolbarAction}
-                      onClick={() => setDocumentType("json")}
-                    >
-                      Download as JSON
-                    </TableToolbarAction>
-                  </TableToolbarMenu>
+                      <DocumentDownload />
+                      <span>Download Report</span>
+                    </Button>
+                  ) : null}
                 </TableToolbarContent>
               </TableToolbar>
             </div>

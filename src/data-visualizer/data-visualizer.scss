@@ -14,7 +14,24 @@
 }
 
 .form {
-  max-width: 50%;
+  width: 50%;
+}
+
+.formFirst {
+  margin-right: 2rem;
+}
+
+.formRight {
+  margin-top: 0.3rem;
+}
+
+.formContainer {
+  width: 100%;
+  display: flex;
+}
+
+.dateForm {
+  margin-top: 1.1rem;
 }
 
 .label {
@@ -125,6 +142,7 @@
 
 .actionButtonContainer {
   display: flex;
+  margin-right: 1.2rem;
 }
 
 :global(.omrs-breakpoint-lt-desktop) {
@@ -207,6 +225,13 @@
 .reportTableContainer {
   margin: 20px;
   overflow-x: auto;
+  max-height: 80vh;
+  overflow-y: auto;
+
+  :global(.gender) {
+    writing-mode: vertical-lr;
+    transform: rotate(180deg);
+  }
 }
 
 .reportTableContainer table {
@@ -214,7 +239,7 @@
   border-collapse: collapse;
   margin-top: 10px;
   font: caption;
-  font-size: 0.92rem;
+  font-size: 0.8rem;
 }
 
 .reportTableContainer table tbody td {
@@ -231,16 +256,20 @@
   color: white;
 }
 
+.reportTableContainer thead {
+  position: sticky;
+  top: 0;
+  z-index: 999;
+}
+
 .reportTableContainer td {
   background-color: #ffffff;
-  max-width: 0;
-  white-space: unset;
 }
 
 .reportTableContainer tr:nth-child(even) td {
   background-color: colors.$gray-20;
 }
 
-.sendReportBtn {
-  margin-top: 1.5rem;
+.dsReportBtn {
+  min-width: 2.5rem;
 }

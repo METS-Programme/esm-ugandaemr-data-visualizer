@@ -5,14 +5,14 @@ declare module "*.png";
 
 declare type SideNavProps = {};
 
-declare type Report = {
+declare type Item = {
   id: string;
   label: string;
 };
 
 declare type ReportProps = {
   categoryName: string;
-  reports: Array<Report>;
+  reports: Array<Item>;
 };
 
 declare type Indicator = {
@@ -43,13 +43,6 @@ type savedReport = {
   rows: string;
   aggregator: string;
   report_request_object: string;
-};
-
-type savedDashboard = {
-  uuid: string;
-  name: string;
-  description: string;
-  items: any;
 };
 
 type ReportCategory = "facility" | "national" | "cqi" | "donor" | "integration";
