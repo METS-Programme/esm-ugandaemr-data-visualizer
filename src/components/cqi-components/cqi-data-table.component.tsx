@@ -161,7 +161,12 @@ const CQIDataList: React.FC<ListProps> = ({ columns, data }) => {
                             key={cell.id}
                             className={`${styles.grayCell} ${styles.cellStyling}`}
                           ></TableCell>
-                        ) : (
+                        ) : cell.value === "ON" ? (
+                          <TableCell
+                            key={cell.id}
+                            className={`${styles.yellowCell} ${styles.cellStyling}`}
+                          ></TableCell>
+                        ): (
                           <TableCell key={cell.id}>{cell.value}</TableCell>
                         )
                       )}
