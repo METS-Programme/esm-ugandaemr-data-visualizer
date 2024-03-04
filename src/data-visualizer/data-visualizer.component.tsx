@@ -61,6 +61,7 @@ import {
   createColumns,
   downloadReport,
   extractDate,
+  formatDate,
   getDateRange,
   getReport,
   saveReport,
@@ -76,7 +77,6 @@ type ReportingDuration = "fixed" | "relative";
 export type CQIReportingCohort =
   | "Patients with encounters"
   | "Patients on appointment";
-type ReportingPeriod = "today" | "week" | "month" | "quarter" | "lastQuarter";
 const DataVisualizer: React.FC = () => {
   const PlotlyRenderers = createPlotlyRenderers(Plot);
   const [tableHeaders, setTableHeaders] = useState([]);
@@ -133,8 +133,8 @@ const DataVisualizer: React.FC = () => {
   const handleSelectedReport = ({ selectedItem }) => {
     setSelectedReport(selectedItem);
   };
-  const [startDate, setStartDate] = useState(null);
-  const [endDate, setEndDate] = useState(null);
+  const [startDate, setStartDate] = useState(new Date());
+  const [endDate, setEndDate] = useState(new Date());
   const [loading, setLoading] = useState(true);
   const [showLineList, setShowLineList] = useState(false);
   const [availableParameters, setAvailableParameters] = useState([]);
@@ -184,8 +184,8 @@ const DataVisualizer: React.FC = () => {
 
     downloadReport({
       uuid: selectedReport.id,
-      startDate: startDate,
-      endDate: endDate,
+      startDate: formatDate(startDate),
+      endDate: formatDate(endDate),
       reportCategory: reportCategory.category,
       reportingCohort: cqiReportingCohort,
     }).then(
@@ -329,11 +329,11 @@ const DataVisualizer: React.FC = () => {
   };
 
   const handleStartDateChange = (selectedDate) => {
-    setStartDate(dayjs(selectedDate[0]).format("YYYY-MM-DD"));
+    setStartDate(selectedDate[0]);
   };
 
   const handleEndDateChange = (selectedDate) => {
-    setEndDate(dayjs(selectedDate[0]).format("YYYY-MM-DD"));
+    setEndDate(selectedDate[0]);
   };
 
   const handleReportCategoryChange = (selectedItem) => {
@@ -365,8 +365,8 @@ const DataVisualizer: React.FC = () => {
   const handleReportingPeriod = (selectedPeriod) => {
     setReportingPeriod(selectedPeriod?.selectedItem);
     const dateRange = getDateRange(selectedPeriod?.selectedItem?.id);
-    setStartDate(dayjs(dateRange.start).format("YYYY-MM-DD"));
-    setEndDate(dayjs(dateRange.end).format("YYYY-MM-DD"));
+    setStartDate(dateRange.start);
+    setEndDate(dateRange.end);
   };
 
   const handleUpdateReport = useCallback(() => {
@@ -377,8 +377,8 @@ const DataVisualizer: React.FC = () => {
 
     getReport({
       uuid: selectedReport.id,
-      startDate: startDate,
-      endDate: endDate,
+      startDate: formatDate(startDate),
+      endDate: formatDate(endDate),
       reportCategory: reportCategory,
       reportIndicators: selectedParameters,
       reportType: reportType,
@@ -784,6 +784,7 @@ const DataVisualizer: React.FC = () => {
                           datePickerType="single"
                           onChange={handleStartDateChange}
                           dateFormat={"d/m/Y"}
+                          value={startDate}
                         >
                           <DatePickerInput
                             id="date-picker-input-id-start"
@@ -796,6 +797,7 @@ const DataVisualizer: React.FC = () => {
                           datePickerType="single"
                           onChange={handleEndDateChange}
                           dateFormat={"d/m/Y"}
+                          value={endDate}
                         >
                           <DatePickerInput
                             id="date-picker-input-id-end"

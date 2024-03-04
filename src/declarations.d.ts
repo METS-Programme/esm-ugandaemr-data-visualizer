@@ -50,6 +50,8 @@ type ReportCategory = "facility" | "national" | "cqi" | "donor" | "integration";
 type RenderType = "list" | "json" | "html";
 type ReportType = "fixed" | "dynamic";
 
+type ReportingPeriod = "today" | "week" | "month" | "quarter" | "lastQuarter";
+
 declare type CQIReportItem = {
   ART_No: string;
   nationality: string;

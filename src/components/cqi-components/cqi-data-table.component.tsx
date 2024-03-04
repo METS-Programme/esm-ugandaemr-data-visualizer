@@ -10,10 +10,8 @@ import {
   TableRow,
   TableExpandRow,
   TableToolbar,
-  TableToolbarAction,
   TableExpandedRow,
   TableToolbarContent,
-  TableToolbarMenu,
   TableToolbarSearch,
   Tile,
   TableExpandHeader,
@@ -26,7 +24,6 @@ import {
 import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import styles from "../data-table/data-tables.scss";
-import { saveAs } from "file-saver";
 import RowDetail from "./detail.component";
 
 type FilterProps = {
@@ -48,7 +45,7 @@ const CQIDataList: React.FC<ListProps> = ({ columns, data }) => {
   const isTablet = useLayoutType() === "tablet";
   const responsiveSize = isTablet ? "lg" : "sm";
   const [allRows, setAllRows] = useState([]);
-  const [list] = useState(data);
+  // const [list] = useState(data);
   const pageSizes = [10, 20, 30, 40, 50];
   const [currentPageSize, setPageSize] = useState(10);
   const {
@@ -166,7 +163,7 @@ const CQIDataList: React.FC<ListProps> = ({ columns, data }) => {
                             key={cell.id}
                             className={`${styles.yellowCell} ${styles.cellStyling}`}
                           ></TableCell>
-                        ): (
+                        ) : (
                           <TableCell key={cell.id}>{cell.value}</TableCell>
                         )
                       )}

@@ -1,6 +1,7 @@
 import useSWR from "swr";
 import { openmrsFetch, restBaseUrl } from "@openmrs/esm-framework";
 import { CQIReportingCohort } from "./data-visualizer.component";
+import dayjs from "dayjs";
 
 type ReportRequest = {
   uuid: string;
@@ -237,7 +238,7 @@ export function formatReportArray(selectedItems: Array<Indicator>) {
   return arrayToReturn;
 }
 
-export function getDateRange(selectedPeriod: string) {
+export function getDateRange(selectedPeriod: ReportingPeriod) {
   const currentDate = new Date();
 
   switch (selectedPeriod) {
@@ -332,4 +333,8 @@ export function extractDate(timestamp: string): string {
   const day = dateObject.getDate().toString().padStart(2, "0");
 
   return `${year}-${month}-${day}`;
+}
+
+export function formatDate(date: Date): string {
+  return dayjs(date).format("YYYY-MM-DD");
 }
