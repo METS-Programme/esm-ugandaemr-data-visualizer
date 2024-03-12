@@ -80,7 +80,6 @@ export type CQIReportingCohort =
 const DataVisualizer: React.FC = () => {
   const PlotlyRenderers = createPlotlyRenderers(Plot);
   const [tableHeaders, setTableHeaders] = useState([]);
-  const [downloadHeaders, setDownloadHeaders] = useState([]);
   const [data, setData] = useState([]);
   const [pivotTableData, setPivotTableData] = useState(data);
   const [chartType, setChartType] = useState<ChartType>("list");
@@ -387,7 +386,6 @@ const DataVisualizer: React.FC = () => {
       (response) => {
         if (response.status === 200) {
           let headers = [];
-          let headersForDownload = [];
           let dataForReport: any = [];
           const reportData = response?.data;
           if (reportType === "fixed") {
@@ -417,7 +415,6 @@ const DataVisualizer: React.FC = () => {
                         (column) => column !== "EDD" && column !== "Names"
                       );
                     headers = createColumns(columnNames);
-                    headersForDownload = headers;
                     dataForReport = reportData[responseReportName]
                       .filter((row) => row.PhoneNumber)
                       .map((row) => {
@@ -435,8 +432,7 @@ const DataVisualizer: React.FC = () => {
                         return row;
                       });
                   } else {
-                    headers = createColumns(columnNames).slice(0, 10);
-                    headersForDownload = createColumns(columnNames);
+                    headers = createColumns(columnNames);
                     dataForReport = reportData[responseReportName];
                   }
                 } else {
@@ -447,8 +443,7 @@ const DataVisualizer: React.FC = () => {
           } else {
             if (reportData[0]) {
               const columnNames = Object.keys(reportData[0]);
-              headers = createColumns(columnNames).slice(0, 10);
-              headersForDownload = createColumns(columnNames);
+              headers = createColumns(columnNames);
               dataForReport = reportData;
             } else {
               setShowLineList(false);
@@ -458,7 +453,6 @@ const DataVisualizer: React.FC = () => {
           setLoading(false);
           setShowFilters(false);
           setTableHeaders(headers);
-          setDownloadHeaders(headersForDownload);
           setData(dataForReport);
           setPivotTableData(dataForReport);
           setReportName(selectedReport?.label);
@@ -928,7 +922,6 @@ const DataVisualizer: React.FC = () => {
                   <CQIDataList columns={tableHeaders} data={data} />
                 ) : (
                   <DataList
-                    downloadColumns={downloadHeaders}
                     columns={tableHeaders}
                     data={data}
                     report={{ type: reportType, name: selectedReport.label }}
