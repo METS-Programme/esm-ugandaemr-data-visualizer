@@ -36,7 +36,6 @@ type FilterProps = {
 };
 
 interface ListProps {
-  downloadColumns: any;
   columns: any;
   data: any;
   report: {
@@ -47,12 +46,7 @@ interface ListProps {
 
 type DocumentType = "csv" | "pdf" | "json";
 
-const DataList: React.FC<ListProps> = ({
-  downloadColumns,
-  columns,
-  data,
-  report,
-}) => {
+const DataList: React.FC<ListProps> = ({ columns, data, report }) => {
   const { t } = useTranslation();
   const layout = useLayoutType();
   const isTablet = useLayoutType() === "tablet";
@@ -103,7 +97,7 @@ const DataList: React.FC<ListProps> = ({
     const filename = `${report.name}_${currentDate
       .toISOString()
       .replace(/:/g, "-")}`;
-    const csvString = convertToCSV(list, downloadColumns);
+    const csvString = convertToCSV(list, columns);
 
     if (documentType === "csv") {
       const blob = new Blob([csvString], { type: "text/csv;charset=utf-8" });
