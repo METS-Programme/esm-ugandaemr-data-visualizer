@@ -80,7 +80,6 @@ export type CQIReportingCohort =
 const DataVisualizer: React.FC = () => {
   const PlotlyRenderers = createPlotlyRenderers(Plot);
   const [tableHeaders, setTableHeaders] = useState([]);
-  const [downloadHeaders, setDownloadHeaders] = useState([]);
   const [data, setData] = useState([]);
   const [pivotTableData, setPivotTableData] = useState(data);
   const [chartType, setChartType] = useState<ChartType>("list");
@@ -454,7 +453,6 @@ const DataVisualizer: React.FC = () => {
           setLoading(false);
           setShowFilters(false);
           setTableHeaders(headers);
-          setDownloadHeaders(headers);
           setData(dataForReport);
           setPivotTableData(dataForReport);
           setReportName(selectedReport?.label);
@@ -924,7 +922,6 @@ const DataVisualizer: React.FC = () => {
                   <CQIDataList columns={tableHeaders} data={data} />
                 ) : (
                   <DataList
-                    downloadColumns={downloadHeaders}
                     columns={tableHeaders}
                     data={data}
                     report={{ type: reportType, name: selectedReport.label }}
