@@ -394,9 +394,7 @@ const DataVisualizer: React.FC = () => {
               headers = CQIReportHeaders;
             } else {
               if (reportCategory.renderType === "html") {
-                response?.text().then((htmlString) => {
-                  setHTML(htmlString);
-                });
+                setHTML(reportData?.html ?? "");
               } else {
                 const responseReportName = Object.keys(reportData)[0];
                 if (
