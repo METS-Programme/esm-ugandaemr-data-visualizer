@@ -27,6 +27,13 @@
                 "slot": "data-visualizer-dashboard-slot",
                 "title": "Data visualizer"
             }
+        },
+        {
+          "component": "confirmModal",
+          "name": "confirm-modal",
+          "online": true,
+          "offline": true
+
         }
     ]
 }
