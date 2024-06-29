@@ -8,7 +8,11 @@ interface ConfirmPromptProps {
   report: string;
 }
 
-const ConfirmPrompt: React.FC<ConfirmPromptProps> = ({ close, submit, report }) => {
+const ConfirmPrompt: React.FC<ConfirmPromptProps> = ({
+  close,
+  submit,
+  report,
+}) => {
   const { t } = useTranslation();
 
   return (

@@ -41,7 +41,6 @@ export const dataVisualizerDashboardLink = getSyncLifecycle(
 );
 
 export const confirmModal = getAsyncLifecycle(
-  () =>
-    import("./components/model/confirm.component"),
+  () => import("./components/model/confirm.component"),
   options
 );

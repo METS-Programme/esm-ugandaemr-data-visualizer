@@ -192,7 +192,7 @@ export async function sendReportToDHIS2(report, dhis2Json) {
       "Content-Type": "application/json",
     },
     body: {
-      ...dhis2Json
+      ...dhis2Json,
     },
   });
 }

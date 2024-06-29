@@ -187,12 +187,12 @@ const DataVisualizer: React.FC = () => {
         handleSendToDHIS2();
         dispose();
       },
-      report: selectedReport.label
+      report: selectedReport.label,
     });
   };
 
   const handleSendToDHIS2 = useCallback(() => {
-    setIsSendingReport(true)
+    setIsSendingReport(true);
 
     sendReportToDHIS2(selectedReport.id, dhisJson).then(
       (response) => {
@@ -216,7 +216,7 @@ const DataVisualizer: React.FC = () => {
         setIsSendingReport(false);
       }
     );
-  },[selectedReport, dhisJson]);
+  }, [selectedReport, dhisJson]);
 
   const handleDownloadReport = useCallback(() => {
     setIsDownloading(true);
@@ -931,19 +931,19 @@ const DataVisualizer: React.FC = () => {
 
                 {chartType === "aggregate" ? (
                   isSendingReport ? (
-                      <InlineLoading />
-                    ) : (
-                      <Button
-                        size="md"
-                        kind="secondary"
-                        iconDescription="Send Report to DHIS2"
-                        tooltipAlignment="end"
-                        onClick={confirmSendReport}
-                        className={styles.dsReportBtn}
-                        renderIcon={SendAlt}
-                        hasIconOnly
-                      />
-                    )
+                    <InlineLoading />
+                  ) : (
+                    <Button
+                      size="md"
+                      kind="secondary"
+                      iconDescription="Send Report to DHIS2"
+                      tooltipAlignment="end"
+                      onClick={confirmSendReport}
+                      className={styles.dsReportBtn}
+                      renderIcon={SendAlt}
+                      hasIconOnly
+                    />
+                  )
                 ) : null}
               </>
             ) : null}
