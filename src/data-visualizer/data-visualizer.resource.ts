@@ -181,6 +181,22 @@ export async function saveReport(params: saveReportRequest) {
   });
 }
 
+export async function sendReportToDHIS2(report, dhis2Json) {
+  const apiUrl = `${restBaseUrl}/sendreport?uuid=${report}`;
+  const abortController = new AbortController();
+
+  return openmrsFetch(apiUrl, {
+    method: "POST",
+    signal: abortController.signal,
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: {
+      ...dhis2Json,
+    },
+  });
+}
+
 export function createColumns(columns: Array<string>) {
   let dataColumn: Array<Record<string, string>> = [];
   columns.map((column: string, index) => {

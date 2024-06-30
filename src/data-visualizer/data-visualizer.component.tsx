@@ -65,13 +65,14 @@ import {
   getDateRange,
   getReport,
   saveReport,
+  sendReportToDHIS2,
   useGetEncounterConcepts,
   useGetEncounterType,
   useGetIdentifiers,
   useGetPatientAtrributes,
 } from "./data-visualizer.resource";
 import dayjs from "dayjs";
-import { showNotification, showToast } from "@openmrs/esm-framework";
+import { showModal, showNotification, showToast } from "@openmrs/esm-framework";
 type ChartType = "list" | "pivot" | "aggregate";
 type ReportingDuration = "fixed" | "relative";
 export type CQIReportingCohort =
@@ -153,7 +154,8 @@ const DataVisualizer: React.FC = () => {
   const { encounterConcepts, isLoadingEncounterConcepts } =
     useGetEncounterConcepts(selectedIndicators?.id);
   const [isDownloading, setIsDownloading] = useState(false);
-
+  const [isSendingReport, setIsSendingReport] = useState(false);
+  const [dhisJson, setDhisJson] = useState({});
   const handleChartTypeChange = ({ name }) => {
     setChartType(name);
   };
@@ -177,6 +179,44 @@ const DataVisualizer: React.FC = () => {
   const closeReportModal = () => {
     setSaveReportModal(false);
   };
+
+  const confirmSendReport = () => {
+    const dispose = showModal("confirm-modal", {
+      close: () => dispose(),
+      submit: () => {
+        handleSendToDHIS2();
+        dispose();
+      },
+      report: selectedReport.label,
+    });
+  };
+
+  const handleSendToDHIS2 = useCallback(() => {
+    setIsSendingReport(true);
+
+    sendReportToDHIS2(selectedReport.id, dhisJson).then(
+      (response) => {
+        if (response.status === 200) {
+          showToast({
+            critical: true,
+            title: "Sending Report To DHIS2",
+            kind: "success",
+            description: `Report ${selectedReport.label} sent Successfully`,
+          });
+        }
+        setIsSendingReport(false);
+      },
+      (error) => {
+        showNotification({
+          title: "Error sending report to DHIS2",
+          kind: "error",
+          critical: true,
+          description: error?.message,
+        });
+        setIsSendingReport(false);
+      }
+    );
+  }, [selectedReport, dhisJson]);
 
   const handleDownloadReport = useCallback(() => {
     setIsDownloading(true);
@@ -394,9 +434,8 @@ const DataVisualizer: React.FC = () => {
               headers = CQIReportHeaders;
             } else {
               if (reportCategory.renderType === "html") {
-                response?.text().then((htmlString) => {
-                  setHTML(htmlString);
-                });
+                setHTML(reportData?.html ?? "");
+                setDhisJson(reportData?.json ?? {});
               } else {
                 const responseReportName = Object.keys(reportData)[0];
                 if (
@@ -891,15 +930,20 @@ const DataVisualizer: React.FC = () => {
                 ) : null}
 
                 {chartType === "aggregate" ? (
-                  <Button
-                    size="md"
-                    kind="secondary"
-                    iconDescription="Send Report to DHIS2"
-                    tooltipAlignment="end"
-                    className={styles.dsReportBtn}
-                    renderIcon={SendAlt}
-                    hasIconOnly
-                  />
+                  isSendingReport ? (
+                    <InlineLoading />
+                  ) : (
+                    <Button
+                      size="md"
+                      kind="secondary"
+                      iconDescription="Send Report to DHIS2"
+                      tooltipAlignment="end"
+                      onClick={confirmSendReport}
+                      className={styles.dsReportBtn}
+                      renderIcon={SendAlt}
+                      hasIconOnly
+                    />
+                  )
                 ) : null}
               </>
             ) : null}
