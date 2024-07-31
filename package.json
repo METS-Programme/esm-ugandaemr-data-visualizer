@@ -45,6 +45,7 @@
     "dependencies": {
         "@carbon/react": "^1.36.0",
         "lodash-es": "^4.17.21",
+        "react-full-screen": "^1.1.1",
         "react-grid-layout": "^1.4.1"
     },
     "peerDependencies": {
