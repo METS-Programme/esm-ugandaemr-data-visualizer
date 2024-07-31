@@ -11,6 +11,10 @@
 .heading {
   @include type.type-style('heading-03');
   color: colors.$gray-100;
+
+  :global(.cds--accordion__heading) {
+    background-color: colors.$gray-10;
+  }
 }
 
 .form {
