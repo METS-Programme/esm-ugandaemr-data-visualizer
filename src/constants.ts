@@ -458,5 +458,5 @@ export const dynamicReportOptions = [
   {
     id: "reportDefinition",
     label: "Report Definition",
-  }
+  },
 ];

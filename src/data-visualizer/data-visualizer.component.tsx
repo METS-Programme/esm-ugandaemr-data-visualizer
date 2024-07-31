@@ -49,7 +49,8 @@ import {
   nationalReports,
   reportIndicators,
   reportTypes,
-  reportPeriod, dynamicReportOptions,
+  reportPeriod,
+  dynamicReportOptions,
 } from "../constants";
 import DataList from "../components/data-table/data-table.component";
 import CQIDataList from "../components/cqi-components/cqi-data-table.component";
@@ -61,8 +62,10 @@ import {
   createColumns,
   downloadReport,
   extractDate,
-  formatDate, getCohorts,
-  getDateRange, getPatientSearch,
+  formatDate,
+  getCohorts,
+  getDateRange,
+  getPatientSearch,
   getPrograms,
   getReport,
   saveReport,
@@ -79,7 +82,11 @@ type ReportingDuration = "fixed" | "relative";
 export type CQIReportingCohort =
   | "Patients with encounters"
   | "Patients on appointment";
-type DynamicReportType = "program" | "cohort" | "patientSearch" | "reportDefinition";
+type DynamicReportType =
+  | "program"
+  | "cohort"
+  | "patientSearch"
+  | "reportDefinition";
 const DataVisualizer: React.FC = () => {
   const PlotlyRenderers = createPlotlyRenderers(Plot);
   const [tableHeaders, setTableHeaders] = useState([]);
@@ -158,8 +165,12 @@ const DataVisualizer: React.FC = () => {
   const [isDownloading, setIsDownloading] = useState(false);
   const [isSendingReport, setIsSendingReport] = useState(false);
   const [dhisJson, setDhisJson] = useState({});
-  const [selectedDynamicReportType, setSelectedDynamicReportType] = useState(dynamicReportOptions[3]);
-  const [dynamicReportTypes, setDynamicReportTypes] = useState(facilityReports.reports);
+  const [selectedDynamicReportType, setSelectedDynamicReportType] = useState(
+    dynamicReportOptions[3]
+  );
+  const [dynamicReportTypes, setDynamicReportTypes] = useState(
+    facilityReports.reports
+  );
 
   const handleChartTypeChange = ({ name }) => {
     setChartType(name);
@@ -368,18 +379,18 @@ const DataVisualizer: React.FC = () => {
     setSelectedReport(selectedItem);
   };
 
-  const handleSelectedDynamicReportType = ({selectedItem}) => {
-    let reports =[];
+  const handleSelectedDynamicReportType = ({ selectedItem }) => {
+    let reports = [];
 
-    if(selectedItem.id === "reportDefinition") {
+    if (selectedItem.id === "reportDefinition") {
       setDynamicReportTypes(facilityReports.reports);
       setSelectedReport(facilityReports.reports[0]);
-    } else if(selectedItem.id === "program") {
+    } else if (selectedItem.id === "program") {
       getPrograms().then((response) => {
         response?.results?.map((responseItem) => {
           reports.push({
             id: responseItem?.uuid,
-            label: responseItem?.name
+            label: responseItem?.name,
           });
         });
         setDynamicReportTypes(reports);
@@ -390,7 +401,7 @@ const DataVisualizer: React.FC = () => {
         response?.results?.map((responseItem) => {
           reports.push({
             id: responseItem?.uuid,
-            label: responseItem?.name
+            label: responseItem?.name,
           });
         });
         setDynamicReportTypes(reports);
@@ -401,7 +412,7 @@ const DataVisualizer: React.FC = () => {
         response?.map((responseItem) => {
           reports.push({
             id: responseItem?.uuid,
-            label: responseItem?.name
+            label: responseItem?.name,
           });
         });
         setDynamicReportTypes(reports);
@@ -471,7 +482,7 @@ const DataVisualizer: React.FC = () => {
       reportIndicators: selectedParameters,
       reportType: reportType,
       reportingCohort: cqiReportingCohort,
-      type: selectedDynamicReportType?.label
+      type: selectedDynamicReportType?.label,
     }).then(
       (response) => {
         if (response.status === 200) {
@@ -566,6 +577,7 @@ const DataVisualizer: React.FC = () => {
     selectedParameters,
     selectedReport,
     startDate,
+    selectedDynamicReportType?.label,
   ]);
 
   if (!isLoadingEncounterConcepts && encounterConcepts?.length > 0) {
@@ -721,7 +733,8 @@ const DataVisualizer: React.FC = () => {
                       <Stack gap={2}>
                         <FormGroup>
                           <FormLabel className={styles.label}>
-                            Which kind of dynamic report type do you want to base on?
+                            Which kind of dynamic report type do you want to
+                            base on?
                           </FormLabel>
                           <ComboBox
                             ariaLabel="Select dynamic report type"
