@@ -49,7 +49,7 @@ import {
   nationalReports,
   reportIndicators,
   reportTypes,
-  reportPeriod,
+  reportPeriod, dynamicReportOptions,
 } from "../constants";
 import DataList from "../components/data-table/data-table.component";
 import CQIDataList from "../components/cqi-components/cqi-data-table.component";
@@ -61,8 +61,9 @@ import {
   createColumns,
   downloadReport,
   extractDate,
-  formatDate,
-  getDateRange,
+  formatDate, getCohorts,
+  getDateRange, getPatientSearch,
+  getPrograms,
   getReport,
   saveReport,
   sendReportToDHIS2,
@@ -78,6 +79,7 @@ type ReportingDuration = "fixed" | "relative";
 export type CQIReportingCohort =
   | "Patients with encounters"
   | "Patients on appointment";
+type DynamicReportType = "program" | "cohort" | "patientSearch" | "reportDefinition";
 const DataVisualizer: React.FC = () => {
   const PlotlyRenderers = createPlotlyRenderers(Plot);
   const [tableHeaders, setTableHeaders] = useState([]);
@@ -156,6 +158,9 @@ const DataVisualizer: React.FC = () => {
   const [isDownloading, setIsDownloading] = useState(false);
   const [isSendingReport, setIsSendingReport] = useState(false);
   const [dhisJson, setDhisJson] = useState({});
+  const [selectedDynamicReportType, setSelectedDynamicReportType] = useState(dynamicReportOptions[3]);
+  const [dynamicReportTypes, setDynamicReportTypes] = useState(facilityReports.reports);
+
   const handleChartTypeChange = ({ name }) => {
     setChartType(name);
   };
@@ -359,8 +364,52 @@ const DataVisualizer: React.FC = () => {
     setAvailableParameters(selectedItem.attributes ?? []);
   };
 
-  const handleDynamicReportTypeChange = ({ selectedItem }) => {
+  const handleSelectedReportDefinition = ({ selectedItem }) => {
     setSelectedReport(selectedItem);
+  };
+
+  const handleSelectedDynamicReportType = ({selectedItem}) => {
+    let reports =[];
+
+    if(selectedItem.id === "reportDefinition") {
+      setDynamicReportTypes(facilityReports.reports);
+      setSelectedReport(facilityReports.reports[0]);
+    } else if(selectedItem.id === "program") {
+      getPrograms().then((response) => {
+        response?.results?.map((responseItem) => {
+          reports.push({
+            id: responseItem?.uuid,
+            label: responseItem?.name
+          });
+        });
+        setDynamicReportTypes(reports);
+        setSelectedReport(reports[0] ?? null);
+      });
+    } else if (selectedItem.id === "cohort") {
+      getCohorts().then((response) => {
+        response?.results?.map((responseItem) => {
+          reports.push({
+            id: responseItem?.uuid,
+            label: responseItem?.name
+          });
+        });
+        setDynamicReportTypes(reports);
+        setSelectedReport(reports[0] ?? null);
+      });
+    } else {
+      getPatientSearch().then((response) => {
+        response?.map((responseItem) => {
+          reports.push({
+            id: responseItem?.uuid,
+            label: responseItem?.name
+          });
+        });
+        setDynamicReportTypes(reports);
+        setSelectedReport(reports[0] ?? null);
+      });
+    }
+
+    setSelectedDynamicReportType(selectedItem);
   };
 
   const handleFiltersToggle = () => {
@@ -422,6 +471,7 @@ const DataVisualizer: React.FC = () => {
       reportIndicators: selectedParameters,
       reportType: reportType,
       reportingCohort: cqiReportingCohort,
+      type: selectedDynamicReportType?.label
     }).then(
       (response) => {
         if (response.status === 200) {
@@ -668,18 +718,31 @@ const DataVisualizer: React.FC = () => {
                     )}
 
                     {reportType === "dynamic" && (
-                      <Stack gap={3}>
+                      <Stack gap={2}>
                         <FormGroup>
                           <FormLabel className={styles.label}>
-                            Dynamic report type
+                            Which kind of dynamic report type do you want to base on?
+                          </FormLabel>
+                          <ComboBox
+                            ariaLabel="Select dynamic report type"
+                            id="dynamicReportOptions"
+                            items={dynamicReportOptions}
+                            hideLabel
+                            onChange={handleSelectedDynamicReportType}
+                            selectedItem={selectedDynamicReportType}
+                          />
+                        </FormGroup>
+
+                        <FormGroup>
+                          <FormLabel className={styles.label}>
+                            {selectedDynamicReportType?.label}
                           </FormLabel>
 
                           <ComboBox
                             ariaLabel="Select report type"
                             id="reportTypeCombobox"
-                            items={facilityReports.reports}
-                            placeholder="Choose the report you want to generate"
-                            onChange={handleDynamicReportTypeChange}
+                            items={dynamicReportTypes}
+                            onChange={handleSelectedReportDefinition}
                             selectedItem={selectedReport}
                           />
                         </FormGroup>
