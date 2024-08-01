@@ -900,19 +900,21 @@ const DataVisualizer: React.FC = () => {
                 <Intersect />
                 <span>View Report</span>
               </Button>
-              <Button
-                size="md"
-                kind="secondary"
-                iconDescription={
-                  isFullScreen
-                    ? t("minimize", "Minimize")
-                    : t("maximize", "Maximize")
-                }
-                onClick={handleFullScreen}
-                className={styles.dsReportBtn}
-                renderIcon={Maximize}
-                hasIconOnly
-              />
+              {data.length > 0 ? (
+                <Button
+                  size="md"
+                  kind="tertiary"
+                  iconDescription={
+                    isFullScreen
+                      ? t("minimize", "Minimize")
+                      : t("maximize", "Maximize")
+                  }
+                  onClick={handleFullScreen}
+                  className={styles.dsReportBtn}
+                  renderIcon={Maximize}
+                  hasIconOnly
+                />
+              ) : null}
               {data.length > 0 || htmlContent != "" ? (
                 <>
                   {chartType === "pivot" ? (
