@@ -66,16 +66,16 @@ import {
   getDateRange,
   getReport,
   saveReport,
+  sendReportToDHIS2,
   useGetEncounterConcepts,
   useGetEncounterType,
   useGetIdentifiers,
   useGetPatientAtrributes,
 } from "./data-visualizer.resource";
 import dayjs from "dayjs";
-import { showNotification, showToast } from "@openmrs/esm-framework";
-import { FullScreen, useFullScreenHandle } from "react-full-screen";
+import { showModal, showNotification, showToast } from "@openmrs/esm-framework";
 import { useTranslation } from "react-i18next";
-
+import { FullScreen, useFullScreenHandle } from "react-full-screen";
 type ChartType = "list" | "pivot" | "aggregate";
 type ReportingDuration = "fixed" | "relative";
 export type CQIReportingCohort =
@@ -86,7 +86,6 @@ const DataVisualizer: React.FC = () => {
   const { t } = useTranslation();
   const PlotlyRenderers = createPlotlyRenderers(Plot);
   const [tableHeaders, setTableHeaders] = useState([]);
-  const [downloadHeaders, setDownloadHeaders] = useState([]);
   const [data, setData] = useState([]);
   const [pivotTableData, setPivotTableData] = useState(data);
   const [chartType, setChartType] = useState<ChartType>("list");
@@ -105,7 +104,7 @@ const DataVisualizer: React.FC = () => {
   const [cqiReportingCohort, setCQIReportingCohort] =
     useState<CQIReportingCohort>("Patients with encounters");
 
-  const handle = useFullScreenHandle(); // Create the full screen handle
+  const handle = useFullScreenHandle();
 
   useEffect(() => {
     let initialSelectedReport;
@@ -162,6 +161,8 @@ const DataVisualizer: React.FC = () => {
   const { encounterConcepts, isLoadingEncounterConcepts } =
     useGetEncounterConcepts(selectedIndicators?.id);
   const [isDownloading, setIsDownloading] = useState(false);
+  const [isSendingReport, setIsSendingReport] = useState(false);
+  const [dhisJson, setDhisJson] = useState({});
   const [isFullScreen, setIsFullScreen] = useState(false);
 
   const handleFullScreen = () => {
@@ -175,7 +176,6 @@ const DataVisualizer: React.FC = () => {
   useEffect(() => {
     setIsFullScreen(handle.active);
   }, [handle.active]);
-
   const handleChartTypeChange = ({ name }) => {
     setChartType(name);
   };
@@ -199,6 +199,44 @@ const DataVisualizer: React.FC = () => {
   const closeReportModal = () => {
     setSaveReportModal(false);
   };
+
+  const confirmSendReport = () => {
+    const dispose = showModal("confirm-modal", {
+      close: () => dispose(),
+      submit: () => {
+        handleSendToDHIS2();
+        dispose();
+      },
+      report: selectedReport.label,
+    });
+  };
+
+  const handleSendToDHIS2 = useCallback(() => {
+    setIsSendingReport(true);
+
+    sendReportToDHIS2(selectedReport.id, dhisJson).then(
+      (response) => {
+        if (response.status === 200) {
+          showToast({
+            critical: true,
+            title: "Sending Report To DHIS2",
+            kind: "success",
+            description: `Report ${selectedReport.label} sent Successfully`,
+          });
+        }
+        setIsSendingReport(false);
+      },
+      (error) => {
+        showNotification({
+          title: "Error sending report to DHIS2",
+          kind: "error",
+          critical: true,
+          description: error?.message,
+        });
+        setIsSendingReport(false);
+      }
+    );
+  }, [selectedReport, dhisJson]);
 
   const handleDownloadReport = useCallback(() => {
     setIsDownloading(true);
@@ -408,7 +446,6 @@ const DataVisualizer: React.FC = () => {
       (response) => {
         if (response.status === 200) {
           let headers = [];
-          let headersForDownload = [];
           let dataForReport: any = [];
           const reportData = response?.data;
           if (reportType === "fixed") {
@@ -417,9 +454,8 @@ const DataVisualizer: React.FC = () => {
               headers = CQIReportHeaders;
             } else {
               if (reportCategory.renderType === "html") {
-                response?.text().then((htmlString) => {
-                  setHTML(htmlString);
-                });
+                setHTML(reportData?.html ?? "");
+                setDhisJson(reportData?.json ?? {});
               } else {
                 const responseReportName = Object.keys(reportData)[0];
                 if (
@@ -438,7 +474,6 @@ const DataVisualizer: React.FC = () => {
                         (column) => column !== "EDD" && column !== "Names"
                       );
                     headers = createColumns(columnNames);
-                    headersForDownload = headers;
                     dataForReport = reportData[responseReportName]
                       .filter((row) => row.PhoneNumber)
                       .map((row) => {
@@ -456,8 +491,7 @@ const DataVisualizer: React.FC = () => {
                         return row;
                       });
                   } else {
-                    headers = createColumns(columnNames).slice(0, 10);
-                    headersForDownload = createColumns(columnNames);
+                    headers = createColumns(columnNames);
                     dataForReport = reportData[responseReportName];
                   }
                 } else {
@@ -468,8 +502,7 @@ const DataVisualizer: React.FC = () => {
           } else {
             if (reportData[0]) {
               const columnNames = Object.keys(reportData[0]);
-              headers = createColumns(columnNames).slice(0, 10);
-              headersForDownload = createColumns(columnNames);
+              headers = createColumns(columnNames);
               dataForReport = reportData;
             } else {
               setShowLineList(false);
@@ -479,7 +512,6 @@ const DataVisualizer: React.FC = () => {
           setLoading(false);
           setShowFilters(false);
           setTableHeaders(headers);
-          setDownloadHeaders(headersForDownload);
           setData(dataForReport);
           setPivotTableData(dataForReport);
           setReportName(selectedReport?.label);
@@ -913,15 +945,20 @@ const DataVisualizer: React.FC = () => {
                   ) : null}
 
                   {chartType === "aggregate" ? (
-                    <Button
-                      size="md"
-                      kind="secondary"
-                      iconDescription="Send Report to DHIS2"
-                      tooltipAlignment="end"
-                      className={styles.dsReportBtn}
-                      renderIcon={SendAlt}
-                      hasIconOnly
-                    />
+                    isSendingReport ? (
+                      <InlineLoading />
+                    ) : (
+                      <Button
+                        size="md"
+                        kind="secondary"
+                        iconDescription="Send Report to DHIS2"
+                        tooltipAlignment="end"
+                        onClick={confirmSendReport}
+                        className={styles.dsReportBtn}
+                        renderIcon={SendAlt}
+                        hasIconOnly
+                      />
+                    )
                   ) : null}
                 </>
               ) : null}
@@ -944,7 +981,6 @@ const DataVisualizer: React.FC = () => {
                     <CQIDataList columns={tableHeaders} data={data} />
                   ) : (
                     <DataList
-                      downloadColumns={downloadHeaders}
                       columns={tableHeaders}
                       data={data}
                       report={{ type: reportType, name: selectedReport.label }}
