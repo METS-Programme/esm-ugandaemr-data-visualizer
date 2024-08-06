@@ -460,3 +460,26 @@ export const dynamicReportOptions = [
     label: "Report Definition",
   },
 ];
+
+export const modifiers= [
+  {
+    id: "dateTime",
+    label: "DateTime",
+  },
+  {
+    id: "location",
+    label: "Location",
+  },
+  {
+    id: "comment",
+    label: "Comment",
+  },
+  {
+    id: "encounterType",
+    label: "Encounter Type",
+  },
+  {
+    id: "provider",
+    label: "Provider",
+  }
+];

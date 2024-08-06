@@ -90,8 +90,11 @@
   @extend .leftListItem;
 
   &:hover {
+    display: unset;
+    align-items: unset;
+
     &::after {
-      content: "←";
+      content: none;
     }
   }
 }
@@ -277,4 +280,47 @@
 
 .dsReportBtn {
   min-width: 2.5rem;
+}
+
+.selectedListItem {
+  display: flex;
+  justify-content: space-between;
+}
+
+.selectedListItemArrow {
+  cursor: pointer;
+}
+
+.modifierContainer {
+  display: flex;
+}
+
+.modifier {
+  margin-right: 1rem;
+}
+
+.modifierLeft {
+  margin-left: 1rem;
+}
+.fadeModifierContainer {
+  opacity: 0;
+  transition: opacity 0.5s ease-in-out;
+  height: 0;
+  @include type.type-style('legal-01');
+  padding: 0.5rem;
+  border-bottom-style: solid;
+  border-bottom-width: 1px;
+  border-bottom-color: colors.$gray-10;
+}
+
+.fadeModifierContainer.show {
+  opacity: 1;
+  height: auto;
+  display: block;
+}
+
+.fadeModifierContainer.hide {
+  opacity: 0;
+  height: 0;
+  display: none;
 }

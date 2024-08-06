@@ -8,6 +8,8 @@ import {
   ArrowLeft,
   ArrowRight,
   Catalog,
+  ChevronDown,
+  ChevronUp,
   CrossTab,
   Intersect,
   ImageService,
@@ -77,6 +79,7 @@ import {
 } from "./data-visualizer.resource";
 import dayjs from "dayjs";
 import { showModal, showNotification, showToast } from "@openmrs/esm-framework";
+import ModifierComponent from "../components/popover/modifier-panel";
 type ChartType = "list" | "pivot" | "aggregate";
 type ReportingDuration = "fixed" | "relative";
 export type CQIReportingCohort =
@@ -468,6 +471,32 @@ const DataVisualizer: React.FC = () => {
     setEndDate(dateRange.end);
   };
 
+  const changeModifier = (selectedParameter, type) => {
+    setSelectedParameters(selectedParameters =>
+      selectedParameters.map(parameter =>
+        parameter.id === selectedParameter.id ? { ...parameter, modifier: addORSubtract(selectedParameter?.modifier, type)} : parameter
+      )
+    );
+  };
+
+  const addORSubtract = (value, type) => {
+    if (type === "add") {
+      return value + 1;
+    } else if (type === "subtract" && value > 1) {
+      return value - 1;
+    } else {
+      return value;
+    }
+  }
+
+  const showModifierPanel = (selectedParameter) => {
+    setSelectedParameters(selectedParameters =>
+      selectedParameters.map(parameter =>
+        parameter.id === selectedParameter.id ? { ...parameter, showModifierPanel: !selectedParameter?.showModifierPanel } : parameter
+      )
+    )
+  };
+
   const handleUpdateReport = useCallback(() => {
     setHTML("");
     setShowLineList(true);
@@ -817,16 +846,40 @@ const DataVisualizer: React.FC = () => {
                           <Panel heading="Selected parameters">
                             <ul className={styles.list}>
                               {selectedParameters.map((parameter) => (
-                                <li
-                                  className={styles.rightListItem}
-                                  key={parameter.label}
-                                  role="menuitem"
-                                  onClick={() =>
-                                    moveAllFromRightToLeft(parameter)
-                                  }
-                                >
-                                  {parameter.label}
-                                </li>
+                                <>
+                                  <li
+                                    className={styles.rightListItem}
+                                    key={parameter.label}
+                                    role="menuitem"
+                                  >
+                                    <div className={styles.selectedListItem}>
+                                      <div><ArrowLeft className={styles.selectedListItemArrow}
+                                                      onClick={() => moveAllFromRightToLeft(parameter)}/></div>
+                                      {parameter.label}
+                                      {
+                                        (parameter?.type !== "PatientIdentifier" && parameter?.type !== "PersonAttribute")
+                                          ?
+                                            (
+                                              <div className={styles.modifierContainer}>
+                                                <div>
+                                                  { parameter?.showModifierPanel ?
+                                                    <ChevronUp className={styles.selectedListItemArrow} onClick={() => showModifierPanel(parameter)}/>
+                                                    :
+                                                    <ChevronDown className={styles.selectedListItemArrow}
+                                                                 onClick={() => showModifierPanel(parameter)}/>
+                                                  }
+                                                </div>
+                                              </div>
+                                            )
+                                            : null
+                                      }
+                                    </div>
+                                  </li>
+                                  <div
+                                    className={`${styles.fadeModifierContainer} ${parameter?.showModifierPanel ? styles.show : styles.hide}`}>
+                                    <ModifierComponent listItem={parameter} onChangeMostRecent={changeModifier}/>
+                                  </div>
+                                </>
                               ))}
                             </ul>
                           </Panel>

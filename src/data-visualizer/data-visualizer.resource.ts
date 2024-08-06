@@ -243,6 +243,8 @@ export function mapDataElements(
           id: encounterType.uuid,
           label: encounterType.conceptName,
           type: encounterType.type,
+          modifier: 1,
+          showModifierPanel: false,
         });
       });
     } else {
@@ -251,6 +253,8 @@ export function mapDataElements(
           id: encounterType.uuid,
           label: encounterType.display,
           type: type ?? "",
+          modifier: 1,
+          showModifierPanel: false,
         });
       });
     }
@@ -267,6 +271,7 @@ export function formatReportArray(selectedItems: Array<Indicator>) {
         label: item.label,
         type: item.type,
         expression: item.id,
+        modifier: item?.modifier
       });
     });
   }
