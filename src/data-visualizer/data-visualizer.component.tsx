@@ -489,12 +489,28 @@ const DataVisualizer: React.FC = () => {
     }
   }
 
-  const showModifierPanel = (selectedParameter) => {
+  const showModifierPanel = (selectedParameter: Indicator) => {
     setSelectedParameters(selectedParameters =>
       selectedParameters.map(parameter =>
         parameter.id === selectedParameter.id ? { ...parameter, showModifierPanel: !selectedParameter?.showModifierPanel } : parameter
       )
     )
+  };
+
+  const handleOnChnageExtras = (selectedParameter,event) => {
+    if (event?.target?.checked) {
+      setSelectedParameters(selectedParameters =>
+        selectedParameters.map(parameter =>
+          parameter.id === selectedParameter.id ? { ...parameter, extras: [...parameter?.extras, event?.target?.value] } : parameter
+        )
+      )
+    } else {
+      setSelectedParameters(selectedParameters =>
+        selectedParameters.map(parameter =>
+          parameter.id === selectedParameter.id ? { ...parameter, extras: parameter?.extras.filter((modifier) => modifier !== event?.target?.value ) } : parameter
+        )
+      )
+    }
   };
 
   const handleUpdateReport = useCallback(() => {
@@ -877,7 +893,7 @@ const DataVisualizer: React.FC = () => {
                                   </li>
                                   <div
                                     className={`${styles.fadeModifierContainer} ${parameter?.showModifierPanel ? styles.show : styles.hide}`}>
-                                    <ModifierComponent listItem={parameter} onChangeMostRecent={changeModifier}/>
+                                    <ModifierComponent listItem={parameter} onChangeMostRecent={changeModifier} onChangeExtraValue={handleOnChnageExtras}/>
                                   </div>
                                 </>
                               ))}

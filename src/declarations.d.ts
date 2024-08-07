@@ -21,6 +21,7 @@ declare type Indicator = {
   type?: string;
   modifier?: number;
   showModifierPanel?: boolean;
+  extras?: Array<string>;
   attributes?: Array<IndicatorItem>;
 };
 
@@ -35,6 +36,7 @@ declare type ReportParamItem = {
   type?: string;
   expression: string;
   modifier?: number;
+  extras?: Array<string>;
   showModifierPanel?: boolean;
 };
 

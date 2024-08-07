@@ -348,3 +348,12 @@
     justify-content: space-between;
   }
 }
+
+.extrasContainer {
+  display: flex;
+  flex-wrap: wrap;
+
+  :global(.cds--checkbox-label) {
+    @include type.type-style('legal-01');
+  }
+}
