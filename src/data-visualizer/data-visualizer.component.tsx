@@ -65,10 +65,8 @@ import {
   downloadReport,
   extractDate,
   formatDate,
-  getCohorts,
+  getCohortCategory,
   getDateRange,
-  getPatientSearch,
-  getPrograms,
   getReport,
   saveReport,
   sendReportToDHIS2,
@@ -388,31 +386,10 @@ const DataVisualizer: React.FC = () => {
     if (selectedItem.id === "reportDefinition") {
       setDynamicReportTypes(facilityReports.reports);
       setSelectedReport(facilityReports.reports[0]);
-    } else if (selectedItem.id === "program") {
-      getPrograms().then((response) => {
-        response?.results?.map((responseItem) => {
-          reports.push({
-            id: responseItem?.uuid,
-            label: responseItem?.name,
-          });
-        });
-        setDynamicReportTypes(reports);
-        setSelectedReport(reports[0] ?? null);
-      });
-    } else if (selectedItem.id === "cohort") {
-      getCohorts().then((response) => {
-        response?.results?.map((responseItem) => {
-          reports.push({
-            id: responseItem?.uuid,
-            label: responseItem?.name,
-          });
-        });
-        setDynamicReportTypes(reports);
-        setSelectedReport(reports[0] ?? null);
-      });
     } else {
-      getPatientSearch().then((response) => {
-        response?.map((responseItem) => {
+      getCohortCategory(selectedItem.id).then((response) => {
+        const responseResults = selectedItem.id === "patientSearch" ? response : response?.results;
+        responseResults?.map((responseItem) => {
           reports.push({
             id: responseItem?.uuid,
             label: responseItem?.name,

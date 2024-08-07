@@ -199,23 +199,17 @@ export async function sendReportToDHIS2(report, dhis2Json) {
   });
 }
 
-export async function getPrograms() {
-  let apiUrl = `${restBaseUrl}/program?v=custom:(uuid,name)`;
+export async function getCohortCategory(type: string) {
+  let apiUrl: string;
+  if (type === "patientSearch") {
+    apiUrl = `${restBaseUrl}/ugandaemrreports/patientsearch`;
+  } else {
+    apiUrl = `${restBaseUrl}/${type}?v=custom:(uuid,name)`;
+  }
   const { data } = await openmrsFetch(apiUrl);
   return data;
 }
 
-export async function getCohorts() {
-  let apiUrl = `${restBaseUrl}/cohort?v=custom:(uuid,name)`;
-  const { data } = await openmrsFetch(apiUrl);
-  return data;
-}
-
-export async function getPatientSearch() {
-  let apiUrl = `${restBaseUrl}/ugandaemrreports/patientsearch`;
-  const { data } = await openmrsFetch(apiUrl);
-  return data;
-}
 
 export function createColumns(columns: Array<string>) {
   let dataColumn: Array<Record<string, string>> = [];
