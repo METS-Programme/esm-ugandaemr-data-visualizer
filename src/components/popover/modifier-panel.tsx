@@ -8,7 +8,7 @@ type Props = {
 const ModifierComponent: React.FC<Props> = ({listItem,onChangeMostRecent}) => {
   return (
     <>
-      <div className={styles.selectedListItem}>
+      <div className={styles.mostRecentContainer}>
         <div> Most Recent #: <span className={styles.modifierLeft}>{listItem?.modifier}</span></div>
         <div>
           <Subtract className={`${styles.selectedListItemArrow} ${styles.modifier}`} onClick={() => onChangeMostRecent(listItem, "subtract")}/>

@@ -848,12 +848,12 @@ const DataVisualizer: React.FC = () => {
                               {selectedParameters.map((parameter) => (
                                 <>
                                   <li
-                                    className={styles.rightListItem}
+                                    className={`${styles.rightListItem} ${parameter?.showModifierPanel ? styles.openRightListItem : ''} `}
                                     key={parameter.label}
                                     role="menuitem"
                                   >
                                     <div className={styles.selectedListItem}>
-                                      <div><ArrowLeft className={styles.selectedListItemArrow}
+                                      <div><ArrowLeft className={styles.itemChevronUpDown}
                                                       onClick={() => moveAllFromRightToLeft(parameter)}/></div>
                                       {parameter.label}
                                       {
@@ -863,9 +863,9 @@ const DataVisualizer: React.FC = () => {
                                               <div className={styles.modifierContainer}>
                                                 <div>
                                                   { parameter?.showModifierPanel ?
-                                                    <ChevronUp className={styles.selectedListItemArrow} onClick={() => showModifierPanel(parameter)}/>
+                                                    <ChevronUp className={styles.itemChevronUpDown} onClick={() => showModifierPanel(parameter)}/>
                                                     :
-                                                    <ChevronDown className={styles.selectedListItemArrow}
+                                                    <ChevronDown className={styles.itemChevronUpDown}
                                                                  onClick={() => showModifierPanel(parameter)}/>
                                                   }
                                                 </div>
