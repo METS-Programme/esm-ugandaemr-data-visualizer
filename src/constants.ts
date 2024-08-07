@@ -461,7 +461,7 @@ export const dynamicReportOptions = [
   },
 ];
 
-export const modifiers= [
+export const modifiers = [
   {
     id: "obsDateTime",
     label: "DateTime",
@@ -481,5 +481,5 @@ export const modifiers= [
   {
     id: "provider",
     label: "Provider",
-  }
+  },
 ];

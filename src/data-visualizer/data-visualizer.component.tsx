@@ -472,9 +472,14 @@ const DataVisualizer: React.FC = () => {
   };
 
   const changeModifier = (selectedParameter, type) => {
-    setSelectedParameters(selectedParameters =>
-      selectedParameters.map(parameter =>
-        parameter.id === selectedParameter.id ? { ...parameter, modifier: addORSubtract(selectedParameter?.modifier, type)} : parameter
+    setSelectedParameters((selectedParameters) =>
+      selectedParameters.map((parameter) =>
+        parameter.id === selectedParameter.id
+          ? {
+              ...parameter,
+              modifier: addORSubtract(selectedParameter?.modifier, type),
+            }
+          : parameter
       )
     );
   };
@@ -487,29 +492,46 @@ const DataVisualizer: React.FC = () => {
     } else {
       return value;
     }
-  }
-
-  const showModifierPanel = (selectedParameter: Indicator) => {
-    setSelectedParameters(selectedParameters =>
-      selectedParameters.map(parameter =>
-        parameter.id === selectedParameter.id ? { ...parameter, showModifierPanel: !selectedParameter?.showModifierPanel } : parameter
-      )
-    )
   };
 
-  const handleOnChnageExtras = (selectedParameter,event) => {
+  const showModifierPanel = (selectedParameter: Indicator) => {
+    setSelectedParameters((selectedParameters) =>
+      selectedParameters.map((parameter) =>
+        parameter.id === selectedParameter.id
+          ? {
+              ...parameter,
+              showModifierPanel: !selectedParameter?.showModifierPanel,
+            }
+          : parameter
+      )
+    );
+  };
+
+  const handleOnChnageExtras = (selectedParameter, event) => {
     if (event?.target?.checked) {
-      setSelectedParameters(selectedParameters =>
-        selectedParameters.map(parameter =>
-          parameter.id === selectedParameter.id ? { ...parameter, extras: [...parameter?.extras, event?.target?.value] } : parameter
+      setSelectedParameters((selectedParameters) =>
+        selectedParameters.map((parameter) =>
+          parameter.id === selectedParameter.id
+            ? {
+                ...parameter,
+                extras: [...parameter?.extras, event?.target?.value],
+              }
+            : parameter
         )
-      )
+      );
     } else {
-      setSelectedParameters(selectedParameters =>
-        selectedParameters.map(parameter =>
-          parameter.id === selectedParameter.id ? { ...parameter, extras: parameter?.extras.filter((modifier) => modifier !== event?.target?.value ) } : parameter
+      setSelectedParameters((selectedParameters) =>
+        selectedParameters.map((parameter) =>
+          parameter.id === selectedParameter.id
+            ? {
+                ...parameter,
+                extras: parameter?.extras.filter(
+                  (modifier) => modifier !== event?.target?.value
+                ),
+              }
+            : parameter
         )
-      )
+      );
     }
   };
 
@@ -864,36 +886,69 @@ const DataVisualizer: React.FC = () => {
                               {selectedParameters.map((parameter) => (
                                 <>
                                   <li
-                                    className={`${styles.rightListItem} ${parameter?.showModifierPanel ? styles.openRightListItem : ''} `}
+                                    className={`${styles.rightListItem} ${
+                                      parameter?.showModifierPanel
+                                        ? styles.openRightListItem
+                                        : ""
+                                    } `}
                                     key={parameter.label}
                                     role="menuitem"
                                   >
                                     <div className={styles.selectedListItem}>
-                                      <div><ArrowLeft className={styles.itemChevronUpDown}
-                                                      onClick={() => moveAllFromRightToLeft(parameter)}/></div>
+                                      <div>
+                                        <ArrowLeft
+                                          className={styles.itemChevronUpDown}
+                                          onClick={() =>
+                                            moveAllFromRightToLeft(parameter)
+                                          }
+                                        />
+                                      </div>
                                       {parameter.label}
-                                      {
-                                        (parameter?.type !== "PatientIdentifier" && parameter?.type !== "PersonAttribute")
-                                          ?
-                                            (
-                                              <div className={styles.modifierContainer}>
-                                                <div>
-                                                  { parameter?.showModifierPanel ?
-                                                    <ChevronUp className={styles.itemChevronUpDown} onClick={() => showModifierPanel(parameter)}/>
-                                                    :
-                                                    <ChevronDown className={styles.itemChevronUpDown}
-                                                                 onClick={() => showModifierPanel(parameter)}/>
-                                                  }
-                                                </div>
-                                              </div>
-                                            )
-                                            : null
-                                      }
+                                      {parameter?.type !==
+                                        "PatientIdentifier" &&
+                                      parameter?.type !== "PersonAttribute" ? (
+                                        <div
+                                          className={styles.modifierContainer}
+                                        >
+                                          <div>
+                                            {parameter?.showModifierPanel ? (
+                                              <ChevronUp
+                                                className={
+                                                  styles.itemChevronUpDown
+                                                }
+                                                onClick={() =>
+                                                  showModifierPanel(parameter)
+                                                }
+                                              />
+                                            ) : (
+                                              <ChevronDown
+                                                className={
+                                                  styles.itemChevronUpDown
+                                                }
+                                                onClick={() =>
+                                                  showModifierPanel(parameter)
+                                                }
+                                              />
+                                            )}
+                                          </div>
+                                        </div>
+                                      ) : null}
                                     </div>
                                   </li>
                                   <div
-                                    className={`${styles.fadeModifierContainer} ${parameter?.showModifierPanel ? styles.show : styles.hide}`}>
-                                    <ModifierComponent listItem={parameter} onChangeMostRecent={changeModifier} onChangeExtraValue={handleOnChnageExtras}/>
+                                    className={`${
+                                      styles.fadeModifierContainer
+                                    } ${
+                                      parameter?.showModifierPanel
+                                        ? styles.show
+                                        : styles.hide
+                                    }`}
+                                  >
+                                    <ModifierComponent
+                                      listItem={parameter}
+                                      onChangeMostRecent={changeModifier}
+                                      onChangeExtraValue={handleOnChnageExtras}
+                                    />
                                   </div>
                                 </>
                               ))}
