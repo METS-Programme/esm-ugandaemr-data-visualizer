@@ -7,6 +7,7 @@ type ReportRequest = {
   uuid: string;
   startDate: string;
   endDate: string;
+  type: string;
   reportCategory?: {
     category: ReportCategory;
     renderType?: RenderType;
@@ -64,6 +65,7 @@ export async function getReport(params: ReportRequest) {
       },
       body: {
         cohort: {
+          type: params.type,
           clazz: "",
           uuid: params.uuid,
           name: "",
@@ -95,36 +97,18 @@ export function downloadReport(params: ReportDownloadParams) {
   });
 }
 
-export function useGetIdentifiers() {
-  const apiUrl = `${restBaseUrl}/patientidentifiertype`;
-  const { data, error, isLoading, mutate } = useSWR<
-    { data: { results: any } },
-    Error
-  >(apiUrl, openmrsFetch);
-  return {
-    identifiers: data
-      ? mapDataElements(data?.data["results"], "PatientIdentifier")
-      : [],
-    isError: error,
-    isLoadingIdentifiers: isLoading,
-    mutate,
-  };
-}
+export async function getCategoryIndicator(id: string) {
+  let apiUrl: string;
+  if (id === "IDN") {
+    apiUrl = `${restBaseUrl}/patientidentifiertype`;
+  } else if (id === "PAT") {
+    apiUrl = `${restBaseUrl}/personattributetype`;
+  } else {
+    apiUrl = `${restBaseUrl}/ugandaemrreports/concepts/encountertype?uuid=${id}`;
+  }
 
-export function useGetPatientAtrributes() {
-  const apiUrl = `${restBaseUrl}/personattributetype`;
-  const { data, error, isLoading, mutate } = useSWR<
-    { data: { results: any } },
-    Error
-  >(apiUrl, openmrsFetch);
-  return {
-    personAttributes: data
-      ? mapDataElements(data?.data["results"], "PersonAttribute")
-      : [],
-    isLoadingAttributes: isLoading,
-    isError: error,
-    mutate,
-  };
+  const { data } = await openmrsFetch(apiUrl);
+  return data;
 }
 
 export function useGetEncounterType() {
@@ -137,26 +121,6 @@ export function useGetEncounterType() {
     encounterTypes: data ? mapDataElements(data?.data["results"]) : [],
     isError: error,
     isLoadingEncounterTypes: isLoading,
-  };
-}
-
-export function useGetEncounterConcepts(uuid: string) {
-  const apiUrl = `${restBaseUrl}/ugandaemrreports/concepts/encountertype?uuid=${uuid}`;
-  const { data, error, isLoading, mutate } = useSWR<
-    {
-      data: {
-        results: any;
-      };
-    },
-    Error
-  >(uuid !== "IDN" && uuid !== "PAT" ? apiUrl : null, openmrsFetch);
-  return {
-    encounterConcepts: data
-      ? mapDataElements(data?.data as any, null, "concepts")
-      : [],
-    isError: error,
-    isLoadingEncounterConcepts: isLoading,
-    mutate,
   };
 }
 
@@ -197,6 +161,17 @@ export async function sendReportToDHIS2(report, dhis2Json) {
   });
 }
 
+export async function getCohortCategory(type: string) {
+  let apiUrl: string;
+  if (type === "patientSearch") {
+    apiUrl = `${restBaseUrl}/ugandaemrreports/patientsearch`;
+  } else {
+    apiUrl = `${restBaseUrl}/${type}?v=custom:(uuid,name)`;
+  }
+  const { data } = await openmrsFetch(apiUrl);
+  return data;
+}
+
 export function createColumns(columns: Array<string>) {
   let dataColumn: Array<Record<string, string>> = [];
   columns.map((column: string, index) => {
@@ -223,6 +198,10 @@ export function mapDataElements(
           id: encounterType.uuid,
           label: encounterType.conceptName,
           type: encounterType.type,
+          modifier: 1,
+          showModifierPanel: false,
+          extras: [],
+          attributes: [],
         });
       });
     } else {
@@ -231,6 +210,10 @@ export function mapDataElements(
           id: encounterType.uuid,
           label: encounterType.display,
           type: type ?? "",
+          modifier: 1,
+          showModifierPanel: false,
+          extras: [],
+          attributes: [],
         });
       });
     }
@@ -247,6 +230,8 @@ export function formatReportArray(selectedItems: Array<Indicator>) {
         label: item.label,
         type: item.type,
         expression: item.id,
+        modifier: item?.modifier,
+        extras: item?.extras,
       });
     });
   }

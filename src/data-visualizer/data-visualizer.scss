@@ -11,6 +11,10 @@
 .heading {
   @include type.type-style('heading-03');
   color: colors.$gray-100;
+
+  :global(.cds--accordion__heading) {
+    background-color: colors.$gray-10;
+  }
 }
 
 .form {
@@ -83,11 +87,20 @@
 }
 
 .rightListItem {
-  @extend .leftListItem;
+  list-style-type: none;
+  padding: 0.75rem 1rem;
+  @include type.type-style('body-compact-01');
 
   &:hover {
-    &::after {
-      content: "←";
+    background-color: colors.$gray-10-hover;
+
+    .itemChevronUpDown {
+      display: unset;
+    }
+
+    .selectedListItem {
+      display: flex;
+      justify-content: space-between;
     }
   }
 }
@@ -273,4 +286,74 @@
 
 .dsReportBtn {
   min-width: 2.5rem;
+}
+
+.selectedListItemArrow {
+  cursor: pointer;
+}
+
+.itemChevronUpDown {
+  display: none;
+  cursor: pointer;
+}
+
+.modifierContainer {
+  display: flex;
+}
+
+.modifier {
+  margin-right: 1rem;
+}
+
+.modifierLeft {
+  margin-left: 1rem;
+}
+.fadeModifierContainer {
+  opacity: 0;
+  transition: opacity 0.5s ease-in-out;
+  height: 0;
+  @include type.type-style('legal-01');
+  padding: 0.5rem;
+  border-bottom-style: solid;
+  border-bottom-width: 1px;
+  border-bottom-color: colors.$gray-10;
+}
+
+.fadeModifierContainer.show {
+  opacity: 1;
+  height: auto;
+  display: block;
+}
+
+.fadeModifierContainer.hide {
+  opacity: 0;
+  height: 0;
+  display: none;
+}
+
+.mostRecentContainer {
+  display: flex;
+  justify-content: space-between;
+}
+
+.openRightListItem {
+  background-color: colors.$gray-10-hover;
+
+  .itemChevronUpDown {
+    display: unset;
+  }
+
+  .selectedListItem {
+    display: flex;
+    justify-content: space-between;
+  }
+}
+
+.extrasContainer {
+  display: flex;
+  flex-wrap: wrap;
+
+  :global(.cds--checkbox-label) {
+    @include type.type-style('legal-01');
+  }
 }

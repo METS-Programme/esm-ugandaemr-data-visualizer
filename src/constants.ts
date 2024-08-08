@@ -441,3 +441,45 @@ export const CQIReportHeaders = [
     isFlag: true,
   },
 ];
+
+export const dynamicReportOptions = [
+  {
+    id: "cohort",
+    label: "Cohort",
+  },
+  {
+    id: "program",
+    label: "Program",
+  },
+  {
+    id: "patientSearch",
+    label: "Patient Search",
+  },
+  {
+    id: "reportDefinition",
+    label: "Report Definition",
+  },
+];
+
+export const modifiers = [
+  {
+    id: "obsDatetime",
+    label: "DateTime",
+  },
+  {
+    id: "location",
+    label: "Location",
+  },
+  {
+    id: "comment",
+    label: "Comment",
+  },
+  {
+    id: "encounterType",
+    label: "Encounter Type",
+  },
+  {
+    id: "provider",
+    label: "Provider",
+  },
+];

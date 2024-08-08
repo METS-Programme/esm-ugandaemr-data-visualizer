@@ -8,6 +8,8 @@ import {
   ArrowLeft,
   ArrowRight,
   Catalog,
+  ChevronDown,
+  ChevronUp,
   CrossTab,
   Intersect,
   ImageService,
@@ -50,6 +52,7 @@ import {
   reportIndicators,
   reportTypes,
   reportPeriod,
+  dynamicReportOptions,
 } from "../constants";
 import DataList from "../components/data-table/data-table.component";
 import CQIDataList from "../components/cqi-components/cqi-data-table.component";
@@ -62,22 +65,30 @@ import {
   downloadReport,
   extractDate,
   formatDate,
+  getCategoryIndicator,
+  getCohortCategory,
   getDateRange,
   getReport,
+  mapDataElements,
   saveReport,
   sendReportToDHIS2,
-  useGetEncounterConcepts,
   useGetEncounterType,
-  useGetIdentifiers,
-  useGetPatientAtrributes,
 } from "./data-visualizer.resource";
 import dayjs from "dayjs";
 import { showModal, showNotification, showToast } from "@openmrs/esm-framework";
+import ModifierComponent from "../components/popover/modifier-panel";
+import { Simulate } from "react-dom/test-utils";
+import error = Simulate.error;
 type ChartType = "list" | "pivot" | "aggregate";
 type ReportingDuration = "fixed" | "relative";
 export type CQIReportingCohort =
   | "Patients with encounters"
   | "Patients on appointment";
+type DynamicReportType =
+  | "program"
+  | "cohort"
+  | "patientSearch"
+  | "reportDefinition";
 const DataVisualizer: React.FC = () => {
   const PlotlyRenderers = createPlotlyRenderers(Plot);
   const [tableHeaders, setTableHeaders] = useState([]);
@@ -141,21 +152,23 @@ const DataVisualizer: React.FC = () => {
   const [selectedParameters, setSelectedParameters] = useState<
     Array<Indicator>
   >([]);
-  const [showFilters, setShowFilters] = useState(false);
+  const [showFilters, setShowFilters] = useState(true);
   const [reportName, setReportName] = useState("Patient List");
-  const { identifiers, isLoadingIdentifiers } = useGetIdentifiers();
-  const { personAttributes, isLoadingAttributes } = useGetPatientAtrributes();
   const { encounterTypes } = useGetEncounterType();
-  const [hasRetrievedConcepts, setHasRetrievedConcepts] = useState(false);
   const [saveReportModal, setSaveReportModal] = useState(false);
   const [reportTitle, setReportTitle] = useState("");
   const [reportDescription, setReportDescription] = useState("");
   const [htmlContent, setHTML] = useState("");
-  const { encounterConcepts, isLoadingEncounterConcepts } =
-    useGetEncounterConcepts(selectedIndicators?.id);
   const [isDownloading, setIsDownloading] = useState(false);
   const [isSendingReport, setIsSendingReport] = useState(false);
   const [dhisJson, setDhisJson] = useState({});
+  const [selectedDynamicReportType, setSelectedDynamicReportType] = useState(
+    dynamicReportOptions[3]
+  );
+  const [dynamicReportTypes, setDynamicReportTypes] = useState(
+    facilityReports.reports
+  );
+
   const handleChartTypeChange = ({ name }) => {
     setChartType(name);
   };
@@ -339,28 +352,57 @@ const DataVisualizer: React.FC = () => {
     setAvailableParameters([]);
   };
 
-  const handleIndicatorChange = ({ selectedItem }) => {
-    switch (selectedItem.id) {
-      case "IDN":
-        if (!isLoadingIdentifiers && identifiers?.length > 0) {
-          selectedItem.attributes = identifiers;
+  const handleIndicatorChange = useCallback(({ selectedItem }) => {
+    const indicator = selectedItem;
+    getCategoryIndicator(selectedItem.id).then(
+      (response) => {
+        let results;
+        if (selectedItem.type === "") {
+          results = mapDataElements(response, null, "concepts");
+        } else {
+          results = mapDataElements(response?.results, selectedItem.type);
         }
-        break;
-      case "PAT":
-        if (!isLoadingAttributes && personAttributes?.length > 0) {
-          selectedItem.attributes = personAttributes;
-        }
-        break;
-      default:
-        setHasRetrievedConcepts(false);
-        break;
-    }
-    setSelectedIndicators(selectedItem);
-    setAvailableParameters(selectedItem.attributes ?? []);
+        indicator.attributes = results;
+        setSelectedIndicators(indicator);
+        setAvailableParameters(indicator.attributes ?? []);
+      },
+      (error) => {
+        showNotification({
+          title: "Error fetching Indicators",
+          kind: "error",
+          critical: true,
+          description: error?.message,
+        });
+      }
+    );
+  }, []);
+
+  const handleSelectedReportDefinition = ({ selectedItem }) => {
+    setSelectedReport(selectedItem);
   };
 
-  const handleDynamicReportTypeChange = ({ selectedItem }) => {
-    setSelectedReport(selectedItem);
+  const handleSelectedDynamicReportType = ({ selectedItem }) => {
+    let reports = [];
+
+    if (selectedItem.id === "reportDefinition") {
+      setDynamicReportTypes(facilityReports.reports);
+      setSelectedReport(facilityReports.reports[0]);
+    } else {
+      getCohortCategory(selectedItem.id).then((response) => {
+        const responseResults =
+          selectedItem.id === "patientSearch" ? response : response?.results;
+        responseResults?.map((responseItem) => {
+          reports.push({
+            id: responseItem?.uuid,
+            label: responseItem?.name,
+          });
+        });
+        setDynamicReportTypes(reports);
+        setSelectedReport(reports[0] ?? null);
+      });
+    }
+
+    setSelectedDynamicReportType(selectedItem);
   };
 
   const handleFiltersToggle = () => {
@@ -408,6 +450,70 @@ const DataVisualizer: React.FC = () => {
     setEndDate(dateRange.end);
   };
 
+  const changeModifier = (selectedParameter, type) => {
+    setSelectedParameters((selectedParameters) =>
+      selectedParameters.map((parameter) =>
+        parameter.id === selectedParameter.id
+          ? {
+              ...parameter,
+              modifier: addORSubtract(selectedParameter?.modifier, type),
+            }
+          : parameter
+      )
+    );
+  };
+
+  const addORSubtract = (value, type) => {
+    if (type === "add") {
+      return value + 1;
+    } else if (type === "subtract" && value > 1) {
+      return value - 1;
+    } else {
+      return value;
+    }
+  };
+
+  const showModifierPanel = (selectedParameter: Indicator) => {
+    setSelectedParameters((selectedParameters) =>
+      selectedParameters.map((parameter) =>
+        parameter.id === selectedParameter.id
+          ? {
+              ...parameter,
+              showModifierPanel: !selectedParameter?.showModifierPanel,
+            }
+          : parameter
+      )
+    );
+  };
+
+  const handleOnChnageExtras = (selectedParameter, event) => {
+    if (event?.target?.checked) {
+      setSelectedParameters((selectedParameters) =>
+        selectedParameters.map((parameter) =>
+          parameter.id === selectedParameter.id
+            ? {
+                ...parameter,
+                extras: [...parameter?.extras, event?.target?.value],
+              }
+            : parameter
+        )
+      );
+    } else {
+      setSelectedParameters((selectedParameters) =>
+        selectedParameters.map((parameter) =>
+          parameter.id === selectedParameter.id
+            ? {
+                ...parameter,
+                extras: parameter?.extras.filter(
+                  (modifier) => modifier !== event?.target?.value
+                ),
+              }
+            : parameter
+        )
+      );
+    }
+  };
+
   const handleUpdateReport = useCallback(() => {
     setHTML("");
     setShowLineList(true);
@@ -422,6 +528,7 @@ const DataVisualizer: React.FC = () => {
       reportIndicators: selectedParameters,
       reportType: reportType,
       reportingCohort: cqiReportingCohort,
+      type: selectedDynamicReportType?.label,
     }).then(
       (response) => {
         if (response.status === 200) {
@@ -516,15 +623,8 @@ const DataVisualizer: React.FC = () => {
     selectedParameters,
     selectedReport,
     startDate,
+    selectedDynamicReportType?.label,
   ]);
-
-  if (!isLoadingEncounterConcepts && encounterConcepts?.length > 0) {
-    if (!hasRetrievedConcepts) {
-      setAvailableParameters(encounterConcepts);
-      selectedIndicators.attributes = encounterConcepts as Array<Indicator>;
-      setHasRetrievedConcepts(true);
-    }
-  }
 
   useEffect(() => {
     const styleElement = document.createElement("style");
@@ -668,18 +768,32 @@ const DataVisualizer: React.FC = () => {
                     )}
 
                     {reportType === "dynamic" && (
-                      <Stack gap={3}>
+                      <Stack gap={2}>
                         <FormGroup>
                           <FormLabel className={styles.label}>
-                            Dynamic report type
+                            Which kind of dynamic report type do you want to
+                            base on?
+                          </FormLabel>
+                          <ComboBox
+                            ariaLabel="Select dynamic report type"
+                            id="dynamicReportOptions"
+                            items={dynamicReportOptions}
+                            hideLabel
+                            onChange={handleSelectedDynamicReportType}
+                            selectedItem={selectedDynamicReportType}
+                          />
+                        </FormGroup>
+
+                        <FormGroup>
+                          <FormLabel className={styles.label}>
+                            {selectedDynamicReportType?.label}
                           </FormLabel>
 
                           <ComboBox
                             ariaLabel="Select report type"
                             id="reportTypeCombobox"
-                            items={facilityReports.reports}
-                            placeholder="Choose the report you want to generate"
-                            onChange={handleDynamicReportTypeChange}
+                            items={dynamicReportTypes}
+                            onChange={handleSelectedReportDefinition}
                             selectedItem={selectedReport}
                           />
                         </FormGroup>
@@ -741,16 +855,73 @@ const DataVisualizer: React.FC = () => {
                           <Panel heading="Selected parameters">
                             <ul className={styles.list}>
                               {selectedParameters.map((parameter) => (
-                                <li
-                                  className={styles.rightListItem}
-                                  key={parameter.label}
-                                  role="menuitem"
-                                  onClick={() =>
-                                    moveAllFromRightToLeft(parameter)
-                                  }
-                                >
-                                  {parameter.label}
-                                </li>
+                                <>
+                                  <li
+                                    className={`${styles.rightListItem} ${
+                                      parameter?.showModifierPanel
+                                        ? styles.openRightListItem
+                                        : ""
+                                    } `}
+                                    key={parameter.label}
+                                    role="menuitem"
+                                  >
+                                    <div className={styles.selectedListItem}>
+                                      <div>
+                                        <ArrowLeft
+                                          className={styles.itemChevronUpDown}
+                                          onClick={() =>
+                                            moveAllFromRightToLeft(parameter)
+                                          }
+                                        />
+                                      </div>
+                                      {parameter.label}
+                                      {parameter?.type !==
+                                        "PatientIdentifier" &&
+                                      parameter?.type !== "PersonAttribute" ? (
+                                        <div
+                                          className={styles.modifierContainer}
+                                        >
+                                          <div>
+                                            {parameter?.showModifierPanel ? (
+                                              <ChevronUp
+                                                className={
+                                                  styles.itemChevronUpDown
+                                                }
+                                                onClick={() =>
+                                                  showModifierPanel(parameter)
+                                                }
+                                              />
+                                            ) : (
+                                              <ChevronDown
+                                                className={
+                                                  styles.itemChevronUpDown
+                                                }
+                                                onClick={() =>
+                                                  showModifierPanel(parameter)
+                                                }
+                                              />
+                                            )}
+                                          </div>
+                                        </div>
+                                      ) : null}
+                                    </div>
+                                  </li>
+                                  <div
+                                    className={`${
+                                      styles.fadeModifierContainer
+                                    } ${
+                                      parameter?.showModifierPanel
+                                        ? styles.show
+                                        : styles.hide
+                                    }`}
+                                  >
+                                    <ModifierComponent
+                                      listItem={parameter}
+                                      onChangeMostRecent={changeModifier}
+                                      onChangeExtraValue={handleOnChnageExtras}
+                                    />
+                                  </div>
+                                </>
                               ))}
                             </ul>
                           </Panel>
