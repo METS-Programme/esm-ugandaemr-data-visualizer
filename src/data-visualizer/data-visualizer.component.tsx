@@ -65,19 +65,20 @@ import {
   downloadReport,
   extractDate,
   formatDate,
+  getCategoryIndicator,
   getCohortCategory,
   getDateRange,
   getReport,
+  mapDataElements,
   saveReport,
   sendReportToDHIS2,
-  useGetEncounterConcepts,
   useGetEncounterType,
-  useGetIdentifiers,
-  useGetPatientAtrributes,
 } from "./data-visualizer.resource";
 import dayjs from "dayjs";
 import { showModal, showNotification, showToast } from "@openmrs/esm-framework";
 import ModifierComponent from "../components/popover/modifier-panel";
+import { Simulate } from "react-dom/test-utils";
+import error = Simulate.error;
 type ChartType = "list" | "pivot" | "aggregate";
 type ReportingDuration = "fixed" | "relative";
 export type CQIReportingCohort =
@@ -153,16 +154,11 @@ const DataVisualizer: React.FC = () => {
   >([]);
   const [showFilters, setShowFilters] = useState(true);
   const [reportName, setReportName] = useState("Patient List");
-  const { identifiers, isLoadingIdentifiers } = useGetIdentifiers();
-  const { personAttributes, isLoadingAttributes } = useGetPatientAtrributes();
   const { encounterTypes } = useGetEncounterType();
-  const [hasRetrievedConcepts, setHasRetrievedConcepts] = useState(false);
   const [saveReportModal, setSaveReportModal] = useState(false);
   const [reportTitle, setReportTitle] = useState("");
   const [reportDescription, setReportDescription] = useState("");
   const [htmlContent, setHTML] = useState("");
-  const { encounterConcepts, isLoadingEncounterConcepts } =
-    useGetEncounterConcepts(selectedIndicators?.id);
   const [isDownloading, setIsDownloading] = useState(false);
   const [isSendingReport, setIsSendingReport] = useState(false);
   const [dhisJson, setDhisJson] = useState({});
@@ -356,25 +352,30 @@ const DataVisualizer: React.FC = () => {
     setAvailableParameters([]);
   };
 
-  const handleIndicatorChange = ({ selectedItem }) => {
-    switch (selectedItem.id) {
-      case "IDN":
-        if (!isLoadingIdentifiers && identifiers?.length > 0) {
-          selectedItem.attributes = identifiers;
+  const handleIndicatorChange = useCallback(({ selectedItem }) => {
+    const indicator = selectedItem;
+    getCategoryIndicator(selectedItem.id).then(
+      (response) => {
+        let results;
+        if (selectedItem.type === "") {
+          results = mapDataElements(response, null, "concepts");
+        } else {
+          results = mapDataElements(response?.results, selectedItem.type);
         }
-        break;
-      case "PAT":
-        if (!isLoadingAttributes && personAttributes?.length > 0) {
-          selectedItem.attributes = personAttributes;
-        }
-        break;
-      default:
-        setHasRetrievedConcepts(false);
-        break;
-    }
-    setSelectedIndicators(selectedItem);
-    setAvailableParameters(selectedItem.attributes ?? []);
-  };
+        indicator.attributes = results;
+        setSelectedIndicators(indicator);
+        setAvailableParameters(indicator.attributes ?? []);
+      },
+      (error) => {
+        showNotification({
+          title: "Error fetching Indicators",
+          kind: "error",
+          critical: true,
+          description: error?.message,
+        });
+      }
+    );
+  }, []);
 
   const handleSelectedReportDefinition = ({ selectedItem }) => {
     setSelectedReport(selectedItem);
@@ -388,7 +389,8 @@ const DataVisualizer: React.FC = () => {
       setSelectedReport(facilityReports.reports[0]);
     } else {
       getCohortCategory(selectedItem.id).then((response) => {
-        const responseResults = selectedItem.id === "patientSearch" ? response : response?.results;
+        const responseResults =
+          selectedItem.id === "patientSearch" ? response : response?.results;
         responseResults?.map((responseItem) => {
           reports.push({
             id: responseItem?.uuid,
@@ -623,14 +625,6 @@ const DataVisualizer: React.FC = () => {
     startDate,
     selectedDynamicReportType?.label,
   ]);
-
-  if (!isLoadingEncounterConcepts && encounterConcepts?.length > 0) {
-    if (!hasRetrievedConcepts) {
-      setAvailableParameters(encounterConcepts);
-      selectedIndicators.attributes = encounterConcepts as Array<Indicator>;
-      setHasRetrievedConcepts(true);
-    }
-  }
 
   useEffect(() => {
     const styleElement = document.createElement("style");
