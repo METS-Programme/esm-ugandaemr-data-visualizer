@@ -463,7 +463,7 @@ export const dynamicReportOptions = [
 
 export const modifiers = [
   {
-    id: "obsDateTime",
+    id: "obsDatetime",
     label: "DateTime",
   },
   {
