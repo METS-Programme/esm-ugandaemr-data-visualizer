@@ -216,6 +216,13 @@ const DataVisualizer: React.FC = () => {
             kind: "success",
             description: `Report ${selectedReport.label} sent Successfully`,
           });
+        } {
+          showNotification({
+            title: "Error sending report to DHIS2",
+            kind: "error",
+            critical: true,
+            description: `Failed with error code ${response.status}, Contact System Administrator`,
+          });
         }
         setIsSendingReport(false);
       },
