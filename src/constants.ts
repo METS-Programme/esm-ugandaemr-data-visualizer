@@ -587,6 +587,15 @@ export const Demographics = [
     extras: [],
     attributes: [],
   },
+  {
+    id: "deathDate",
+    label: "Date of death",
+    type: "Demographics",
+    modifier: 1,
+    showModifierPanel: false,
+    extras: [],
+    attributes: [],
+  },
 ];
 
 export const Address = [
