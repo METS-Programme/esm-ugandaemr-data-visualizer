@@ -52,7 +52,10 @@ import {
   reportIndicators,
   reportTypes,
   reportPeriod,
-  dynamicReportOptions, personNames, Address, Demographics,
+  dynamicReportOptions,
+  personNames,
+  Address,
+  Demographics,
 } from "../constants";
 import DataList from "../components/data-table/data-table.component";
 import CQIDataList from "../components/cqi-components/cqi-data-table.component";
@@ -216,7 +219,8 @@ const DataVisualizer: React.FC = () => {
             kind: "success",
             description: `Report ${selectedReport.label} sent Successfully`,
           });
-        } {
+        }
+        {
           showNotification({
             title: "Error sending report to DHIS2",
             kind: "error",
@@ -359,46 +363,52 @@ const DataVisualizer: React.FC = () => {
     setAvailableParameters([]);
   };
 
-  const handleIndicatorChange = useCallback(({ selectedItem }) => {
-    const indicator = selectedItem;
-    getCategoryIndicator(selectedItem.id).then(
-      (response) => {
-        let results;
-        switch (selectedItem.type) {
-          case "PersonName":
-            results = personNames;
-            break;
-          case "Demographics":
-            results = Demographics;
-            break;
-          case "Address":
-            results = Address;
-            break;
-          case "":
-            results = mapDataElements(response, null, "concepts");
-            break;
-          default:
-            results = mapDataElements(response?.results, selectedItem.type);
-            break;
-        }
+  const handleIndicatorChange = useCallback(
+    ({ selectedItem }) => {
+      const indicator = selectedItem;
+      getCategoryIndicator(selectedItem.id).then(
+        (response) => {
+          let results;
+          switch (selectedItem.type) {
+            case "PersonName":
+              results = personNames;
+              break;
+            case "Demographics":
+              results = Demographics;
+              break;
+            case "Address":
+              results = Address;
+              break;
+            case "":
+              results = mapDataElements(response, null, "concepts");
+              break;
+            default:
+              results = mapDataElements(response?.results, selectedItem.type);
+              break;
+          }
 
-        setSelectedIndicators(indicator);
-        const filteredArray = results?.filter(resultParameter =>
-          !selectedParameters?.some(parameter => parameter.id === resultParameter.id)
-        );
-        indicator.attributes = filteredArray;
-        setAvailableParameters(indicator.attributes ?? []);
-      },
-      (error) => {
-        showNotification({
-          title: "Error fetching Indicators",
-          kind: "error",
-          critical: true,
-          description: error?.message,
-        });
-      }
-    );
-  }, [selectedParameters, availableParameters]);
+          setSelectedIndicators(indicator);
+          const filteredArray = results?.filter(
+            (resultParameter) =>
+              !selectedParameters?.some(
+                (parameter) => parameter.id === resultParameter.id
+              )
+          );
+          indicator.attributes = filteredArray;
+          setAvailableParameters(indicator.attributes ?? []);
+        },
+        (error) => {
+          showNotification({
+            title: "Error fetching Indicators",
+            kind: "error",
+            critical: true,
+            description: error?.message,
+          });
+        }
+      );
+    },
+    [selectedParameters]
+  );
 
   const handleSelectedReportDefinition = ({ selectedItem }) => {
     setSelectedReport(selectedItem);
@@ -903,7 +913,7 @@ const DataVisualizer: React.FC = () => {
                                         "PersonAttribute",
                                         "PersonName",
                                         "Demographics",
-                                        "Address"
+                                        "Address",
                                       ].includes(parameter?.type) ? (
                                         <div
                                           className={styles.modifierContainer}

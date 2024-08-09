@@ -538,7 +538,7 @@ export const personNames = [
     showModifierPanel: false,
     extras: [],
     attributes: [],
-  }
+  },
 ];
 
 export const Demographics = [
@@ -643,5 +643,5 @@ export const Address = [
     showModifierPanel: false,
     extras: [],
     attributes: [],
-  }
+  },
 ];
