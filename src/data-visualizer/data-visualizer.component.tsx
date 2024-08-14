@@ -53,6 +53,9 @@ import {
   reportTypes,
   reportPeriod,
   dynamicReportOptions,
+  personNames,
+  Address,
+  Demographics,
 } from "../constants";
 import DataList from "../components/data-table/data-table.component";
 import CQIDataList from "../components/cqi-components/cqi-data-table.component";
@@ -217,6 +220,14 @@ const DataVisualizer: React.FC = () => {
             description: `Report ${selectedReport.label} sent Successfully`,
           });
         }
+        {
+          showNotification({
+            title: "Error sending report to DHIS2",
+            kind: "error",
+            critical: true,
+            description: `Failed with error code ${response.status}, Contact System Administrator`,
+          });
+        }
         setIsSendingReport(false);
       },
       (error) => {
@@ -352,30 +363,52 @@ const DataVisualizer: React.FC = () => {
     setAvailableParameters([]);
   };
 
-  const handleIndicatorChange = useCallback(({ selectedItem }) => {
-    const indicator = selectedItem;
-    getCategoryIndicator(selectedItem.id).then(
-      (response) => {
-        let results;
-        if (selectedItem.type === "") {
-          results = mapDataElements(response, null, "concepts");
-        } else {
-          results = mapDataElements(response?.results, selectedItem.type);
+  const handleIndicatorChange = useCallback(
+    ({ selectedItem }) => {
+      const indicator = selectedItem;
+      getCategoryIndicator(selectedItem.id).then(
+        (response) => {
+          let results;
+          switch (selectedItem.type) {
+            case "PersonName":
+              results = personNames;
+              break;
+            case "Demographics":
+              results = Demographics;
+              break;
+            case "Address":
+              results = Address;
+              break;
+            case "":
+              results = mapDataElements(response, null, "concepts");
+              break;
+            default:
+              results = mapDataElements(response?.results, selectedItem.type);
+              break;
+          }
+
+          setSelectedIndicators(indicator);
+          const filteredArray = results?.filter(
+            (resultParameter) =>
+              !selectedParameters?.some(
+                (parameter) => parameter.id === resultParameter.id
+              )
+          );
+          indicator.attributes = filteredArray;
+          setAvailableParameters(indicator.attributes ?? []);
+        },
+        (error) => {
+          showNotification({
+            title: "Error fetching Indicators",
+            kind: "error",
+            critical: true,
+            description: error?.message,
+          });
         }
-        indicator.attributes = results;
-        setSelectedIndicators(indicator);
-        setAvailableParameters(indicator.attributes ?? []);
-      },
-      (error) => {
-        showNotification({
-          title: "Error fetching Indicators",
-          kind: "error",
-          critical: true,
-          description: error?.message,
-        });
-      }
-    );
-  }, []);
+      );
+    },
+    [selectedParameters]
+  );
 
   const handleSelectedReportDefinition = ({ selectedItem }) => {
     setSelectedReport(selectedItem);
@@ -875,9 +908,13 @@ const DataVisualizer: React.FC = () => {
                                         />
                                       </div>
                                       {parameter.label}
-                                      {parameter?.type !==
-                                        "PatientIdentifier" &&
-                                      parameter?.type !== "PersonAttribute" ? (
+                                      {![
+                                        "PatientIdentifier",
+                                        "PersonAttribute",
+                                        "PersonName",
+                                        "Demographics",
+                                        "Address",
+                                      ].includes(parameter?.type) ? (
                                         <div
                                           className={styles.modifierContainer}
                                         >
