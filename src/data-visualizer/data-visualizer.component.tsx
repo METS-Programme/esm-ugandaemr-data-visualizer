@@ -55,7 +55,8 @@ import {
   dynamicReportOptions,
   personNames,
   Address,
-  Demographics, AppointmentIndicators,
+  Demographics,
+  AppointmentIndicators,
 } from "../constants";
 import DataList from "../components/data-table/data-table.component";
 import CQIDataList from "../components/cqi-components/cqi-data-table.component";
@@ -946,9 +947,7 @@ const DataVisualizer: React.FC = () => {
                 {reportType === "dynamic" && (
                   <Stack gap={2}>
                     <FormGroup>
-                      <FormLabel className={styles.label}>
-                        Indicators
-                      </FormLabel>
+                      <FormLabel className={styles.label}>Indicators</FormLabel>
 
                       <ComboBox
                         ariaLabel="Select indicators"
@@ -968,9 +967,7 @@ const DataVisualizer: React.FC = () => {
                               role="menuitem"
                               className={styles.leftListItem}
                               key={parameter.label}
-                              onClick={() =>
-                                moveAllFromLeftToRight(parameter)
-                              }
+                              onClick={() => moveAllFromLeftToRight(parameter)}
                             >
                               {parameter.label}
                             </li>
@@ -1029,26 +1026,20 @@ const DataVisualizer: React.FC = () => {
                                     "Demographics",
                                     "Address",
                                     "Condition",
-                                    "Appointment"
+                                    "Appointment",
                                   ].includes(parameter?.type) ? (
-                                    <div
-                                      className={styles.modifierContainer}
-                                    >
+                                    <div className={styles.modifierContainer}>
                                       <div>
                                         {parameter?.showModifierPanel ? (
                                           <ChevronUp
-                                            className={
-                                              styles.itemChevronUpDown
-                                            }
+                                            className={styles.itemChevronUpDown}
                                             onClick={() =>
                                               showModifierPanel(parameter)
                                             }
                                           />
                                         ) : (
                                           <ChevronDown
-                                            className={
-                                              styles.itemChevronUpDown
-                                            }
+                                            className={styles.itemChevronUpDown}
                                             onClick={() =>
                                               showModifierPanel(parameter)
                                             }
@@ -1060,9 +1051,7 @@ const DataVisualizer: React.FC = () => {
                                 </div>
                               </li>
                               <div
-                                className={`${
-                                  styles.fadeModifierContainer
-                                } ${
+                                className={`${styles.fadeModifierContainer} ${
                                   parameter?.showModifierPanel
                                     ? styles.show
                                     : styles.hide

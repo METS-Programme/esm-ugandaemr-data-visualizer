@@ -676,5 +676,5 @@ export const AppointmentIndicators = [
     showModifierPanel: false,
     extras: [],
     attributes: [],
-  }
+  },
 ];
