@@ -103,6 +103,8 @@ export async function getCategoryIndicator(id: string) {
     apiUrl = `${restBaseUrl}/patientidentifiertype`;
   } else if (id === "PAT") {
     apiUrl = `${restBaseUrl}/personattributetype`;
+  } else if (id === "CON") {
+    apiUrl = `${restBaseUrl}/ugandaemrreports/concepts/conditions`;
   } else {
     apiUrl = `${restBaseUrl}/ugandaemrreports/concepts/encountertype?uuid=${id}`;
   }

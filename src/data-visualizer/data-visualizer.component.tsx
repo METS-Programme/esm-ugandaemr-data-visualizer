@@ -55,7 +55,7 @@ import {
   dynamicReportOptions,
   personNames,
   Address,
-  Demographics,
+  Demographics, AppointmentIndicators,
 } from "../constants";
 import DataList from "../components/data-table/data-table.component";
 import CQIDataList from "../components/cqi-components/cqi-data-table.component";
@@ -378,6 +378,12 @@ const DataVisualizer: React.FC = () => {
               break;
             case "Address":
               results = Address;
+              break;
+            case "Appointment":
+              results = AppointmentIndicators;
+              break;
+            case "Condition":
+              results = mapDataElements(response, null, "concepts");
               break;
             case "":
               results = mapDataElements(response, null, "concepts");
@@ -914,6 +920,8 @@ const DataVisualizer: React.FC = () => {
                                         "PersonName",
                                         "Demographics",
                                         "Address",
+                                        "Condition",
+                                        "Appointment"
                                       ].includes(parameter?.type) ? (
                                         <div
                                           className={styles.modifierContainer}
