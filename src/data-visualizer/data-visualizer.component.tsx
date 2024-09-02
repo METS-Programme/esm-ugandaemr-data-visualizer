@@ -56,6 +56,7 @@ import {
   personNames,
   Address,
   Demographics,
+  AppointmentIndicators,
 } from "../constants";
 import DataList from "../components/data-table/data-table.component";
 import CQIDataList from "../components/cqi-components/cqi-data-table.component";
@@ -366,7 +367,7 @@ const DataVisualizer: React.FC = () => {
   const handleIndicatorChange = useCallback(
     ({ selectedItem }) => {
       const indicator = selectedItem;
-      getCategoryIndicator(selectedItem.id).then(
+      getCategoryIndicator(selectedItem?.id).then(
         (response) => {
           let results;
           switch (selectedItem.type) {
@@ -378,6 +379,12 @@ const DataVisualizer: React.FC = () => {
               break;
             case "Address":
               results = Address;
+              break;
+            case "Appointment":
+              results = AppointmentIndicators;
+              break;
+            case "Condition":
+              results = mapDataElements(response, null, "concepts");
               break;
             case "":
               results = mapDataElements(response, null, "concepts");
@@ -797,6 +804,31 @@ const DataVisualizer: React.FC = () => {
                             />
                           </FormGroup>
                         )}
+
+                        {reportCategory.category === "cqi" && (
+                          <FormGroup>
+                            <FormLabel className={styles.label}>
+                              Select your cohort of interest
+                            </FormLabel>
+                            <RadioButtonGroup
+                              legendText=""
+                              name="patientCohort"
+                              onChange={handleCohortChange}
+                              defaultSelected="Patients with encounters"
+                            >
+                              <RadioButton
+                                id="patient_with_encounters"
+                                labelText="Patient with encounters"
+                                value="Patients with encounters"
+                              />
+                              <RadioButton
+                                id="patients_on_appointment"
+                                labelText="Patients on appointment"
+                                value="Patients on appointment"
+                              />
+                            </RadioButtonGroup>
+                          </FormGroup>
+                        )}
                       </>
                     )}
 
@@ -830,165 +862,7 @@ const DataVisualizer: React.FC = () => {
                             selectedItem={selectedReport}
                           />
                         </FormGroup>
-
-                        <FormGroup>
-                          <FormLabel className={styles.label}>
-                            Indicators
-                          </FormLabel>
-
-                          <ComboBox
-                            ariaLabel="Select indicators"
-                            id="indicatorCombobox"
-                            items={[...reportIndicators, ...encounterTypes]}
-                            placeholder="Choose the indicators"
-                            onChange={handleIndicatorChange}
-                            selectedItem={selectedIndicators}
-                          />
-                        </FormGroup>
-
-                        <div className={styles.panelContainer}>
-                          <Panel heading="Available parameters">
-                            <ul className={styles.list}>
-                              {availableParameters.map((parameter) => (
-                                <li
-                                  role="menuitem"
-                                  className={styles.leftListItem}
-                                  key={parameter.label}
-                                  onClick={() =>
-                                    moveAllFromLeftToRight(parameter)
-                                  }
-                                >
-                                  {parameter.label}
-                                </li>
-                              ))}
-                            </ul>
-                          </Panel>
-                          <div className={styles.paramsControlContainer}>
-                            <Button
-                              iconDescription="Move all parameters to the right"
-                              kind="tertiary"
-                              hasIconOnly
-                              renderIcon={ArrowRight}
-                              onClick={moveAllParametersRight}
-                              role="button"
-                              size="md"
-                              disabled={availableParameters.length < 1}
-                            />
-                            <Button
-                              iconDescription="Move all parameters to the left"
-                              kind="tertiary"
-                              hasIconOnly
-                              renderIcon={ArrowLeft}
-                              onClick={moveAllParametersLeft}
-                              role="button"
-                              size="md"
-                              disabled={selectedParameters.length < 1}
-                            />
-                          </div>
-                          <Panel heading="Selected parameters">
-                            <ul className={styles.list}>
-                              {selectedParameters.map((parameter) => (
-                                <>
-                                  <li
-                                    className={`${styles.rightListItem} ${
-                                      parameter?.showModifierPanel
-                                        ? styles.openRightListItem
-                                        : ""
-                                    } `}
-                                    key={parameter.label}
-                                    role="menuitem"
-                                  >
-                                    <div className={styles.selectedListItem}>
-                                      <div>
-                                        <ArrowLeft
-                                          className={styles.itemChevronUpDown}
-                                          onClick={() =>
-                                            moveAllFromRightToLeft(parameter)
-                                          }
-                                        />
-                                      </div>
-                                      {parameter.label}
-                                      {![
-                                        "PatientIdentifier",
-                                        "PersonAttribute",
-                                        "PersonName",
-                                        "Demographics",
-                                        "Address",
-                                      ].includes(parameter?.type) ? (
-                                        <div
-                                          className={styles.modifierContainer}
-                                        >
-                                          <div>
-                                            {parameter?.showModifierPanel ? (
-                                              <ChevronUp
-                                                className={
-                                                  styles.itemChevronUpDown
-                                                }
-                                                onClick={() =>
-                                                  showModifierPanel(parameter)
-                                                }
-                                              />
-                                            ) : (
-                                              <ChevronDown
-                                                className={
-                                                  styles.itemChevronUpDown
-                                                }
-                                                onClick={() =>
-                                                  showModifierPanel(parameter)
-                                                }
-                                              />
-                                            )}
-                                          </div>
-                                        </div>
-                                      ) : null}
-                                    </div>
-                                  </li>
-                                  <div
-                                    className={`${
-                                      styles.fadeModifierContainer
-                                    } ${
-                                      parameter?.showModifierPanel
-                                        ? styles.show
-                                        : styles.hide
-                                    }`}
-                                  >
-                                    <ModifierComponent
-                                      listItem={parameter}
-                                      onChangeMostRecent={changeModifier}
-                                      onChangeExtraValue={handleOnChnageExtras}
-                                    />
-                                  </div>
-                                </>
-                              ))}
-                            </ul>
-                          </Panel>
-                        </div>
                       </Stack>
-                    )}
-
-                    {reportCategory.category === "cqi" && (
-                      <FormGroup>
-                        <FormLabel className={styles.label}>
-                          Select your cohort of interest
-                        </FormLabel>
-                        <RadioButtonGroup
-                          legendText=""
-                          name="patientCohort"
-                          onChange={handleCohortChange}
-                          defaultSelected="Patients with encounters"
-                        >
-                          <RadioButton
-                            id="patient_with_encounters"
-                            labelText="Patient with encounters"
-                            value="Patients with encounters"
-                          />
-                          <RadioButton
-                            id="patients_on_appointment"
-                            labelText="Patients on appointment"
-                            value="Patients on appointment"
-                          />
-                        </RadioButtonGroup>
-                      </FormGroup>
                     )}
                   </Stack>
                 </Form>
@@ -1067,6 +941,136 @@ const DataVisualizer: React.FC = () => {
                   </Stack>
                 </Form>
               </div>
+            </div>
+            <div>
+              <Form>
+                {reportType === "dynamic" && (
+                  <Stack gap={2}>
+                    <FormGroup>
+                      <FormLabel className={styles.label}>Indicators</FormLabel>
+
+                      <ComboBox
+                        ariaLabel="Select indicators"
+                        id="indicatorCombobox"
+                        items={[...reportIndicators, ...encounterTypes]}
+                        placeholder="Choose the indicators"
+                        onChange={handleIndicatorChange}
+                        selectedItem={selectedIndicators}
+                      />
+                    </FormGroup>
+
+                    <div className={styles.panelContainer}>
+                      <Panel heading="Available parameters">
+                        <ul className={styles.list}>
+                          {availableParameters.map((parameter) => (
+                            <li
+                              role="menuitem"
+                              className={styles.leftListItem}
+                              key={parameter.label}
+                              onClick={() => moveAllFromLeftToRight(parameter)}
+                            >
+                              {parameter.label}
+                            </li>
+                          ))}
+                        </ul>
+                      </Panel>
+                      <div className={styles.paramsControlContainer}>
+                        <Button
+                          iconDescription="Move all parameters to the right"
+                          kind="tertiary"
+                          hasIconOnly
+                          renderIcon={ArrowRight}
+                          onClick={moveAllParametersRight}
+                          role="button"
+                          size="md"
+                          disabled={availableParameters.length < 1}
+                        />
+                        <Button
+                          iconDescription="Move all parameters to the left"
+                          kind="tertiary"
+                          hasIconOnly
+                          renderIcon={ArrowLeft}
+                          onClick={moveAllParametersLeft}
+                          role="button"
+                          size="md"
+                          disabled={selectedParameters.length < 1}
+                        />
+                      </div>
+                      <Panel heading="Selected parameters">
+                        <ul className={styles.list}>
+                          {selectedParameters.map((parameter) => (
+                            <>
+                              <li
+                                className={`${styles.rightListItem} ${
+                                  parameter?.showModifierPanel
+                                    ? styles.openRightListItem
+                                    : ""
+                                } `}
+                                key={parameter.label}
+                                role="menuitem"
+                              >
+                                <div className={styles.selectedListItem}>
+                                  <div>
+                                    <ArrowLeft
+                                      className={styles.itemChevronUpDown}
+                                      onClick={() =>
+                                        moveAllFromRightToLeft(parameter)
+                                      }
+                                    />
+                                  </div>
+                                  {parameter.label}
+                                  {![
+                                    "PatientIdentifier",
+                                    "PersonAttribute",
+                                    "PersonName",
+                                    "Demographics",
+                                    "Address",
+                                    "Condition",
+                                    "Appointment",
+                                  ].includes(parameter?.type) ? (
+                                    <div className={styles.modifierContainer}>
+                                      <div>
+                                        {parameter?.showModifierPanel ? (
+                                          <ChevronUp
+                                            className={styles.itemChevronUpDown}
+                                            onClick={() =>
+                                              showModifierPanel(parameter)
+                                            }
+                                          />
+                                        ) : (
+                                          <ChevronDown
+                                            className={styles.itemChevronUpDown}
+                                            onClick={() =>
+                                              showModifierPanel(parameter)
+                                            }
+                                          />
+                                        )}
+                                      </div>
+                                    </div>
+                                  ) : null}
+                                </div>
+                              </li>
+                              <div
+                                className={`${styles.fadeModifierContainer} ${
+                                  parameter?.showModifierPanel
+                                    ? styles.show
+                                    : styles.hide
+                                }`}
+                              >
+                                <ModifierComponent
+                                  listItem={parameter}
+                                  onChangeMostRecent={changeModifier}
+                                  onChangeExtraValue={handleOnChnageExtras}
+                                />
+                              </div>
+                            </>
+                          ))}
+                        </ul>
+                      </Panel>
+                    </div>
+                  </Stack>
+                )}
+              </Form>
             </div>
           </AccordionItem>
         </Accordion>

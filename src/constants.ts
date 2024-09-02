@@ -265,6 +265,18 @@ export const reportIndicators: Array<Indicator> = [
     type: "PersonAttribute",
     attributes: [],
   },
+  {
+    id: "CON",
+    label: "Conditions",
+    type: "Condition",
+    attributes: [],
+  },
+  {
+    id: "APP",
+    label: "Appointments",
+    type: "Appointment",
+    attributes: [],
+  },
 ];
 
 export const reportTypes: Array<Item> = [
@@ -648,6 +660,18 @@ export const Address = [
     id: "address5",
     label: "Village",
     type: "Address",
+    modifier: 1,
+    showModifierPanel: false,
+    extras: [],
+    attributes: [],
+  },
+];
+
+export const AppointmentIndicators = [
+  {
+    id: "startDate",
+    label: "Appointment Scheduled",
+    type: "Appointment",
     modifier: 1,
     showModifierPanel: false,
     extras: [],
