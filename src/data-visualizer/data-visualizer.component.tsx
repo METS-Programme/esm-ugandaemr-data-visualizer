@@ -74,6 +74,7 @@ import {
   getDateRange,
   getReport,
   mapDataElements,
+  mapDataElements1,
   saveReport,
   sendReportToDHIS2,
   useGetEncounterType,
@@ -385,6 +386,9 @@ const DataVisualizer: React.FC = () => {
               break;
             case "Condition":
               results = mapDataElements(response, null, "concepts");
+              break;
+            case "DrugOrder":
+              results = mapDataElements1(response, "DrugOrder", "drugOrder");
               break;
             case "":
               results = mapDataElements(response, null, "concepts");
@@ -1027,6 +1031,7 @@ const DataVisualizer: React.FC = () => {
                                     "Address",
                                     "Condition",
                                     "Appointment",
+                                    "DrugOrder",
                                   ].includes(parameter?.type) ? (
                                     <div className={styles.modifierContainer}>
                                       <div>

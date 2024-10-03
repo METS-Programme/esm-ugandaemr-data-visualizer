@@ -272,6 +272,12 @@ export const reportIndicators: Array<Indicator> = [
     attributes: [],
   },
   {
+    id: "DRUG",
+    label: "Drug Orders",
+    type: "DrugOrder",
+    attributes: [],
+  },
+  {
     id: "APP",
     label: "Appointments",
     type: "Appointment",
@@ -279,6 +285,7 @@ export const reportIndicators: Array<Indicator> = [
   },
 ];
 
+export const indicatorIdsWithoutEndPoints: Array<string> =["APP","ADD","DEM","PEN"]
 export const reportTypes: Array<Item> = [
   {
     id: "facility",

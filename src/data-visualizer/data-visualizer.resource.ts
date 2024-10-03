@@ -2,6 +2,9 @@ import useSWR from "swr";
 import { openmrsFetch, restBaseUrl } from "@openmrs/esm-framework";
 import { CQIReportingCohort } from "./data-visualizer.component";
 import dayjs from "dayjs";
+import {
+  indicatorIdsWithoutEndPoints
+} from "../constants";
 
 type ReportRequest = {
   uuid: string;
@@ -105,7 +108,13 @@ export async function getCategoryIndicator(id: string) {
     apiUrl = `${restBaseUrl}/personattributetype`;
   } else if (id === "CON") {
     apiUrl = `${restBaseUrl}/ugandaemrreports/concepts/conditions`;
-  } else {
+  }else if (id === "DRUG") {
+    apiUrl = `${restBaseUrl}/ugandaemrreports/drug/indications`;
+  }
+  else if (indicatorIdsWithoutEndPoints.includes(id)){
+    return null;
+  }
+  else {
     apiUrl = `${restBaseUrl}/ugandaemrreports/concepts/encountertype?uuid=${id}`;
   }
 
@@ -185,6 +194,32 @@ export function createColumns(columns: Array<string>) {
     });
   });
   return dataColumn;
+}
+
+export function mapDataElements1(
+  dataArray: Array<string>,
+  type?: string,
+  category?: string
+) {
+  let arrayToReturn: Array<Indicator> = [];
+  if (dataArray) {
+    if (category === "drugOrder") {
+      dataArray.map((record: string) => {
+          arrayToReturn.push({
+            id: record,
+            label: record,
+            type: type,
+            modifier: 1,
+            showModifierPanel: false,
+            extras: [],
+            attributes: [],
+          });
+        }
+      );
+    }
+  }
+
+  return arrayToReturn;
 }
 
 export function mapDataElements(
