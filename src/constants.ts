@@ -272,12 +272,6 @@ export const reportIndicators: Array<Indicator> = [
     attributes: [],
   },
   {
-    id: "DRUG",
-    label: "Drug Orders",
-    type: "DrugOrder",
-    attributes: [],
-  },
-  {
     id: "APP",
     label: "Appointments",
     type: "Appointment",

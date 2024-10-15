@@ -100,7 +100,7 @@ export function downloadReport(params: ReportDownloadParams) {
   });
 }
 
-export async function getCategoryIndicator(id: string) {
+export async function getCategoryIndicator(id: string,type?: string) {
   let apiUrl: string;
   if (id === "IDN") {
     apiUrl = `${restBaseUrl}/patientidentifiertype`;
@@ -108,14 +108,17 @@ export async function getCategoryIndicator(id: string) {
     apiUrl = `${restBaseUrl}/personattributetype`;
   } else if (id === "CON") {
     apiUrl = `${restBaseUrl}/ugandaemrreports/concepts/conditions`;
-  }else if (id === "DRUG") {
-    apiUrl = `${restBaseUrl}/ugandaemrreports/drug/indications`;
   }
   else if (indicatorIdsWithoutEndPoints.includes(id)){
     return null;
   }
   else {
-    apiUrl = `${restBaseUrl}/ugandaemrreports/concepts/encountertype?uuid=${id}`;
+    if(type === "Orders"){
+      apiUrl = `${restBaseUrl}/ugandaemrreports/order/indications?uuid=${id}`;
+    }
+    else{
+      apiUrl = `${restBaseUrl}/ugandaemrreports/concepts/encountertype?uuid=${id}`;
+    }
   }
 
   const { data } = await openmrsFetch(apiUrl);
@@ -132,6 +135,18 @@ export function useGetEncounterType() {
     encounterTypes: data ? mapDataElements(data?.data["results"]) : [],
     isError: error,
     isLoadingEncounterTypes: isLoading,
+  };
+}
+export function useGetOrderTypes() {
+  const apiUrl = `${restBaseUrl}/ordertype?v=custom:(uuid,display,name)`;
+  const { data, error, isLoading } = useSWR<{ data: { results: any } }, Error>(
+    apiUrl,
+    openmrsFetch
+  );
+  return {
+    orderTypes: data ? mapDataOrderTypeElements(data?.data["results"],"Orders") : [],
+    isError: error,
+    isLoadingOrderTypes: isLoading,
   };
 }
 
@@ -196,34 +211,27 @@ export function createColumns(columns: Array<string>) {
   return dataColumn;
 }
 
-export function mapDataElements1(
-  dataArray: Array<string>,
+export function mapDataOrderTypeElements(
+  dataArray: Array<Record<string, string>>,
   type?: string,
   category?: string
 ) {
   let arrayToReturn: Array<Indicator> = [];
   if (dataArray) {
-    if (category === "drugOrder") {
-      dataArray.map((record: string) => {
-          arrayToReturn.push({
-            id: record,
-            label: record,
-            type: type,
-            modifier: 1,
-            showModifierPanel: false,
-            extras: [],
-            attributes: [],
-          });
-        }
-      );
-    }
+      dataArray.map((ordertype: Record<string, string>) => {
+        arrayToReturn.push({
+          id: ordertype.uuid,
+          label: ordertype.name + " Indicators",
+          type: type,
+        });
+      });
   }
 
   return arrayToReturn;
 }
 
 export function mapDataElements(
-  dataArray: Array<Record<string, string>>,
+    dataArray: Array<Record<string, string>>,
   type?: string,
   category?: string
 ) {
@@ -254,6 +262,30 @@ export function mapDataElements(
         });
       });
     }
+  }
+
+  return arrayToReturn;
+}
+
+
+export function mapOrderDataElements(
+  dataArray: Array<string>,
+  type?: string,
+  category?: string
+) {
+  let arrayToReturn: Array<Indicator> = [];
+  if (dataArray) {
+      dataArray.map((indication: string) => {
+        arrayToReturn.push({
+          id: category,
+          label: indication,
+          type: type,
+          modifier: 1,
+          showModifierPanel: false,
+          extras: [],
+          attributes: [],
+        });
+      });
   }
 
   return arrayToReturn;
