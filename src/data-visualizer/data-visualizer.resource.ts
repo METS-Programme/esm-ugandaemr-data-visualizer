@@ -2,9 +2,7 @@ import useSWR from "swr";
 import { openmrsFetch, restBaseUrl } from "@openmrs/esm-framework";
 import { CQIReportingCohort } from "./data-visualizer.component";
 import dayjs from "dayjs";
-import {
-  indicatorIdsWithoutEndPoints
-} from "../constants";
+import { indicatorIdsWithoutEndPoints } from "../constants";
 
 type ReportRequest = {
   uuid: string;
@@ -100,7 +98,7 @@ export function downloadReport(params: ReportDownloadParams) {
   });
 }
 
-export async function getCategoryIndicator(id: string,type?: string) {
+export async function getCategoryIndicator(id: string, type?: string) {
   let apiUrl: string;
   if (id === "IDN") {
     apiUrl = `${restBaseUrl}/patientidentifiertype`;
@@ -108,15 +106,12 @@ export async function getCategoryIndicator(id: string,type?: string) {
     apiUrl = `${restBaseUrl}/personattributetype`;
   } else if (id === "CON") {
     apiUrl = `${restBaseUrl}/ugandaemrreports/concepts/conditions`;
-  }
-  else if (indicatorIdsWithoutEndPoints.includes(id)){
+  } else if (indicatorIdsWithoutEndPoints.includes(id)) {
     return null;
-  }
-  else {
-    if(type === "Orders"){
+  } else {
+    if (type === "Orders") {
       apiUrl = `${restBaseUrl}/ugandaemrreports/order/indications?uuid=${id}`;
-    }
-    else{
+    } else {
       apiUrl = `${restBaseUrl}/ugandaemrreports/concepts/encountertype?uuid=${id}`;
     }
   }
@@ -144,7 +139,9 @@ export function useGetOrderTypes() {
     openmrsFetch
   );
   return {
-    orderTypes: data ? mapDataOrderTypeElements(data?.data["results"],"Orders") : [],
+    orderTypes: data
+      ? mapDataOrderTypeElements(data?.data["results"], "Orders")
+      : [],
     isError: error,
     isLoadingOrderTypes: isLoading,
   };
@@ -218,20 +215,20 @@ export function mapDataOrderTypeElements(
 ) {
   let arrayToReturn: Array<Indicator> = [];
   if (dataArray) {
-      dataArray.map((ordertype: Record<string, string>) => {
-        arrayToReturn.push({
-          id: ordertype.uuid,
-          label: ordertype.name + " Indicators",
-          type: type,
-        });
+    dataArray.map((ordertype: Record<string, string>) => {
+      arrayToReturn.push({
+        id: ordertype.uuid,
+        label: ordertype.name + " Indicators",
+        type: type,
       });
+    });
   }
 
   return arrayToReturn;
 }
 
 export function mapDataElements(
-    dataArray: Array<Record<string, string>>,
+  dataArray: Array<Record<string, string>>,
   type?: string,
   category?: string
 ) {
@@ -267,7 +264,6 @@ export function mapDataElements(
   return arrayToReturn;
 }
 
-
 export function mapOrderDataElements(
   dataArray: Array<string>,
   type?: string,
@@ -275,17 +271,17 @@ export function mapOrderDataElements(
 ) {
   let arrayToReturn: Array<Indicator> = [];
   if (dataArray) {
-      dataArray.map((indication: string) => {
-        arrayToReturn.push({
-          id: category,
-          label: indication,
-          type: type,
-          modifier: 1,
-          showModifierPanel: false,
-          extras: [],
-          attributes: [],
-        });
+    dataArray.map((indication: string) => {
+      arrayToReturn.push({
+        id: category,
+        label: indication,
+        type: type,
+        modifier: 1,
+        showModifierPanel: false,
+        extras: [],
+        attributes: [],
       });
+    });
   }
 
   return arrayToReturn;

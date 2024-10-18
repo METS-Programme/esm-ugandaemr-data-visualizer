@@ -279,7 +279,12 @@ export const reportIndicators: Array<Indicator> = [
   },
 ];
 
-export const indicatorIdsWithoutEndPoints: Array<string> =["APP","ADD","DEM","PEN"]
+export const indicatorIdsWithoutEndPoints: Array<string> = [
+  "APP",
+  "ADD",
+  "DEM",
+  "PEN",
+];
 export const reportTypes: Array<Item> = [
   {
     id: "facility",
