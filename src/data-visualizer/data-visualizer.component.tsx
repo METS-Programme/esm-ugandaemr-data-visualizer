@@ -73,7 +73,8 @@ import {
   getCohortCategory,
   getDateRange,
   getReport,
-  mapDataElements, mapOrderDataElements,
+  mapDataElements,
+  mapOrderDataElements,
   saveReport,
   sendReportToDHIS2,
   useGetEncounterType,
@@ -369,7 +370,7 @@ const DataVisualizer: React.FC = () => {
   const handleIndicatorChange = useCallback(
     ({ selectedItem }) => {
       const indicator = selectedItem;
-      getCategoryIndicator(selectedItem?.id,selectedItem.type).then(
+      getCategoryIndicator(selectedItem?.id, selectedItem.type).then(
         (response) => {
           let results;
           switch (selectedItem.type) {
@@ -389,7 +390,11 @@ const DataVisualizer: React.FC = () => {
               results = mapDataElements(response, null, "concepts");
               break;
             case "Orders":
-              results = mapOrderDataElements(response,"Orders",selectedItem.id);
+              results = mapOrderDataElements(
+                response,
+                "Orders",
+                selectedItem.id
+              );
               break;
             case "":
               results = mapDataElements(response, null, "concepts");
@@ -957,7 +962,11 @@ const DataVisualizer: React.FC = () => {
                       <ComboBox
                         ariaLabel="Select indicators"
                         id="indicatorCombobox"
-                        items={[...reportIndicators, ...encounterTypes, ...orderTypes]}
+                        items={[
+                          ...reportIndicators,
+                          ...encounterTypes,
+                          ...orderTypes,
+                        ]}
                         placeholder="Choose the indicators"
                         onChange={handleIndicatorChange}
                         selectedItem={selectedIndicators}
