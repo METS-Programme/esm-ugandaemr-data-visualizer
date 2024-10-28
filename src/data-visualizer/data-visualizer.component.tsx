@@ -74,9 +74,11 @@ import {
   getDateRange,
   getReport,
   mapDataElements,
+  mapOrderDataElements,
   saveReport,
   sendReportToDHIS2,
   useGetEncounterType,
+  useGetOrderTypes,
 } from "./data-visualizer.resource";
 import dayjs from "dayjs";
 import { showModal, showNotification, showToast } from "@openmrs/esm-framework";
@@ -159,6 +161,7 @@ const DataVisualizer: React.FC = () => {
   const [showFilters, setShowFilters] = useState(true);
   const [reportName, setReportName] = useState("Patient List");
   const { encounterTypes } = useGetEncounterType();
+  const { orderTypes } = useGetOrderTypes();
   const [saveReportModal, setSaveReportModal] = useState(false);
   const [reportTitle, setReportTitle] = useState("");
   const [reportDescription, setReportDescription] = useState("");
@@ -367,7 +370,7 @@ const DataVisualizer: React.FC = () => {
   const handleIndicatorChange = useCallback(
     ({ selectedItem }) => {
       const indicator = selectedItem;
-      getCategoryIndicator(selectedItem?.id).then(
+      getCategoryIndicator(selectedItem?.id, selectedItem?.type).then(
         (response) => {
           let results;
           switch (selectedItem.type) {
@@ -385,6 +388,13 @@ const DataVisualizer: React.FC = () => {
               break;
             case "Condition":
               results = mapDataElements(response, null, "concepts");
+              break;
+            case "Orders":
+              results = mapOrderDataElements(
+                response,
+                "Orders",
+                selectedItem.id
+              );
               break;
             case "":
               results = mapDataElements(response, null, "concepts");
@@ -952,7 +962,11 @@ const DataVisualizer: React.FC = () => {
                       <ComboBox
                         ariaLabel="Select indicators"
                         id="indicatorCombobox"
-                        items={[...reportIndicators, ...encounterTypes]}
+                        items={[
+                          ...reportIndicators,
+                          ...encounterTypes,
+                          ...orderTypes,
+                        ]}
                         placeholder="Choose the indicators"
                         onChange={handleIndicatorChange}
                         selectedItem={selectedIndicators}
@@ -1027,6 +1041,7 @@ const DataVisualizer: React.FC = () => {
                                     "Address",
                                     "Condition",
                                     "Appointment",
+                                    "Orders",
                                   ].includes(parameter?.type) ? (
                                     <div className={styles.modifierContainer}>
                                       <div>
