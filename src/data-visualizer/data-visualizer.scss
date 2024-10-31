@@ -357,3 +357,7 @@
     @include type.type-style('legal-01');
   }
 }
+
+:global(.-esm-home__home-dashboard__homePageWrapper___ysEHx) {
+  display: unset !important;
+}
