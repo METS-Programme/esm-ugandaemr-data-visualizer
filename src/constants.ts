@@ -230,7 +230,8 @@ export const integrationDataExports: ReportProps = {
     {
       id: "9ec815ed-e3ac-4710-a480-360e2777c7d1",
       label: "ART Access Register",
-    },{
+    },
+    {
       id: "1759f19f-a7a7-44c7-b584-b5bafe4c36e8",
       label: "Viral Load Exchange Report",
     },
