@@ -192,6 +192,10 @@ export const nationalReports: ReportProps = {
       label: "HMIS 106 1A",
     },
     {
+      id: "8c12b314-564e-4df6-9d06-410176de9461",
+      label: "HMIS 106 1A 2024",
+    },
+    {
       id: "27f4804f-ec6f-466e-b4ea-21f9ca584880",
       label: "HMIS 105",
     },
