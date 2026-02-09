@@ -702,12 +702,13 @@ const DataVisualizer: React.FC = () => {
               <div className={`${styles.form} ${styles.formFirst}`}>
                 <Form>
                   <Stack gap={2}>
-                    <FormGroup>
+                    <FormGroup legendText={``}>
                       <FormLabel className={styles.label}>
                         Type of report
                       </FormLabel>
                       <ContentSwitcher
                         size="sm"
+                        selectedIndex={0}
                         onChange={handleReportTypeChange}
                       >
                         <Switch name="fixed" text="Fixed" />
@@ -717,15 +718,14 @@ const DataVisualizer: React.FC = () => {
 
                     {reportType === "fixed" && (
                       <>
-                        <FormGroup>
+                        <FormGroup legendText={``}>
                           <FormLabel className={styles.label}>
                             Which kind of report do you want to show?
                           </FormLabel>
                           <ComboBox
-                            ariaLabel="Select Report Type"
+                            aria-label="Select Report Type"
                             id="ReportTypeCombobox"
                             items={reportTypes}
-                            hideLabel
                             onChange={handleReportCategoryChange}
                             selectedItem={
                               reportTypes.filter(
@@ -736,15 +736,14 @@ const DataVisualizer: React.FC = () => {
                         </FormGroup>
 
                         {reportCategory.category === "facility" && (
-                          <FormGroup>
+                          <FormGroup legendText={``}>
                             <FormLabel className={styles.label}>
                               Facility Reports
                             </FormLabel>
                             <ComboBox
-                              ariaLabel="Select facility report"
+                              aria-label="Select facility report"
                               id="facilityReportsCombobox"
                               items={facilityReports.reports}
-                              hideLabel
                               onChange={handleSelectedReport}
                               selectedItem={selectedReport}
                             />
@@ -752,15 +751,14 @@ const DataVisualizer: React.FC = () => {
                         )}
 
                         {reportCategory.category === "national" && (
-                          <FormGroup>
+                          <FormGroup legendText={``}>
                             <FormLabel className={styles.label}>
                               National Reports
                             </FormLabel>
                             <ComboBox
-                              ariaLabel="Select national report"
+                              aria-label="Select national report"
                               id="nationalReportsCombobox"
                               items={nationalReports.reports}
-                              hideLabel
                               onChange={handleSelectedReport}
                               selectedItem={selectedReport}
                             />
@@ -768,15 +766,14 @@ const DataVisualizer: React.FC = () => {
                         )}
 
                         {reportCategory.category === "donor" && (
-                          <FormGroup>
+                          <FormGroup legendText={``}>
                             <FormLabel className={styles.label}>
                               Donor Reports
                             </FormLabel>
                             <ComboBox
-                              ariaLabel="Select donor report"
+                              aria-label="Select donor report"
                               id="donorReportsCombobox"
                               items={donorReports.reports}
-                              hideLabel
                               onChange={handleSelectedReport}
                               selectedItem={selectedReport}
                             />
@@ -784,15 +781,14 @@ const DataVisualizer: React.FC = () => {
                         )}
 
                         {reportCategory.category === "cqi" && (
-                          <FormGroup>
+                          <FormGroup legendText={``}>
                             <FormLabel className={styles.label}>
                               CQI Reports
                             </FormLabel>
                             <ComboBox
-                              ariaLabel="Select CQI report"
+                              aria-label="Select CQI report"
                               id="CQIReportsCombobox"
                               items={cqiReports.reports}
-                              hideLabel
                               onChange={handleSelectedReport}
                               selectedItem={selectedReport}
                             />
@@ -800,15 +796,14 @@ const DataVisualizer: React.FC = () => {
                         )}
 
                         {reportCategory.category === "integration" && (
-                          <FormGroup>
+                          <FormGroup legendText={``}>
                             <FormLabel className={styles.label}>
                               Integration Data Exports
                             </FormLabel>
                             <ComboBox
-                              ariaLabel="Select Integration Data Exports"
+                              aria-label="Select Integration Data Exports"
                               id="integrationDataExportCombobox"
                               items={integrationDataExports.reports}
-                              hideLabel
                               onChange={handleSelectedReport}
                               selectedItem={selectedReport}
                             />
@@ -816,7 +811,7 @@ const DataVisualizer: React.FC = () => {
                         )}
 
                         {reportCategory.category === "cqi" && (
-                          <FormGroup>
+                          <FormGroup legendText={``}>
                             <FormLabel className={styles.label}>
                               Select your cohort of interest
                             </FormLabel>
@@ -844,28 +839,27 @@ const DataVisualizer: React.FC = () => {
 
                     {reportType === "dynamic" && (
                       <Stack gap={2}>
-                        <FormGroup>
+                        <FormGroup legendText={``}>
                           <FormLabel className={styles.label}>
                             Which kind of dynamic report type do you want to
                             base on?
                           </FormLabel>
                           <ComboBox
-                            ariaLabel="Select dynamic report type"
+                            aria-label="Select dynamic report type"
                             id="dynamicReportOptions"
                             items={dynamicReportOptions}
-                            hideLabel
                             onChange={handleSelectedDynamicReportType}
                             selectedItem={selectedDynamicReportType}
                           />
                         </FormGroup>
 
-                        <FormGroup>
+                        <FormGroup legendText={``}>
                           <FormLabel className={styles.label}>
                             {selectedDynamicReportType?.label}
                           </FormLabel>
 
                           <ComboBox
-                            ariaLabel="Select report type"
+                            aria-label="Select report type"
                             id="reportTypeCombobox"
                             items={dynamicReportTypes}
                             onChange={handleSelectedReportDefinition}
@@ -880,7 +874,7 @@ const DataVisualizer: React.FC = () => {
               <div className={`${styles.form} ${styles.formRight}`}>
                 <Form>
                   <Stack gap={3}>
-                    <FormGroup>
+                    <FormGroup legendText={``}>
                       <FormLabel className={styles.label}>
                         Do you want your report to cover a fixed reporting
                         period or a relative one?
@@ -904,7 +898,7 @@ const DataVisualizer: React.FC = () => {
                       </RadioButtonGroup>
                     </FormGroup>
                     {reportingDuration === "fixed" && (
-                      <FormGroup className={styles.dateForm}>
+                      <FormGroup legendText={``} className={styles.dateForm}>
                         <DatePicker
                           datePickerType="single"
                           onChange={handleStartDateChange}
@@ -933,7 +927,7 @@ const DataVisualizer: React.FC = () => {
                       </FormGroup>
                     )}
                     {reportingDuration === "relative" && (
-                      <FormGroup>
+                      <FormGroup legendText={``}>
                         <FormLabel className={styles.label}>
                           Select your desired reporting period
                         </FormLabel>
@@ -956,7 +950,7 @@ const DataVisualizer: React.FC = () => {
               <Form>
                 {reportType === "dynamic" && (
                   <Stack gap={2}>
-                    <FormGroup>
+                    <FormGroup legendText={``}>
                       <FormLabel className={styles.label}>Indicators</FormLabel>
 
                       <ComboBox
@@ -1093,7 +1087,7 @@ const DataVisualizer: React.FC = () => {
 
       <section className={styles.section}>
         <div className={styles.contentSwitchContainer}>
-          <ContentSwitcher onChange={handleChartTypeChange}>
+          <ContentSwitcher size={`md`} selectedIndex={0} onChange={handleChartTypeChange}>
             <Switch name="list" disabled={chartType === "aggregate"}>
               <div className={styles.switch}>
                 <Catalog />

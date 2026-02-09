@@ -35,7 +35,7 @@ const ModifierComponent: React.FC<Props> = ({
       <CheckboxGroup
         legendText={`Extra Values`}
         className={styles.extrasContainer}
-        onChange={() => onChangeExtraValue(listItem, event)}
+        // onChange={() => onChangeExtraValue(listItem, event)}
       >
         {modifiers.map((modifier) => {
           return (

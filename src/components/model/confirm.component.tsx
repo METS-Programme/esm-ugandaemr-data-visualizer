@@ -3,8 +3,8 @@ import { useTranslation } from "react-i18next";
 import { Button } from "@carbon/react";
 
 interface ConfirmPromptProps {
-  close: void;
-  submit: void;
+  close: ()=>{};
+  submit: ()=>{};
   report: string;
 }
 
