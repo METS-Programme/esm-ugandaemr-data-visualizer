@@ -44,7 +44,11 @@ const RowDetail: React.FC<RowDetailProps> = ({ reportItem }) => {
   return (
     <>
       <div className={styles.detailContentSwitchContainer}>
-        <ContentSwitcher size={`lg`} selectedIndex={0} onChange={handleTabTypeChange}>
+        <ContentSwitcher
+          size={`lg`}
+          selectedIndex={0}
+          onChange={handleTabTypeChange}
+        >
           <Switch name="client_demographics">
             <div className={styles.switch}>
               <span>Client Demographics</span>

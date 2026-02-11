@@ -60,19 +60,22 @@ const CQIDataList: React.FC<ListProps> = ({ columns, data }) => {
   } = usePagination(data, currentPageSize);
 
   const handleFilter = ({
-                          rowIds,
-                          headers,
-                          cellsById,
-                          inputValue,
-                          getCellId,
-                        }: FilterProps): Array<string> => {
+    rowIds,
+    headers,
+    cellsById,
+    inputValue,
+    getCellId,
+  }: FilterProps): Array<string> => {
     return rowIds.filter((rowId) =>
       headers.some(({ key }) => {
         const cellId = getCellId(rowId, key);
         const filterableValue = cellsById[cellId]?.value;
         const filterTerm = inputValue.toLowerCase();
 
-        if (typeof filterableValue === "boolean" || filterableValue === undefined) {
+        if (
+          typeof filterableValue === "boolean" ||
+          filterableValue === undefined
+        ) {
           return false;
         }
 
@@ -98,14 +101,14 @@ const CQIDataList: React.FC<ListProps> = ({ columns, data }) => {
       useZebraStyles
     >
       {({
-          rows,
-          headers,
-          getHeaderProps,
-          getTableProps,
-          onInputChange,
-          getRowProps,
-          getExpandHeaderProps,
-        }) => (
+        rows,
+        headers,
+        getHeaderProps,
+        getTableProps,
+        onInputChange,
+        getRowProps,
+        getExpandHeaderProps,
+      }) => (
         <TableContainer className={styles.tableContainer}>
           <div className={styles.toolbarWrapper}>
             <TableToolbar size={responsiveSize}>
@@ -152,7 +155,8 @@ const CQIDataList: React.FC<ListProps> = ({ columns, data }) => {
                         ON: styles.yellowCell,
                       };
 
-                      const colorClass = cellClassMap[cell.value as keyof typeof cellClassMap];
+                      const colorClass =
+                        cellClassMap[cell.value as keyof typeof cellClassMap];
 
                       return colorClass ? (
                         <TableCell
@@ -170,13 +174,13 @@ const CQIDataList: React.FC<ListProps> = ({ columns, data }) => {
                       colSpan={headers.length + 1}
                     >
                       <RowDetail
-                        reportItem={
-                          data.find(
-                            (item) =>
-                              item.art_number ===
-                              row.cells.find((c) => c.info.header === "art_number")?.value
-                          )
-                        }
+                        reportItem={data.find(
+                          (item) =>
+                            item.art_number ===
+                            row.cells.find(
+                              (c) => c.info.header === "art_number"
+                            )?.value
+                        )}
                       />
                     </TableExpandedRow>
                   )}

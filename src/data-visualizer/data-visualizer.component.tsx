@@ -65,14 +65,15 @@ import {
   getCategoryIndicator,
   getCohortCategory,
   getDateRange,
-  getReport, getReportFromRegistry,
+  getReport,
+  getReportFromRegistry,
   mapDataElements,
   mapOrderDataElements,
   saveReport,
   sendReportToDHIS2,
   useGetEncounterType,
   useGetOrderTypes,
-  useGetReportingRegistry
+  useGetReportingRegistry,
 } from "./data-visualizer.resource";
 import dayjs from "dayjs";
 import { showModal, showNotification, showToast } from "@openmrs/esm-framework";
@@ -105,11 +106,14 @@ const DataVisualizer: React.FC = () => {
   const { reportingRegistry } = useGetReportingRegistry();
   const reportTypes = reportingRegistry?.reportTypes ?? [];
   const reportPeriod = reportingRegistry?.reportPeriods ?? [];
-  const facilityReports = getReportFromRegistry(reportingRegistry,"facility") ?? [];
+  const facilityReports =
+    getReportFromRegistry(reportingRegistry, "facility") ?? [];
   const donorReports = getReportFromRegistry(reportingRegistry, "donor") ?? [];
-  const nationalReports = getReportFromRegistry(reportingRegistry, "national") ?? [];
+  const nationalReports =
+    getReportFromRegistry(reportingRegistry, "national") ?? [];
   const cqiReports = getReportFromRegistry(reportingRegistry, "cqi") ?? [];
-  const integrationDataExports = getReportFromRegistry(reportingRegistry, "integration") ?? [];
+  const integrationDataExports =
+    getReportFromRegistry(reportingRegistry, "integration") ?? [];
   const [reportingPeriod, setReportingPeriod] = useState<Item>(reportPeriod[0]);
   const [selectedIndicators, setSelectedIndicators] = useState<Indicator>(null);
   const [selectedReport, setSelectedReport] = useState<Item>(
@@ -147,7 +151,15 @@ const DataVisualizer: React.FC = () => {
     }
 
     setSelectedReport(initialSelectedReport);
-  }, [reportCategory, reportType]);
+  }, [
+    reportCategory,
+    reportType,
+    facilityReports.reports,
+    donorReports.reports,
+    nationalReports.reports,
+    cqiReports.reports,
+    integrationDataExports.reports,
+  ]);
 
   const handleSelectedReport = ({ selectedItem }) => {
     setSelectedReport(selectedItem);
@@ -730,7 +742,7 @@ const DataVisualizer: React.FC = () => {
                             items={reportTypes}
                             onChange={handleReportCategoryChange}
                             selectedItem={
-                              (reportTypes)?.filter(
+                              reportTypes?.filter(
                                 (item) => item.id === reportCategory.category
                               )[0]
                             }
@@ -1089,7 +1101,11 @@ const DataVisualizer: React.FC = () => {
 
       <section className={styles.section}>
         <div className={styles.contentSwitchContainer}>
-          <ContentSwitcher size={`md`} selectedIndex={0} onChange={handleChartTypeChange}>
+          <ContentSwitcher
+            size={`md`}
+            selectedIndex={0}
+            onChange={handleChartTypeChange}
+          >
             <Switch name="list" disabled={chartType === "aggregate"}>
               <div className={styles.switch}>
                 <Catalog />

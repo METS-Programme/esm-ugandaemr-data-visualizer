@@ -203,15 +203,13 @@ export function useGetReportingRegistry() {
   );
 
   return {
-    reportingRegistry: data
-      ? parseReportingString(data?.data)
-      : [],
+    reportingRegistry: data ? parseReportingString(data?.data) : [],
     isError: error,
     isLoadingRegistry: isLoading,
   };
 }
 
-export const createColumns = (columns: Array<string>)=> {
+export const createColumns = (columns: Array<string>) => {
   let dataColumn: Array<Record<string, string>> = [];
   columns.map((column: string, index) => {
     dataColumn.push({
@@ -222,13 +220,13 @@ export const createColumns = (columns: Array<string>)=> {
     });
   });
   return dataColumn;
-}
+};
 
 export const mapDataOrderTypeElements = (
   dataArray: Array<Record<string, string>>,
   type?: string,
   category?: string
-)=> {
+) => {
   let arrayToReturn: Array<Indicator> = [];
   if (dataArray) {
     dataArray.map((ordertype: Record<string, string>) => {
@@ -241,13 +239,13 @@ export const mapDataOrderTypeElements = (
   }
 
   return arrayToReturn;
-}
+};
 
 export const mapDataElements = (
   dataArray: Array<Record<string, string>>,
   type?: string,
   category?: string
-)=> {
+) => {
   let arrayToReturn: Array<Indicator> = [];
   if (dataArray) {
     if (category === "concepts") {
@@ -278,13 +276,13 @@ export const mapDataElements = (
   }
 
   return arrayToReturn;
-}
+};
 
 export const mapOrderDataElements = (
   dataArray: Array<string>,
   type?: string,
   category?: string
-)=> {
+) => {
   let arrayToReturn: Array<Indicator> = [];
   if (dataArray) {
     dataArray.map((indication: string) => {
@@ -301,9 +299,9 @@ export const mapOrderDataElements = (
   }
 
   return arrayToReturn;
-}
+};
 
-export const formatReportArray = (selectedItems: Array<Indicator>)=> {
+export const formatReportArray = (selectedItems: Array<Indicator>) => {
   let arrayToReturn: Array<ReportParamItem> = [];
   if (selectedItems) {
     selectedItems.map((item: Indicator) => {
@@ -318,9 +316,9 @@ export const formatReportArray = (selectedItems: Array<Indicator>)=> {
   }
 
   return arrayToReturn;
-}
+};
 
-export const getDateRange = (selectedPeriod: ReportingPeriod)=> {
+export const getDateRange = (selectedPeriod: ReportingPeriod) => {
   const currentDate = new Date();
 
   switch (selectedPeriod) {
@@ -406,7 +404,7 @@ export const getDateRange = (selectedPeriod: ReportingPeriod)=> {
         end: null,
       };
   }
-}
+};
 
 export const extractDate = (timestamp: string): string => {
   const dateObject = new Date(timestamp);
@@ -415,18 +413,18 @@ export const extractDate = (timestamp: string): string => {
   const day = dateObject.getDate().toString().padStart(2, "0");
 
   return `${year}-${month}-${day}`;
-}
+};
 
 export const formatDate = (date: Date): string => {
   return dayjs(date).format("YYYY-MM-DD");
-}
+};
 
-const parseReportingString = (dataResponse)=> {
+const parseReportingString = (dataResponse) => {
   const valueString = dataResponse?.value;
 
   return JSON.parse(valueString);
-}
+};
 
 export const getReportFromRegistry = (registry, type) => {
-  return registry?.categories?.find(category => category?.id === type);
-}
+  return registry?.categories?.find((category) => category?.id === type);
+};

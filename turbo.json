@@ -1,17 +1,15 @@
 {
-  "$schema": "https://turbo.build/schema.json",
-  "pipeline": {
+  "$schema": "https://turborepo.org/schema.json",
+  "tasks": {
     "build": {
-      "outputs": [".dist/**"]
-    },
-    "lint": {},
-    "extract-translations": {
-      "outputs": ["./translations/*"]
+      "outputs": ["dist/**"]
     },
     "test": {},
-    "coverage": {
-      "outputs": ["coverage/**"]
+    "test:watch": {
+      "cache": false,
+      "persistent": true
     },
+    "lint": {},
     "typescript": {}
   }
 }
