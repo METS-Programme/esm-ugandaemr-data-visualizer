@@ -44,14 +44,7 @@ import {
 import ReportingHomeHeader from "../components/header/header.component";
 import {
   CQIReportHeaders,
-  cqiReports,
-  donorReports,
-  facilityReports,
-  integrationDataExports,
-  nationalReports,
   reportIndicators,
-  reportTypes,
-  reportPeriod,
   dynamicReportOptions,
   personNames,
   Address,
@@ -72,13 +65,14 @@ import {
   getCategoryIndicator,
   getCohortCategory,
   getDateRange,
-  getReport,
+  getReport, getReportFromRegistry,
   mapDataElements,
   mapOrderDataElements,
   saveReport,
   sendReportToDHIS2,
   useGetEncounterType,
   useGetOrderTypes,
+  useGetReportingRegistry
 } from "./data-visualizer.resource";
 import dayjs from "dayjs";
 import { showModal, showNotification, showToast } from "@openmrs/esm-framework";
@@ -108,10 +102,18 @@ const DataVisualizer: React.FC = () => {
   }>({ category: "facility", renderType: "list" });
   const [reportingDuration, setReportingDuration] =
     useState<ReportingDuration>("fixed");
+  const { reportingRegistry } = useGetReportingRegistry();
+  const reportTypes = reportingRegistry?.reportTypes ?? [];
+  const reportPeriod = reportingRegistry?.reportPeriods ?? [];
+  const facilityReports = getReportFromRegistry(reportingRegistry,"facility") ?? [];
+  const donorReports = getReportFromRegistry(reportingRegistry, "donor") ?? [];
+  const nationalReports = getReportFromRegistry(reportingRegistry, "national") ?? [];
+  const cqiReports = getReportFromRegistry(reportingRegistry, "cqi") ?? [];
+  const integrationDataExports = getReportFromRegistry(reportingRegistry, "integration") ?? [];
   const [reportingPeriod, setReportingPeriod] = useState<Item>(reportPeriod[0]);
   const [selectedIndicators, setSelectedIndicators] = useState<Indicator>(null);
   const [selectedReport, setSelectedReport] = useState<Item>(
-    facilityReports.reports[0]
+    facilityReports?.reports?.[0]
   );
   const [cqiReportingCohort, setCQIReportingCohort] =
     useState<CQIReportingCohort>("Patients with encounters");
@@ -122,25 +124,25 @@ const DataVisualizer: React.FC = () => {
     if (reportType === "fixed") {
       switch (reportCategory.category) {
         case "facility":
-          initialSelectedReport = facilityReports.reports[0];
+          initialSelectedReport = facilityReports?.reports?.[0];
           break;
         case "donor":
-          initialSelectedReport = donorReports.reports[0];
+          initialSelectedReport = donorReports.reports?.[0];
           break;
         case "national":
-          initialSelectedReport = nationalReports.reports[0];
+          initialSelectedReport = nationalReports.reports?.[0];
           break;
         case "cqi":
-          initialSelectedReport = cqiReports.reports[0];
+          initialSelectedReport = cqiReports.reports?.[0];
           break;
         case "integration":
-          initialSelectedReport = integrationDataExports.reports[0];
+          initialSelectedReport = integrationDataExports.reports?.[0];
           break;
         default:
-          initialSelectedReport = facilityReports.reports[0];
+          initialSelectedReport = facilityReports?.reports?.[0];
       }
     } else {
-      initialSelectedReport = facilityReports.reports[0];
+      initialSelectedReport = facilityReports?.reports?.[0];
       setChartType("list");
     }
 
@@ -173,7 +175,7 @@ const DataVisualizer: React.FC = () => {
     dynamicReportOptions[3]
   );
   const [dynamicReportTypes, setDynamicReportTypes] = useState(
-    facilityReports.reports
+    facilityReports?.reports
   );
 
   const handleChartTypeChange = ({ name }) => {
@@ -435,8 +437,8 @@ const DataVisualizer: React.FC = () => {
     let reports = [];
 
     if (selectedItem.id === "reportDefinition") {
-      setDynamicReportTypes(facilityReports.reports);
-      setSelectedReport(facilityReports.reports[0]);
+      setDynamicReportTypes(facilityReports?.reports);
+      setSelectedReport(facilityReports?.reports?.[0]);
     } else {
       getCohortCategory(selectedItem.id).then((response) => {
         const responseResults =
@@ -728,7 +730,7 @@ const DataVisualizer: React.FC = () => {
                             items={reportTypes}
                             onChange={handleReportCategoryChange}
                             selectedItem={
-                              reportTypes.filter(
+                              (reportTypes)?.filter(
                                 (item) => item.id === reportCategory.category
                               )[0]
                             }
@@ -743,7 +745,7 @@ const DataVisualizer: React.FC = () => {
                             <ComboBox
                               aria-label="Select facility report"
                               id="facilityReportsCombobox"
-                              items={facilityReports.reports}
+                              items={facilityReports?.reports ?? []}
                               onChange={handleSelectedReport}
                               selectedItem={selectedReport}
                             />
@@ -861,7 +863,7 @@ const DataVisualizer: React.FC = () => {
                           <ComboBox
                             aria-label="Select report type"
                             id="reportTypeCombobox"
-                            items={dynamicReportTypes}
+                            items={dynamicReportTypes ?? []}
                             onChange={handleSelectedReportDefinition}
                             selectedItem={selectedReport}
                           />

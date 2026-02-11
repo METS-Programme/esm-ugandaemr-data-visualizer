@@ -195,7 +195,23 @@ export async function getCohortCategory(type: string) {
   return data;
 }
 
-export function createColumns(columns: Array<string>) {
+export function useGetReportingRegistry() {
+  const apiUrl = `${restBaseUrl}/systemsetting/f4544de3-001c-4cbf-b939-75a2884edafa`;
+  const { data, error, isLoading } = useSWR<{ data: { results: any } }, Error>(
+    apiUrl,
+    openmrsFetch
+  );
+
+  return {
+    reportingRegistry: data
+      ? parseReportingString(data?.data)
+      : [],
+    isError: error,
+    isLoadingRegistry: isLoading,
+  };
+}
+
+export const createColumns = (columns: Array<string>)=> {
   let dataColumn: Array<Record<string, string>> = [];
   columns.map((column: string, index) => {
     dataColumn.push({
@@ -208,11 +224,11 @@ export function createColumns(columns: Array<string>) {
   return dataColumn;
 }
 
-export function mapDataOrderTypeElements(
+export const mapDataOrderTypeElements = (
   dataArray: Array<Record<string, string>>,
   type?: string,
   category?: string
-) {
+)=> {
   let arrayToReturn: Array<Indicator> = [];
   if (dataArray) {
     dataArray.map((ordertype: Record<string, string>) => {
@@ -227,11 +243,11 @@ export function mapDataOrderTypeElements(
   return arrayToReturn;
 }
 
-export function mapDataElements(
+export const mapDataElements = (
   dataArray: Array<Record<string, string>>,
   type?: string,
   category?: string
-) {
+)=> {
   let arrayToReturn: Array<Indicator> = [];
   if (dataArray) {
     if (category === "concepts") {
@@ -264,11 +280,11 @@ export function mapDataElements(
   return arrayToReturn;
 }
 
-export function mapOrderDataElements(
+export const mapOrderDataElements = (
   dataArray: Array<string>,
   type?: string,
   category?: string
-) {
+)=> {
   let arrayToReturn: Array<Indicator> = [];
   if (dataArray) {
     dataArray.map((indication: string) => {
@@ -287,7 +303,7 @@ export function mapOrderDataElements(
   return arrayToReturn;
 }
 
-export function formatReportArray(selectedItems: Array<Indicator>) {
+export const formatReportArray = (selectedItems: Array<Indicator>)=> {
   let arrayToReturn: Array<ReportParamItem> = [];
   if (selectedItems) {
     selectedItems.map((item: Indicator) => {
@@ -304,7 +320,7 @@ export function formatReportArray(selectedItems: Array<Indicator>) {
   return arrayToReturn;
 }
 
-export function getDateRange(selectedPeriod: ReportingPeriod) {
+export const getDateRange = (selectedPeriod: ReportingPeriod)=> {
   const currentDate = new Date();
 
   switch (selectedPeriod) {
@@ -392,7 +408,7 @@ export function getDateRange(selectedPeriod: ReportingPeriod) {
   }
 }
 
-export function extractDate(timestamp: string): string {
+export const extractDate = (timestamp: string): string => {
   const dateObject = new Date(timestamp);
   const year = dateObject.getFullYear();
   const month = (dateObject.getMonth() + 1).toString().padStart(2, "0");
@@ -401,6 +417,16 @@ export function extractDate(timestamp: string): string {
   return `${year}-${month}-${day}`;
 }
 
-export function formatDate(date: Date): string {
+export const formatDate = (date: Date): string => {
   return dayjs(date).format("YYYY-MM-DD");
+}
+
+const parseReportingString = (dataResponse)=> {
+  const valueString = dataResponse?.value;
+
+  return JSON.parse(valueString);
+}
+
+export const getReportFromRegistry = (registry, type) => {
+  return registry?.categories?.find(category => category?.id === type);
 }
