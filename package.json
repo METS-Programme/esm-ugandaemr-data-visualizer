@@ -1,6 +1,6 @@
 {
     "name": "@ugandaemr/esm-data-visualizer-app",
-    "version": "1.0.1-pre.136",
+    "version": "1.0.2",
     "license": "MPL-2.0",
     "description": "A microfrontend for reporting in UgandaEMR",
     "browser": "dist/esm-ugandaemr-data-visualizer-app.js",
