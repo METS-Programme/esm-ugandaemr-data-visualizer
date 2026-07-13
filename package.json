@@ -1,13 +1,13 @@
 {
     "name": "@ugandaemr/esm-data-visualizer-app",
-    "version": "1.0.0",
+    "version": "1.0.1-pre.136",
     "license": "MPL-2.0",
     "description": "A microfrontend for reporting in UgandaEMR",
     "browser": "dist/esm-ugandaemr-data-visualizer-app.js",
     "main": "src/index.ts",
     "source": true,
     "files": [
-      "*"
+        "*"
     ],
     "scripts": {
         "start": "openmrs develop",
