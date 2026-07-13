@@ -7,7 +7,7 @@
     "main": "src/index.ts",
     "source": true,
     "files": [
-      "*"
+        "*"
     ],
     "scripts": {
         "start": "openmrs develop",
