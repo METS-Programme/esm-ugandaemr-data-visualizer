@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import PivotTableUI from "react-pivottable/PivotTableUI";
 import TableRenderers from "react-pivottable/TableRenderers";
 import Plot from "react-plotly.js";
@@ -66,20 +66,19 @@ import {
   getCohortCategory,
   getDateRange,
   getReport,
-  getReportFromRegistry,
   mapDataElements,
   mapOrderDataElements,
   saveReport,
   sendReportToDHIS2,
   useGetEncounterType,
   useGetOrderTypes,
-  useGetReportingRegistry,
+  useGetReportCategories,
+  useGetReportLibrary,
 } from "./data-visualizer.resource";
 import dayjs from "dayjs";
 import { showModal, showNotification, showToast } from "@openmrs/esm-framework";
 import ModifierComponent from "../components/popover/modifier-panel";
-import { Simulate } from "react-dom/test-utils";
-import error = Simulate.error;
+
 type ChartType = "list" | "pivot" | "aggregate";
 type ReportingDuration = "fixed" | "relative";
 export type CQIReportingCohort =
@@ -90,80 +89,129 @@ type DynamicReportType =
   | "cohort"
   | "patientSearch"
   | "reportDefinition";
+
+type ReportLibraryItem = {
+  uuid: string;
+  name: string;
+  description?: string;
+  code?: string;
+  sourceType?: string;
+  reportDefinitionUuid?: string;
+  reportBuilderReportUuid?: string;
+  reportType?: string;
+  migrated?: boolean;
+  retired?: boolean;
+  category?: {
+    uuid?: string;
+    name?: string;
+    display?: string;
+    description?: string;
+  };
+};
+
 const DataVisualizer: React.FC = () => {
   const PlotlyRenderers = createPlotlyRenderers(Plot);
+
   const [tableHeaders, setTableHeaders] = useState([]);
   const [data, setData] = useState([]);
-  const [pivotTableData, setPivotTableData] = useState(data);
+  const [pivotTableData, setPivotTableData] = useState<any[]>([]);
   const [chartType, setChartType] = useState<ChartType>("list");
   const [reportType, setReportType] = useState<ReportType>("fixed");
   const [reportCategory, setReportCategory] = useState<{
-    category: ReportCategory;
+    category?: ReportCategory;
     renderType?: RenderType;
-  }>({ category: "facility", renderType: "list" });
+    categoryUuid?: string;
+    categoryName?: string;
+  }>({
+    category: undefined,
+    renderType: undefined,
+    categoryUuid: undefined,
+    categoryName: undefined,
+  });
   const [reportingDuration, setReportingDuration] =
     useState<ReportingDuration>("fixed");
-  const { reportingRegistry } = useGetReportingRegistry();
-  const reportTypes = reportingRegistry?.reportTypes ?? [];
-  const reportPeriod = reportingRegistry?.reportPeriods ?? [];
-  const facilityReports =
-    getReportFromRegistry(reportingRegistry, "facility") ?? [];
-  const donorReports = getReportFromRegistry(reportingRegistry, "donor") ?? [];
-  const nationalReports =
-    getReportFromRegistry(reportingRegistry, "national") ?? [];
-  const cqiReports = getReportFromRegistry(reportingRegistry, "cqi") ?? [];
-  const integrationDataExports =
-    getReportFromRegistry(reportingRegistry, "integration") ?? [];
-  const [reportingPeriod, setReportingPeriod] = useState<Item>(reportPeriod[0]);
-  const [selectedIndicators, setSelectedIndicators] = useState<Indicator>(null);
-  const [selectedReport, setSelectedReport] = useState<Item>(
-    facilityReports?.reports?.[0]
+
+  const { reportLibrary } = useGetReportLibrary();
+  const { reportCategories } = useGetReportCategories();
+
+  const reportTypes = useMemo(
+    () =>
+      (reportCategories ?? []).map((category) => ({
+        id: category?.uuid,
+        key: category?.uuid,
+        label: category?.name,
+        name: category?.name,
+        uuid: category?.uuid,
+      })),
+    [reportCategories]
   );
+
+  const reportPeriod = [
+    { id: "today", label: "Today" },
+    { id: "week", label: "This Week" },
+    { id: "month", label: "This Month" },
+    { id: "quarter", label: "This Quarter" },
+    { id: "lastQuarter", label: "Last Quarter" },
+  ];
+
+  const toReportOption = (report: ReportLibraryItem) => ({
+    id:
+      report?.reportDefinitionUuid ||
+      report?.reportBuilderReportUuid ||
+      report?.uuid,
+    uuid: report?.uuid,
+    label: report?.name,
+    name: report?.name,
+    sourceType: report?.sourceType,
+    reportType: report?.reportType,
+    code: report?.code,
+    category: report?.category?.name,
+  });
+
+  const getReportsByCategoryName = useCallback(
+    (categoryName: string) => {
+      return (reportLibrary ?? [])
+        .filter(
+          (report: ReportLibraryItem) =>
+            report?.category?.name?.toLowerCase() === categoryName?.toLowerCase()
+        )
+        .map(toReportOption);
+    },
+    [reportLibrary]
+  );
+
+  const facilityReports = useMemo(
+    () => getReportsByCategoryName("FACILITY REPORTS"),
+    [getReportsByCategoryName]
+  );
+
+  const donorReports = useMemo(
+    () => getReportsByCategoryName("MER INDICATOR REPORTS"),
+    [getReportsByCategoryName]
+  );
+
+  const nationalReports = useMemo(
+    () => getReportsByCategoryName("NATIONAL REPORTS"),
+    [getReportsByCategoryName]
+  );
+
+  const cqiReports = useMemo(
+    () => getReportsByCategoryName("CQI REPORTS"),
+    [getReportsByCategoryName]
+  );
+
+  const integrationDataExports = useMemo(
+    () => getReportsByCategoryName("Integration Data Exports"),
+    [getReportsByCategoryName]
+  );
+
+  const [reportingPeriod, setReportingPeriod] = useState<Item | null>(null);
+  const [selectedIndicators, setSelectedIndicators] =
+    useState<Indicator | null>(null);
+  const [selectedReport, setSelectedReport] = useState<Item | null>(null);
   const [cqiReportingCohort, setCQIReportingCohort] =
     useState<CQIReportingCohort>("Patients with encounters");
 
-  useEffect(() => {
-    let initialSelectedReport;
-
-    if (reportType === "fixed") {
-      switch (reportCategory.category) {
-        case "facility":
-          initialSelectedReport = facilityReports?.reports?.[0];
-          break;
-        case "donor":
-          initialSelectedReport = donorReports.reports?.[0];
-          break;
-        case "national":
-          initialSelectedReport = nationalReports.reports?.[0];
-          break;
-        case "cqi":
-          initialSelectedReport = cqiReports.reports?.[0];
-          break;
-        case "integration":
-          initialSelectedReport = integrationDataExports.reports?.[0];
-          break;
-        default:
-          initialSelectedReport = facilityReports?.reports?.[0];
-      }
-    } else {
-      initialSelectedReport = facilityReports?.reports?.[0];
-      setChartType("list");
-    }
-
-    setSelectedReport(initialSelectedReport);
-  }, [
-    reportCategory,
-    reportType,
-    facilityReports.reports,
-    donorReports.reports,
-    nationalReports.reports,
-    cqiReports.reports,
-    integrationDataExports.reports,
-  ]);
-
-  const handleSelectedReport = ({ selectedItem }) => {
-    setSelectedReport(selectedItem);
-  };
   const [startDate, setStartDate] = useState(new Date());
   const [endDate, setEndDate] = useState(new Date());
   const [loading, setLoading] = useState(true);
@@ -183,12 +231,25 @@ const DataVisualizer: React.FC = () => {
   const [isDownloading, setIsDownloading] = useState(false);
   const [isSendingReport, setIsSendingReport] = useState(false);
   const [dhisJson, setDhisJson] = useState({});
-  const [selectedDynamicReportType, setSelectedDynamicReportType] = useState(
-    dynamicReportOptions[3]
-  );
-  const [dynamicReportTypes, setDynamicReportTypes] = useState(
-    facilityReports?.reports
-  );
+
+  const [selectedDynamicReportType, setSelectedDynamicReportType] =
+    useState<Item | null>(null);
+  const [dynamicReportTypes, setDynamicReportTypes] = useState([]);
+
+  const hasFixedCategory = !!reportCategory.categoryUuid;
+  const hasDynamicCategory = !!selectedDynamicReportType;
+
+  useEffect(() => {
+    setSelectedReport(null);
+    setData([]);
+    setPivotTableData([]);
+    setHTML("");
+    setShowLineList(false);
+  }, [reportCategory, reportType]);
+
+  const handleSelectedReport = ({ selectedItem }) => {
+    setSelectedReport(selectedItem ?? null);
+  };
 
   const handleChartTypeChange = ({ name }) => {
     setChartType(name);
@@ -196,6 +257,23 @@ const DataVisualizer: React.FC = () => {
 
   const handleReportTypeChange = ({ name }) => {
     setReportType(name);
+    setSelectedReport(null);
+    setSelectedIndicators(null);
+    setAvailableParameters([]);
+    setSelectedParameters([]);
+    setData([]);
+    setPivotTableData([]);
+    setHTML("");
+    setShowLineList(false);
+    setReportCategory({
+      category: undefined,
+      renderType: undefined,
+      categoryUuid: undefined,
+      categoryName: undefined,
+    });
+    setSelectedDynamicReportType(null);
+    setDynamicReportTypes([]);
+    setChartType("list");
   };
 
   const handleReportingDurationChange = (period) => {
@@ -215,6 +293,8 @@ const DataVisualizer: React.FC = () => {
   };
 
   const confirmSendReport = () => {
+    if (!selectedReport) return;
+
     const dispose = showModal("confirm-modal", {
       close: () => dispose(),
       submit: () => {
@@ -226,6 +306,8 @@ const DataVisualizer: React.FC = () => {
   };
 
   const handleSendToDHIS2 = useCallback(() => {
+    if (!selectedReport) return;
+
     setIsSendingReport(true);
 
     sendReportToDHIS2(selectedReport.id, dhisJson).then(
@@ -237,8 +319,7 @@ const DataVisualizer: React.FC = () => {
             kind: "success",
             description: `Report ${selectedReport.label} sent Successfully`,
           });
-        }
-        {
+        } else {
           showNotification({
             title: "Error sending report to DHIS2",
             kind: "error",
@@ -246,6 +327,7 @@ const DataVisualizer: React.FC = () => {
             description: `Failed with error code ${response.status}, Contact System Administrator`,
           });
         }
+
         setIsSendingReport(false);
       },
       (error) => {
@@ -261,6 +343,8 @@ const DataVisualizer: React.FC = () => {
   }, [selectedReport, dhisJson]);
 
   const handleDownloadReport = useCallback(() => {
+    if (!selectedReport) return;
+
     setIsDownloading(true);
 
     downloadReport({
@@ -276,12 +360,13 @@ const DataVisualizer: React.FC = () => {
           const url = window.URL.createObjectURL(blob);
           const filename = response?.headers
             ?.get("Content-Disposition")
-            ?.match(/filename=(.+)/)[1];
+            ?.match(/filename=(.+)/)?.[1];
+
           const a = document.createElement("a");
           a.href = url;
-          a.download = filename;
+          a.download = filename ?? `${selectedReport.label}.csv`;
           a.click();
-          window.URL.revokeObjectURL(response?.url);
+          window.URL.revokeObjectURL(url);
         } catch (error) {
           showNotification({
             title: "Error downloading Report",
@@ -348,7 +433,6 @@ const DataVisualizer: React.FC = () => {
       (parameter) => parameter !== selectedParameter
     );
     setAvailableParameters(updatedAvailableParameters);
-
     setSelectedParameters([...selectedParameters, selectedParameter]);
   };
 
@@ -360,7 +444,7 @@ const DataVisualizer: React.FC = () => {
 
     let updatedAvailableParameters = [...availableParameters];
 
-    selectedIndicators.attributes.filter((parameter) => {
+    selectedIndicators?.attributes?.filter((parameter) => {
       if (parameter === selectedParameter) {
         updatedAvailableParameters = [
           ...updatedAvailableParameters,
@@ -368,11 +452,12 @@ const DataVisualizer: React.FC = () => {
         ];
       }
     });
+
     setAvailableParameters(updatedAvailableParameters);
   };
 
   const moveAllParametersLeft = () => {
-    setAvailableParameters(selectedIndicators.attributes);
+    setAvailableParameters(selectedIndicators?.attributes ?? []);
     setSelectedParameters([]);
   };
 
@@ -384,9 +469,17 @@ const DataVisualizer: React.FC = () => {
   const handleIndicatorChange = useCallback(
     ({ selectedItem }) => {
       const indicator = selectedItem;
+
+      if (!selectedItem) {
+        setSelectedIndicators(null);
+        setAvailableParameters([]);
+        return;
+      }
+
       getCategoryIndicator(selectedItem?.id, selectedItem?.type).then(
         (response) => {
           let results;
+
           switch (selectedItem.type) {
             case "PersonName":
               results = personNames;
@@ -419,12 +512,14 @@ const DataVisualizer: React.FC = () => {
           }
 
           setSelectedIndicators(indicator);
+
           const filteredArray = results?.filter(
             (resultParameter) =>
               !selectedParameters?.some(
                 (parameter) => parameter.id === resultParameter.id
               )
           );
+
           indicator.attributes = filteredArray;
           setAvailableParameters(indicator.attributes ?? []);
         },
@@ -442,35 +537,38 @@ const DataVisualizer: React.FC = () => {
   );
 
   const handleSelectedReportDefinition = ({ selectedItem }) => {
-    setSelectedReport(selectedItem);
+    setSelectedReport(selectedItem ?? null);
   };
 
   const handleSelectedDynamicReportType = ({ selectedItem }) => {
-    let reports = [];
+    setSelectedDynamicReportType(selectedItem ?? null);
+    setSelectedReport(null);
+    setDynamicReportTypes([]);
+
+    if (!selectedItem) {
+      return;
+    }
 
     if (selectedItem.id === "reportDefinition") {
-      setDynamicReportTypes(facilityReports?.reports);
-      setSelectedReport(facilityReports?.reports?.[0]);
+      setDynamicReportTypes(facilityReports ?? []);
     } else {
       getCohortCategory(selectedItem.id).then((response) => {
         const responseResults =
           selectedItem.id === "patientSearch" ? response : response?.results;
-        responseResults?.map((responseItem) => {
-          reports.push({
+
+        const reports =
+          responseResults?.map((responseItem) => ({
             id: responseItem?.uuid,
             label: responseItem?.name,
-          });
-        });
+          })) ?? [];
+
         setDynamicReportTypes(reports);
-        setSelectedReport(reports[0] ?? null);
       });
     }
-
-    setSelectedDynamicReportType(selectedItem);
   };
 
   const handleFiltersToggle = () => {
-    showFilters === true ? setShowFilters(false) : setShowFilters(true);
+    setShowFilters((prev) => !prev);
   };
 
   const handleStartDateChange = (selectedDate) => {
@@ -481,34 +579,74 @@ const DataVisualizer: React.FC = () => {
     setEndDate(selectedDate[0]);
   };
 
-  const handleReportCategoryChange = (selectedItem) => {
-    const typeOfReport = selectedItem.selectedItem.id;
-    if (typeOfReport === "national") {
+  const handleReportCategoryChange = ({ selectedItem }) => {
+    if (!selectedItem) {
+      setReportCategory({
+        category: undefined,
+        renderType: undefined,
+        categoryUuid: undefined,
+        categoryName: undefined,
+      });
+      setSelectedReport(null);
+      setChartType("list");
+      return;
+    }
+
+    const categoryName = selectedItem?.name || selectedItem?.label || "";
+    const categoryUuid = selectedItem?.uuid || selectedItem?.id;
+
+    setSelectedReport(null);
+
+    if (categoryName === "NATIONAL REPORTS") {
       setReportCategory({
         category: "national",
         renderType: "html",
+        categoryUuid,
+        categoryName,
       });
       setChartType("aggregate");
-    } else if (typeOfReport === "cqi") {
-      setReportCategory({ category: "cqi" });
+    } else if (categoryName === "CQI REPORTS") {
+      setReportCategory({
+        category: "cqi",
+        renderType: undefined,
+        categoryUuid,
+        categoryName,
+      });
       setChartType("list");
-    } else if (typeOfReport === "donor") {
+    } else if (categoryName === "MER INDICATOR REPORTS") {
       setReportCategory({
         category: "donor",
         renderType: "html",
+        categoryUuid,
+        categoryName,
       });
       setChartType("aggregate");
-    } else if (typeOfReport === "integration") {
-      setReportCategory({ category: "integration" });
+    } else if (categoryName === "Integration Data Exports") {
+      setReportCategory({
+        category: "integration",
+        renderType: undefined,
+        categoryUuid,
+        categoryName,
+      });
       setChartType("list");
     } else {
-      setReportCategory({ category: "facility" });
+      setReportCategory({
+        category: "facility",
+        renderType: "list",
+        categoryUuid,
+        categoryName,
+      });
       setChartType("list");
     }
   };
 
   const handleReportingPeriod = (selectedPeriod) => {
-    setReportingPeriod(selectedPeriod?.selectedItem);
+    setReportingPeriod(selectedPeriod?.selectedItem ?? null);
+
+    if (!selectedPeriod?.selectedItem?.id) {
+      return;
+    }
+
     const dateRange = getDateRange(selectedPeriod?.selectedItem?.id);
     setStartDate(dateRange.start);
     setEndDate(dateRange.end);
@@ -519,9 +657,9 @@ const DataVisualizer: React.FC = () => {
       selectedParameters.map((parameter) =>
         parameter.id === selectedParameter.id
           ? {
-              ...parameter,
-              modifier: addORSubtract(selectedParameter?.modifier, type),
-            }
+            ...parameter,
+            modifier: addORSubtract(selectedParameter?.modifier, type),
+          }
           : parameter
       )
     );
@@ -542,9 +680,9 @@ const DataVisualizer: React.FC = () => {
       selectedParameters.map((parameter) =>
         parameter.id === selectedParameter.id
           ? {
-              ...parameter,
-              showModifierPanel: !selectedParameter?.showModifierPanel,
-            }
+            ...parameter,
+            showModifierPanel: !selectedParameter?.showModifierPanel,
+          }
           : parameter
       )
     );
@@ -556,9 +694,9 @@ const DataVisualizer: React.FC = () => {
         selectedParameters.map((parameter) =>
           parameter.id === selectedParameter.id
             ? {
-                ...parameter,
-                extras: [...parameter?.extras, event?.target?.value],
-              }
+              ...parameter,
+              extras: [...parameter?.extras, event?.target?.value],
+            }
             : parameter
         )
       );
@@ -567,11 +705,11 @@ const DataVisualizer: React.FC = () => {
         selectedParameters.map((parameter) =>
           parameter.id === selectedParameter.id
             ? {
-                ...parameter,
-                extras: parameter?.extras.filter(
-                  (modifier) => modifier !== event?.target?.value
-                ),
-              }
+              ...parameter,
+              extras: parameter?.extras.filter(
+                (modifier) => modifier !== event?.target?.value
+              ),
+            }
             : parameter
         )
       );
@@ -579,6 +717,8 @@ const DataVisualizer: React.FC = () => {
   };
 
   const handleUpdateReport = useCallback(() => {
+    if (!selectedReport) return;
+
     setHTML("");
     setShowLineList(true);
     setLoading(true);
@@ -588,7 +728,10 @@ const DataVisualizer: React.FC = () => {
       uuid: selectedReport.id,
       startDate: formatDate(startDate),
       endDate: formatDate(endDate),
-      reportCategory: reportCategory,
+      reportCategory: reportCategory as {
+        category: ReportCategory;
+        renderType?: RenderType;
+      },
       reportIndicators: selectedParameters,
       reportType: reportType,
       reportingCohort: cqiReportingCohort,
@@ -599,55 +742,52 @@ const DataVisualizer: React.FC = () => {
           let headers = [];
           let dataForReport: any = [];
           const reportData = response?.data;
+
           if (reportType === "fixed") {
             if (reportCategory.category === "cqi") {
               dataForReport = response?.data?.A;
               headers = CQIReportHeaders;
+            } else if (reportCategory.renderType === "html") {
+              setHTML(reportData?.html ?? "");
+              setDhisJson(reportData?.json ?? {});
             } else {
-              if (reportCategory.renderType === "html") {
-                setHTML(reportData?.html ?? "");
-                setDhisJson(reportData?.json ?? {});
-              } else {
-                const responseReportName = Object.keys(reportData)[0];
+              const responseReportName = Object.keys(reportData)[0];
+
+              if (
+                reportData[responseReportName] &&
+                reportData[responseReportName][0]
+              ) {
+                let columnNames = Object.keys(reportData[responseReportName][0]);
+
                 if (
-                  reportData[responseReportName] &&
-                  reportData[responseReportName][0]
+                  selectedReport.id === "bf79f017-8591-4eaf-88c9-1cde33226517"
                 ) {
-                  let columnNames = Object.keys(
-                    reportData[responseReportName][0]
-                  );
-                  if (
-                    selectedReport.id === "bf79f017-8591-4eaf-88c9-1cde33226517"
-                  ) {
-                    columnNames = columnNames
-                      .reverse()
-                      .filter(
-                        (column) => column !== "EDD" && column !== "Names"
-                      );
-                    headers = createColumns(columnNames);
-                    dataForReport = reportData[responseReportName]
-                      .filter((row) => row.PhoneNumber)
-                      .map((row) => {
-                        const formattedDate = extractDate(row.LastVisitDate);
-                        if (
-                          row.PhoneNumber &&
-                          row.PhoneNumber.startsWith("0")
-                        ) {
-                          return {
-                            ...row,
-                            PhoneNumber: "256" + row.PhoneNumber.substring(1),
-                            LastVisitDate: formattedDate,
-                          };
-                        }
-                        return row;
-                      });
-                  } else {
-                    headers = createColumns(columnNames);
-                    dataForReport = reportData[responseReportName];
-                  }
+                  columnNames = columnNames
+                    .reverse()
+                    .filter((column) => column !== "EDD" && column !== "Names");
+
+                  headers = createColumns(columnNames);
+                  dataForReport = reportData[responseReportName]
+                    .filter((row) => row.PhoneNumber)
+                    .map((row) => {
+                      const formattedDate = extractDate(row.LastVisitDate);
+
+                      if (row.PhoneNumber && row.PhoneNumber.startsWith("0")) {
+                        return {
+                          ...row,
+                          PhoneNumber: "256" + row.PhoneNumber.substring(1),
+                          LastVisitDate: formattedDate,
+                        };
+                      }
+
+                      return row;
+                    });
                 } else {
-                  setShowLineList(false);
+                  headers = createColumns(columnNames);
+                  dataForReport = reportData[responseReportName];
                 }
+              } else {
+                setShowLineList(false);
               }
             }
           } else {
@@ -700,6 +840,9 @@ const DataVisualizer: React.FC = () => {
     };
   }, []);
 
+  const selectedReportTypeItem =
+    reportTypes?.find((item) => item.uuid === reportCategory.categoryUuid) ?? null;
+
   return (
     <>
       <ReportingHomeHeader illustrationComponent={<Illustration />} />
@@ -722,7 +865,7 @@ const DataVisualizer: React.FC = () => {
                       </FormLabel>
                       <ContentSwitcher
                         size="sm"
-                        selectedIndex={0}
+                        selectedIndex={reportType === "fixed" ? 0 : 1}
                         onChange={handleReportTypeChange}
                       >
                         <Switch name="fixed" text="Fixed" />
@@ -741,11 +884,9 @@ const DataVisualizer: React.FC = () => {
                             id="ReportTypeCombobox"
                             items={reportTypes}
                             onChange={handleReportCategoryChange}
-                            selectedItem={
-                              reportTypes?.filter(
-                                (item) => item.id === reportCategory.category
-                              )[0]
-                            }
+                            selectedItem={selectedReportTypeItem}
+                            itemToString={(item) => item?.label ?? ""}
+                            placeholder="Select report type"
                           />
                         </FormGroup>
 
@@ -757,9 +898,12 @@ const DataVisualizer: React.FC = () => {
                             <ComboBox
                               aria-label="Select facility report"
                               id="facilityReportsCombobox"
-                              items={facilityReports?.reports ?? []}
+                              items={facilityReports ?? []}
                               onChange={handleSelectedReport}
                               selectedItem={selectedReport}
+                              itemToString={(item) => item?.label ?? ""}
+                              placeholder="Select facility report"
+                              disabled={!hasFixedCategory}
                             />
                           </FormGroup>
                         )}
@@ -772,9 +916,12 @@ const DataVisualizer: React.FC = () => {
                             <ComboBox
                               aria-label="Select national report"
                               id="nationalReportsCombobox"
-                              items={nationalReports.reports}
+                              items={nationalReports ?? []}
                               onChange={handleSelectedReport}
                               selectedItem={selectedReport}
+                              itemToString={(item) => item?.label ?? ""}
+                              placeholder="Select national report"
+                              disabled={!hasFixedCategory}
                             />
                           </FormGroup>
                         )}
@@ -787,9 +934,12 @@ const DataVisualizer: React.FC = () => {
                             <ComboBox
                               aria-label="Select donor report"
                               id="donorReportsCombobox"
-                              items={donorReports.reports}
+                              items={donorReports ?? []}
                               onChange={handleSelectedReport}
                               selectedItem={selectedReport}
+                              itemToString={(item) => item?.label ?? ""}
+                              placeholder="Select donor report"
+                              disabled={!hasFixedCategory}
                             />
                           </FormGroup>
                         )}
@@ -802,9 +952,12 @@ const DataVisualizer: React.FC = () => {
                             <ComboBox
                               aria-label="Select CQI report"
                               id="CQIReportsCombobox"
-                              items={cqiReports.reports}
+                              items={cqiReports ?? []}
                               onChange={handleSelectedReport}
                               selectedItem={selectedReport}
+                              itemToString={(item) => item?.label ?? ""}
+                              placeholder="Select CQI report"
+                              disabled={!hasFixedCategory}
                             />
                           </FormGroup>
                         )}
@@ -817,9 +970,12 @@ const DataVisualizer: React.FC = () => {
                             <ComboBox
                               aria-label="Select Integration Data Exports"
                               id="integrationDataExportCombobox"
-                              items={integrationDataExports.reports}
+                              items={integrationDataExports ?? []}
                               onChange={handleSelectedReport}
                               selectedItem={selectedReport}
+                              itemToString={(item) => item?.label ?? ""}
+                              placeholder="Select integration export"
+                              disabled={!hasFixedCategory}
                             />
                           </FormGroup>
                         )}
@@ -864,27 +1020,35 @@ const DataVisualizer: React.FC = () => {
                             items={dynamicReportOptions}
                             onChange={handleSelectedDynamicReportType}
                             selectedItem={selectedDynamicReportType}
+                            itemToString={(item) => item?.label ?? ""}
+                            placeholder="Select dynamic report type"
                           />
                         </FormGroup>
 
-                        <FormGroup legendText={``}>
-                          <FormLabel className={styles.label}>
-                            {selectedDynamicReportType?.label}
-                          </FormLabel>
+                        {selectedDynamicReportType && (
+                          <FormGroup legendText={``}>
+                            <FormLabel className={styles.label}>
+                              {selectedDynamicReportType?.label ?? "Report"}
+                            </FormLabel>
 
-                          <ComboBox
-                            aria-label="Select report type"
-                            id="reportTypeCombobox"
-                            items={dynamicReportTypes ?? []}
-                            onChange={handleSelectedReportDefinition}
-                            selectedItem={selectedReport}
-                          />
-                        </FormGroup>
+                            <ComboBox
+                              aria-label="Select report type"
+                              id="reportTypeCombobox"
+                              items={dynamicReportTypes ?? []}
+                              onChange={handleSelectedReportDefinition}
+                              selectedItem={selectedReport}
+                              itemToString={(item) => item?.label ?? ""}
+                              placeholder="Select report"
+                              disabled={!hasDynamicCategory}
+                            />
+                          </FormGroup>
+                        )}
                       </Stack>
                     )}
                   </Stack>
                 </Form>
               </div>
+
               <div className={`${styles.form} ${styles.formRight}`}>
                 <Form>
                   <Stack gap={3}>
@@ -911,6 +1075,7 @@ const DataVisualizer: React.FC = () => {
                         />
                       </RadioButtonGroup>
                     </FormGroup>
+
                     {reportingDuration === "fixed" && (
                       <FormGroup legendText={``} className={styles.dateForm}>
                         <DatePicker
@@ -940,6 +1105,7 @@ const DataVisualizer: React.FC = () => {
                         </DatePicker>
                       </FormGroup>
                     )}
+
                     {reportingDuration === "relative" && (
                       <FormGroup legendText={``}>
                         <FormLabel className={styles.label}>
@@ -953,6 +1119,7 @@ const DataVisualizer: React.FC = () => {
                           placeholder="Choose the reporting period"
                           onChange={handleReportingPeriod}
                           selectedItem={reportingPeriod}
+                          itemToString={(item) => item?.label ?? ""}
                         />
                       </FormGroup>
                     )}
@@ -960,6 +1127,7 @@ const DataVisualizer: React.FC = () => {
                 </Form>
               </div>
             </div>
+
             <div>
               <Form>
                 {reportType === "dynamic" && (
@@ -978,6 +1146,7 @@ const DataVisualizer: React.FC = () => {
                         placeholder="Choose the indicators"
                         onChange={handleIndicatorChange}
                         selectedItem={selectedIndicators}
+                        itemToString={(item) => item?.label ?? ""}
                       />
                     </FormGroup>
 
@@ -996,6 +1165,7 @@ const DataVisualizer: React.FC = () => {
                           ))}
                         </ul>
                       </Panel>
+
                       <div className={styles.paramsControlContainer}>
                         <Button
                           iconDescription="Move all parameters to the right"
@@ -1018,17 +1188,17 @@ const DataVisualizer: React.FC = () => {
                           disabled={selectedParameters.length < 1}
                         />
                       </div>
+
                       <Panel heading="Selected parameters">
                         <ul className={styles.list}>
                           {selectedParameters.map((parameter) => (
-                            <>
+                            <React.Fragment key={parameter.label}>
                               <li
                                 className={`${styles.rightListItem} ${
                                   parameter?.showModifierPanel
                                     ? styles.openRightListItem
                                     : ""
                                 } `}
-                                key={parameter.label}
                                 role="menuitem"
                               >
                                 <div className={styles.selectedListItem}>
@@ -1073,6 +1243,7 @@ const DataVisualizer: React.FC = () => {
                                   ) : null}
                                 </div>
                               </li>
+
                               <div
                                 className={`${styles.fadeModifierContainer} ${
                                   parameter?.showModifierPanel
@@ -1086,7 +1257,7 @@ const DataVisualizer: React.FC = () => {
                                   onChangeExtraValue={handleOnChnageExtras}
                                 />
                               </div>
-                            </>
+                            </React.Fragment>
                           ))}
                         </ul>
                       </Panel>
@@ -1103,7 +1274,9 @@ const DataVisualizer: React.FC = () => {
         <div className={styles.contentSwitchContainer}>
           <ContentSwitcher
             size={`md`}
-            selectedIndex={0}
+            selectedIndex={
+              chartType === "pivot" ? 1 : chartType === "aggregate" ? 2 : 0
+            }
             onChange={handleChartTypeChange}
           >
             <Switch name="list" disabled={chartType === "aggregate"}>
@@ -1126,6 +1299,7 @@ const DataVisualizer: React.FC = () => {
             </Switch>
           </ContentSwitcher>
         </div>
+
         <div className={styles.actionButtonContainer}>
           <ButtonSet>
             <Button
@@ -1133,11 +1307,17 @@ const DataVisualizer: React.FC = () => {
               kind="primary"
               onClick={handleUpdateReport}
               className={styles.actionButton}
+              disabled={
+                !selectedReport ||
+                (reportType === "fixed" && !reportCategory.category) ||
+                (reportType === "dynamic" && !selectedDynamicReportType)
+              }
             >
               <Intersect />
               <span>View Report</span>
             </Button>
-            {data.length > 0 || htmlContent != "" ? (
+
+            {data.length > 0 || htmlContent !== "" ? (
               <>
                 {chartType === "pivot" ? (
                   <Button
@@ -1207,7 +1387,10 @@ const DataVisualizer: React.FC = () => {
                   <DataList
                     columns={tableHeaders}
                     data={data}
-                    report={{ type: reportType, name: selectedReport.label }}
+                    report={{
+                      type: reportType,
+                      name: selectedReport?.label ?? "",
+                    }}
                   />
                 )}
               </div>
@@ -1216,19 +1399,17 @@ const DataVisualizer: React.FC = () => {
 
           {chartType === "list" &&
             !loading &&
-            selectedReport.id === "bf79f017-8591-4eaf-88c9-1cde33226517" && (
-              <>
-                <div className={styles.sendReportBtn}>
-                  <Button
-                    size="md"
-                    kind="primary"
-                    className={styles.actionButton}
-                  >
-                    <SendAlt />
-                    <span>Send Report to Family Connect</span>
-                  </Button>
-                </div>
-              </>
+            selectedReport?.id === "bf79f017-8591-4eaf-88c9-1cde33226517" && (
+              <div className={styles.sendReportBtn}>
+                <Button
+                  size="md"
+                  kind="primary"
+                  className={styles.actionButton}
+                >
+                  <SendAlt />
+                  <span>Send Report to Family Connect</span>
+                </Button>
+              </div>
             )}
 
           {chartType === "pivot" && (
