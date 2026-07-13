@@ -32,6 +32,12 @@ jobs:
           corepack enable
           corepack prepare yarn@4.9.2 --activate
 
+      - name: Verify Yarn version
+        run: |
+          echo "Yarn version: $(yarn --version)"
+          echo "Yarn which: $(which yarn)"
+          cat .yarnrc.yml || echo "No .yarnrc.yml found"
+
       - name: 💾 Cache dependencies
         id: cache
         uses: actions/cache@v4
@@ -85,6 +91,12 @@ jobs:
           corepack enable
           corepack prepare yarn@4.9.2 --activate
 
+      - name: Verify Yarn version
+        run: |
+          echo "Yarn version: $(yarn --version)"
+          echo "Yarn which: $(which yarn)"
+          cat .yarnrc.yml || echo "No .yarnrc.yml found"
+
       - name: 💾 Cache dependencies
         id: cache
         uses: actions/cache@v4
@@ -122,8 +134,14 @@ jobs:
 
       - name: 🚢 Publish prerelease
         run: |
+          echo "=== Publishing debug info ==="
+          echo "Package: $(jq -r '.name' package.json)"
+          echo "Version: $(jq -r '.version' package.json)"
+          echo "Yarn version: $(yarn --version)"
           yarn config set npmAuthToken "${NPM_AUTH_TOKEN}"
-          yarn npm publish --access public --tag next
+          yarn npm publish --access public --tag next --verbose 2>&1 | tee publish.log
+          echo "=== Publish log ==="
+          cat publish.log
         env:
           NPM_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}
 
@@ -161,6 +179,12 @@ jobs:
           corepack enable
           corepack prepare yarn@4.9.2 --activate
 
+      - name: Verify Yarn version
+        run: |
+          echo "Yarn version: $(yarn --version)"
+          echo "Yarn which: $(which yarn)"
+          cat .yarnrc.yml || echo "No .yarnrc.yml found"
+
       - name: 💾 Cache dependencies
         id: cache
         uses: actions/cache@v4
@@ -182,8 +206,14 @@ jobs:
 
       - name: 🚢 Publish to NPM
         run: |
+          echo "=== Publishing debug info ==="
+          echo "Package: $(jq -r '.name' package.json)"
+          echo "Version: $(jq -r '.version' package.json)"
+          echo "Yarn version: $(yarn --version)"
           yarn config set npmAuthToken "${NPM_AUTH_TOKEN}"
-          yarn npm publish --access public
+          yarn npm publish --access public --verbose 2>&1 | tee publish.log
+          echo "=== Publish log ==="
+          cat publish.log
         env:
           NPM_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}
 
